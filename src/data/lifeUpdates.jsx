@@ -34,7 +34,7 @@ export const lifeUpdates = [
     time: '22:15:00', // Today's newest update
     media: {
       type: 'iframe',
-      src: 'https://codepen.io/simeydotme/embed/OJaVzzv?default-tab=html%2Cresult',
+      src: 'https://codepen.io/simeydotme/embed/OJaVzzv?default-tab=js%2Cresult',
       width: 600,
       height: 380,
       aspectRatio: '600 / 380',
