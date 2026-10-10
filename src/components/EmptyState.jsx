@@ -9,10 +9,10 @@ export default function EmptyState({ category }) {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '60px 24px 40px',
+        padding: '32px 24px',
         textAlign: 'center',
-        minHeight: '70vh',
         width: '100%',
+        margin: 'auto 0',
       }}
     >
       <div style={{ maxWidth: '480px', margin: '0 auto' }}>

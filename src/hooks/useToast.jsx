@@ -9,9 +9,6 @@ export function ToastProvider({ children }) {
   const activeRef = useRef(false);
 
   const showToast = useCallback((msg, author = '') => {
-    // Only works on phone / mobile screens
-    if (typeof window !== 'undefined' && window.innerWidth > 860) return;
-
     // Toast spamming is not allowed: wait until previous toast is completely gone
     if (activeRef.current) return;
 

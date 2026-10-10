@@ -9,7 +9,7 @@ export default function Crumbs({ trail }) {
     // Only show toast if the text is genuinely truncated (scrollWidth > clientWidth)
     const el = e.currentTarget;
     const isTruncated = el && el.scrollWidth > el.clientWidth;
-    if (isTruncated && typeof window !== 'undefined' && window.innerWidth <= 860 && showToast) {
+    if (isTruncated && showToast) {
       showToast(label);
     }
   };
