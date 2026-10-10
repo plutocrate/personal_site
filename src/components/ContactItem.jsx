@@ -10,41 +10,65 @@ import { vibrate } from '../utils/haptics.js';
  * Shows superscript count like other navigation items.
  */
 export default function ContactItem({ count }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const [hovering, setHovering] = useState(false);
   const ref = useRef(null);
 
+  // Close pinned links if clicked/tapped outside
   useEffect(() => {
     const away = (e) => {
       if (!ref.current?.contains(e.target)) {
-        setIsOpen(false);
+        setPinned(false);
+        setHovering(false);
       }
     };
     document.addEventListener('pointerdown', away);
     return () => document.removeEventListener('pointerdown', away);
   }, []);
 
-  const toggleOpen = () => {
+  const handleClick = (e) => {
+    e.preventDefault();
     vibrate(10);
-    setIsOpen((prev) => !prev);
+    // If already pinned, unpin and fold
+    // If not pinned, pin it so it stays open
+    setPinned((prev) => {
+      if (prev) {
+        // Tapping again folds it
+        setHovering(false);
+        return false;
+      }
+      return true;
+    });
   };
+
+  const open = pinned || hovering;
 
   return (
     <div
       className="contact"
       ref={ref}
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onPointerEnter={(e) => {
+        // Only peek on true mouse devices
+        if (e.pointerType === 'mouse') {
+          setHovering(true);
+        }
+      }}
+      onPointerLeave={(e) => {
+        if (e.pointerType === 'mouse') {
+          setHovering(false);
+        }
+      }}
     >
       <button
         type="button"
-        className={`nav-item${isOpen ? ' is-active' : ''}`}
-        onClick={toggleOpen}
-        aria-expanded={isOpen}
+        className={`nav-item${open ? ' is-active' : ''}`}
+        onClick={handleClick}
+        aria-expanded={open}
       >
         <span>Contact{count != null && <sup className="nav-count">{count}</sup>}</span>
       </button>
       <AnimatePresence initial={false}>
-        {isOpen && (
+        {open && (
           <motion.div
             className="nav-sub"
             initial={{ height: 0, opacity: 0 }}
