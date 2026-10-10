@@ -511,10 +511,12 @@ mark, .hl {
 .life-media {
   aspect-ratio: var(--media-ratio, 16 / 9);
   max-height: 480px;
-  width: 100%;
+  width: min(100%, calc(480px * var(--media-w, 16) / var(--media-h, 9)));
+  justify-self: end;
   border-radius: 12px;
   overflow: hidden;
   background: var(--surface-2);
+  position: relative;
 }
 .marker {
   display: inline-flex;
@@ -847,13 +849,14 @@ mark, .hl {
   margin-bottom: -2px;
 }
 .reel-media {
-  width: min(100%, calc(clamp(260px, 52vh, 520px) * var(--media-w, 16) / var(--media-h, 9)), 720px);
+  width: min(100%, calc(clamp(260px, 52vh, 520px) * var(--media-w, 16) / var(--media-h, 9)), 760px);
   aspect-ratio: var(--media-ratio, 16 / 9);
   max-height: clamp(260px, 52vh, 520px);
   border-radius: 20px;
   overflow: hidden;
   background: var(--surface-2);
   position: relative;
+  flex-shrink: 0;
 }
 
 .reel-text {

@@ -29,6 +29,33 @@ import Arrow from '../components/Arrow.jsx';
 
 export const lifeUpdates = [
   {
+    id: 'holographic-card',
+    date: '2026-10-10',
+    time: '22:15:00', // Today's newest update
+    media: {
+      type: 'iframe',
+      src: 'https://codepen.io/simeydotme/embed/OJaVzzv?default-tab=html%2Cresult',
+      width: 600,
+      height: 380,
+      aspectRatio: '600 / 380',
+      title: 'Transparent Holographic Credit Card',
+    },
+    text: (
+      <>
+        Check out this insane CodePen experiment:{' '}
+        <a
+          href="https://codepen.io/simeydotme/pen/OJaVzzv"
+          target="_blank"
+          rel="noreferrer"
+          className="text-link"
+        >
+          Transparent Holographic Credit Card<Arrow />
+        </a>{' '}
+        by <Highlight color="purple">Simey</Highlight>. The 3D tilting, glass refraction, and holographic foil reflections made purely with CSS and SVG filters are stunning!
+      </>
+    ),
+  },
+  {
     id: 'bhalo-lage',
     date: '2026-10-10',
     time: '21:55:00', // Newer post (appears at top / featured on About)
