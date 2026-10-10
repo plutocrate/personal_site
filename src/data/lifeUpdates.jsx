@@ -32,7 +32,7 @@ export const lifeUpdates = [
   {
     id: 'instagram-reel-meme',
     date: '2026-10-10',
-    time: '22:45:00', // Today's newest update
+    time: '22:50:00', // Today's newest update
     media: {
       type: 'iframe',
       src: 'https://www.instagram.com/reel/DeRrs6SO4bH/embed/',
@@ -46,21 +46,13 @@ export const lifeUpdates = [
         isLong={true}
         text={
           <>
-            Found this hilarious{' '}
-            <a
-              href="https://www.instagram.com/reel/DeRrs6SO4bH/"
-              target="_blank"
-              rel="noreferrer"
-              className="text-link"
-            >
-              Instagram reel<Arrow />
-            </a>{' '}
-            shared by <Highlight color="rose">@memesprcaf</Highlight>. The{' '}
-            <Underline color="blue" variant="default">absurd comedic timing</Underline> and{' '}
-            <Underline color="orange" variant="long">internet meme culture</Underline> never fail to deliver a good laugh during late-night coding sessions
+            Testing everything, now{' '}
+            <Highlight color="yellow">time for reels</Highlight>! Checking the{' '}
+            <Underline color="blue" variant="default">media sizing</Underline>, aspect ratios, and the{' '}
+            <Underline color="rose" variant="designer">more button toast</Underline> notification
           </>
         }
-        fullTextPlain="Found this hilarious Instagram reel shared by @memesprcaf. The absurd comedic timing and internet meme culture never fail to deliver a good laugh during late-night coding sessions. Taking breaks to laugh is just as vital as writing clean architecture!"
+        fullTextPlain="Testing everything, now time for reels! Checking the dynamic media sizing, aspect ratios, responsive scaling, and the more button toast notification. Everything is running smooth!"
       />
     ),
   },

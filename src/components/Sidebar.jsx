@@ -33,6 +33,15 @@ export default function Sidebar({ open, onOpenChange }) {
   };
 
   const w = useMotionValue(getTargetW(open, isMobile));
+
+  useEffect(() => {
+    const unsub = w.on('change', (val) => {
+      if (typeof document !== 'undefined') {
+        document.documentElement.style.setProperty('--sidebar-w', `${Math.round(val)}px`);
+      }
+    });
+    return unsub;
+  }, [w]);
   const base = useRef(0);
   const dragging = useRef(false);
 

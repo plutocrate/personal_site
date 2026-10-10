@@ -156,16 +156,15 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 .quote-text { margin: 0; color: var(--ink); font-size: 13.5px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .quote-author { margin: 6px 0 0; color: var(--ink-3); font-size: 12.5px; margin-top: auto; }
 
-/* ---------- Site Style Top Toast (Mobile only, anti-spam) ---------- */
+/* ---------- Site Style Top Toast (Centered in content area on desktop, screen on mobile) ---------- */
 .site-toast {
   position: fixed;
-  top: calc(16px + env(safe-area-inset-top));
-  left: 16px;
-  right: 16px;
-  margin-inline: auto;
-  max-width: 440px;
+  top: calc(20px + env(safe-area-inset-top));
+  /* On desktop: centers in the right content / main area (sidebar width is ~324px when open, 64px when closed) */
+  left: calc(var(--sidebar-w, 0px) + (100vw - var(--sidebar-w, 0px)) / 2);
+  transform: translateX(-50%);
+  width: min(calc(100vw - 32px), 480px);
   z-index: 9999;
-  background: var(--surface);
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -176,6 +175,14 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
   cursor: pointer;
   overflow: hidden;
   touch-action: pan-x;
+}
+
+@media (max-width: 860px) {
+  .site-toast {
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(calc(100vw - 28px), 440px);
+  }
 }
 
 .site-toast-glow {
