@@ -11,7 +11,7 @@ import Arrow from '../components/Arrow.jsx';
 
    MEDIA TYPES SUPPORTED:
    1. Pinterest / External Embeds:
-      { type: 'iframe', src: 'https://assets.pinterest.com/ext/embed.html?id=882142646054062145' }
+      { type: 'iframe', src: 'https://assets.pinterest.com/ext/embed.html?id=688487861830813898' }
 
    2. YouTube Video:
       { type: 'youtube', id: '<youtube-video-id>' }
@@ -52,10 +52,10 @@ export const lifeUpdates = [
     time: '12:00:00', // Earlier post (appears below the music recommendation)
     media: {
       type: 'iframe',
-      src: 'https://assets.pinterest.com/ext/embed.html?id=882142646054062145',
+      src: 'https://assets.pinterest.com/ext/embed.html?id=688487861830813898',
       width: 600,
-      height: 747,
-      aspectRatio: '600 / 747',
+      height: 700,
+      aspectRatio: '600 / 700',
       title: 'Disco Elysium Art',
     },
     text: (

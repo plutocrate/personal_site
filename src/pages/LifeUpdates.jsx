@@ -35,6 +35,8 @@ export default function LifeUpdates() {
             className="reel-media"
             style={{
               '--media-ratio': item.media?.aspectRatio || (item.media?.width && item.media?.height ? `${item.media.width} / ${item.media.height}` : '16 / 9'),
+              '--media-w': item.media?.width || (item.media?.type === 'youtube' ? 16 : 16),
+              '--media-h': item.media?.height || (item.media?.type === 'youtube' ? 9 : 9),
             }}
           >
             <Media media={item.media} />

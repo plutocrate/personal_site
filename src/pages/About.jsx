@@ -43,6 +43,8 @@ export default function About() {
                 className="life-media"
                 style={{
                   '--media-ratio': latest.media?.aspectRatio || (latest.media?.width && latest.media?.height ? `${latest.media.width} / ${latest.media.height}` : '16 / 9'),
+                  '--media-w': latest.media?.width || (latest.media?.type === 'youtube' ? 16 : 16),
+                  '--media-h': latest.media?.height || (latest.media?.type === 'youtube' ? 9 : 9),
                 }}
               >
                 <Media media={latest.media} />
