@@ -1,14 +1,14 @@
-import { useState } from 'react';
 import { useToast } from '../hooks/useToast.jsx';
 import Arrow from './Arrow.jsx';
+import Underline from './Underline.jsx';
 
 /**
  * TruncatedLifeText
- * Renders text with truncation if the content is long.
- * Clicking "[More]" or tapping on the truncated text fires the site toast notification
- * with the full text, keeping the card compact and pristine while making every word accessible.
+ * Only truncates when text exceeds the threshold.
+ * Displays inline "more... ↗" with an underline and arrow.
+ * Clicking it fires the site toast notification with the full text.
  */
-export default function TruncatedLifeText({ text, fullTextPlain, maxLength = 160 }) {
+export default function TruncatedLifeText({ text, fullTextPlain, isLong = false }) {
   const { showToast } = useToast();
 
   const handleReadMore = (e) => {
@@ -18,21 +18,23 @@ export default function TruncatedLifeText({ text, fullTextPlain, maxLength = 160
     }
   };
 
+  if (!isLong || !fullTextPlain) {
+    return <span className="life-text-content">{text}</span>;
+  }
+
   return (
-    <div className="truncated-life-text">
-      <span className="truncated-text-content">{text}</span>
-      {fullTextPlain && (
-        <button
-          type="button"
-          className="text-toast-more-btn"
-          onClick={handleReadMore}
-          aria-label="Read full text in toast"
-          title="Click to view full update note"
-        >
-          <span>…more</span>
-          <Arrow dir="up-right" size={11} />
-        </button>
-      )}
-    </div>
+    <span className="life-text-content">
+      {text}{' '}
+      <span
+        className="text-link text-toast-more-inline"
+        onClick={handleReadMore}
+        role="button"
+        tabIndex={0}
+        title="View full note"
+      >
+        <Underline color="blue" variant="default">more...</Underline>
+        <Arrow dir="up-right" size={12} />
+      </span>
+    </span>
   );
 }

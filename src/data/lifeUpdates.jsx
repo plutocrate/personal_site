@@ -43,6 +43,7 @@ export const lifeUpdates = [
     },
     text: (
       <TruncatedLifeText
+        isLong={true}
         text={
           <>
             Found this hilarious{' '}
@@ -59,7 +60,7 @@ export const lifeUpdates = [
             <Underline color="orange" variant="long">internet meme culture</Underline> never fail to deliver a good laugh during late-night coding sessions
           </>
         }
-        fullTextPlain='"I came across this hilarious Instagram reel today. The algorithmic meme culture, comedic pacing, and absurd editing never fail to bring some levity to a long coding session. Taking breaks to laugh is just as vital as writing clean architecture!"'
+        fullTextPlain="Found this hilarious Instagram reel shared by @memesprcaf. The absurd comedic timing and internet meme culture never fail to deliver a good laugh during late-night coding sessions. Taking breaks to laugh is just as vital as writing clean architecture!"
       />
     ),
   },

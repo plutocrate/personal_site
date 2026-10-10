@@ -1290,31 +1290,16 @@ mark, .hl {
   }
 }
 
-/* Truncated life text with interactive toast trigger */
-.truncated-life-text {
-  display: inline;
-}
-.text-toast-more-btn {
+/* Inline more... link with arrow and underline for truncated life updates */
+.text-toast-more-inline {
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  margin-left: 6px;
-  padding: 1px 7px;
-  border-radius: 6px;
-  background: var(--surface-2);
-  color: var(--ink);
-  font-size: 13.5px;
-  font-weight: 600;
-  border: 1px solid var(--line);
   cursor: pointer;
-  vertical-align: middle;
-  transition: background 0.15s, color 0.15s, transform 0.12s;
+  white-space: nowrap;
+  vertical-align: baseline;
+  user-select: none;
 }
-.text-toast-more-btn:hover {
-  background: var(--mark);
-  color: var(--mark-ink);
-  transform: translateY(-1px);
-}
-.text-toast-more-btn:active {
-  transform: scale(0.96);
+.text-toast-more-inline:hover {
+  opacity: 0.85;
 }
