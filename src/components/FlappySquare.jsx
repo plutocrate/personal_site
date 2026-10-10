@@ -37,7 +37,7 @@ export const FlappySquare = () => {
       s.state = 'playing';
       s.score = 0;
       s.bird.y = s.h * 0.45;
-      s.bird.vy = -5.8;
+      s.bird.vy = -4.6; // gentle, controlled hop
       s.pipes = [];
       setGameState('playing');
       setScore(0);
@@ -48,7 +48,7 @@ export const FlappySquare = () => {
       s.state = 'playing';
       s.score = 0;
       s.bird.y = s.h * 0.45;
-      s.bird.vy = -5.8;
+      s.bird.vy = -4.6;
       s.pipes = [];
       setGameState('playing');
       setScore(0);
@@ -56,8 +56,8 @@ export const FlappySquare = () => {
       return;
     }
     if (s.state === 'playing') {
-      s.bird.vy = -5.8;
-      vibrate(10); // Light, crisp hop vibration (lesser than start and death)
+      s.bird.vy = -4.6; // lower jump velocity paired with reduced gravity
+      vibrate(10); // Light, crisp hop vibration
     }
   };
 
@@ -86,7 +86,18 @@ export const FlappySquare = () => {
         jump();
       }
     };
+
+    // When the game is actively running, tapping/clicking anywhere allows the player to jump
+    const onGlobalPointerDown = (e) => {
+      // Don't intercept clicks on navigation links or interactive buttons
+      if (e.target.closest('a, button, nav, .sidebar, .mobile-topbar')) return;
+      if (stateRef.current.state === 'playing') {
+        jump();
+      }
+    };
+
     window.addEventListener('keydown', onKey);
+    window.addEventListener('pointerdown', onGlobalPointerDown);
 
     let raf;
     const loop = (now) => {
@@ -109,23 +120,24 @@ export const FlappySquare = () => {
         // Physics step
         if (s.state === 'playing') {
           s.frame++;
-          bird.vy += 0.28 * dt; // gravity
+          bird.vy += 0.20 * dt; // reduced gravity (was 0.28) for much smoother float
           bird.y += bird.vy * dt;
           bird.rot = Math.min(Math.PI / 4, Math.max(-Math.PI / 5, bird.vy * 0.08));
 
-          // Spawn obstacle pipes (rectangles)
-          if (s.frame % 105 === 0 || s.pipes.length === 0) {
-            const gap = Math.max(90, Math.min(130, h * 0.34));
-            const topMax = h - gap - 60;
-            const topHeight = Math.floor(40 + Math.random() * (topMax - 40));
-            // Color slot for obstacle
+          // Spawn obstacle pipes with clean, comfortable gap spacing
+          if (s.frame % 115 === 0 || s.pipes.length === 0) {
+            // Generous, comfortable gap (120px to 145px)
+            const gap = Math.min(145, Math.max(120, h * 0.40));
+            const minHeight = 45;
+            const maxTop = Math.max(minHeight, h - gap - minHeight);
+            const topHeight = Math.floor(minHeight + Math.random() * (maxTop - minHeight));
             const slotNum = ((s.pipes.length % 8) + 1);
             const slotColor = computed.getPropertyValue(`--hl-low-${slotNum}`).trim() || obstacleFill;
             s.pipes.push({
               x: w + 20,
-              w: 42,
+              w: 38,
               top: topHeight,
-              bottom: h - (topHeight + gap),
+              bottom: Math.max(minHeight, h - (topHeight + gap)),
               passed: false,
               color: slotColor,
             });
@@ -133,11 +145,12 @@ export const FlappySquare = () => {
 
           // Move and check pipes
           const birdX = w * 0.28;
-          const halfSize = bird.size / 2;
+          // Shortened hitbox: visual square size is 22px, but collision box is reduced for player fairness
+          const hitRadius = (bird.size / 2) * 0.70; // 30% forgiveness on hitboxes!
 
           for (let i = s.pipes.length - 1; i >= 0; i--) {
             const p = s.pipes[i];
-            p.x -= 2.4 * dt;
+            p.x -= 2.0 * dt; // gentle pipe scroll speed (was 2.4)
 
             // Score point
             if (!p.passed && p.x + p.w < birdX) {
@@ -151,10 +164,12 @@ export const FlappySquare = () => {
               });
             }
 
-            // AABB Collision check
-            const collidesX = birdX + halfSize > p.x && birdX - halfSize < p.x + p.w;
-            const collidesTop = bird.y - halfSize < p.top;
-            const collidesBottom = bird.y + halfSize > h - p.bottom;
+            // Shortened collision check for obstacle pipes (2px inset on obstacle boundaries)
+            const pipeLeft = p.x + 2;
+            const pipeRight = p.x + p.w - 2;
+            const collidesX = birdX + hitRadius > pipeLeft && birdX - hitRadius < pipeRight;
+            const collidesTop = bird.y - hitRadius < p.top;
+            const collidesBottom = bird.y + hitRadius > h - p.bottom;
 
             if (collidesX && (collidesTop || collidesBottom)) {
               s.state = 'gameover';
@@ -168,12 +183,12 @@ export const FlappySquare = () => {
             }
           }
 
-          // Ceiling / ground collision
-          if (bird.y - halfSize < 0) {
-            bird.y = halfSize;
+          // Ceiling / ground collision with forgiving boundaries
+          if (bird.y - hitRadius < 0) {
+            bird.y = hitRadius;
             bird.vy = 0;
           }
-          if (bird.y + halfSize >= h) {
+          if (bird.y + hitRadius >= h) {
             s.state = 'gameover';
             setGameState('gameover');
             vibrate([80, 50, 160]); // Longer, heavy impact vibration on crash
@@ -241,6 +256,7 @@ export const FlappySquare = () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
       window.removeEventListener('keydown', onKey);
+      window.removeEventListener('pointerdown', onGlobalPointerDown);
     };
   }, []);
 
