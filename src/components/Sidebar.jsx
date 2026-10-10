@@ -117,7 +117,13 @@ export default function Sidebar({ open, onOpenChange }) {
               aria-label={open ? 'Collapse sidebar' : 'Expand sidebar'}
               title="Toggle sidebar  ["
             >
-              <motion.span layout className="knob" transition={spring} />
+              <motion.span layout className="knob" transition={spring}>
+                <span className="knob-nav-icon" aria-hidden="true">
+                  <span className="knob-line" />
+                  <span className="knob-line" />
+                  <span className="knob-line" />
+                </span>
+              </motion.span>
             </button>
           </div>
 
