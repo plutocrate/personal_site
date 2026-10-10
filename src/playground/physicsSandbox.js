@@ -435,26 +435,26 @@ export const startPhysicsSandbox = (canvas) => mount(canvas, (s) => {
       }
     }
 
-    // Draw UI Top Bar
+    // Draw UI Top Bar with high contrast for off-white theme
     const buttons = getUiButtons(w);
     for (const btn of buttons) {
       ctx.save();
       if (btn.active) {
-        ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
-        ctx.strokeStyle = '#f59e0b';
-        ctx.lineWidth = 1.5;
+        ctx.fillStyle = 'rgba(245, 158, 11, 0.22)';
+        ctx.strokeStyle = '#d97706';
+        ctx.lineWidth = 1.6;
       } else {
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+        ctx.fillStyle = 'rgba(20, 20, 25, 0.06)';
+        ctx.strokeStyle = 'rgba(20, 20, 25, 0.18)';
         ctx.lineWidth = 1;
       }
       ctx.beginPath();
-      ctx.roundRect(btn.x, btn.y, btn.w, btn.h, 6);
+      ctx.roundRect(btn.x, btn.y, btn.w, btn.h, 7);
       ctx.fill();
       ctx.stroke();
 
-      ctx.fillStyle = btn.active ? '#f59e0b' : 'rgba(255, 255, 255, 0.85)';
-      ctx.font = '500 11px system-ui, sans-serif';
+      ctx.fillStyle = btn.active ? '#b45309' : '#1c1917';
+      ctx.font = '600 11px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(btn.label, btn.x + btn.w / 2, btn.y + btn.h / 2);
@@ -463,7 +463,7 @@ export const startPhysicsSandbox = (canvas) => mount(canvas, (s) => {
 
     // Hint text
     ctx.save();
-    ctx.fillStyle = 'rgba(140, 140, 150, 0.6)';
+    ctx.fillStyle = 'rgba(30, 30, 35, 0.55)';
     ctx.font = '11px system-ui, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('Tap to spawn · Drag & pull to slingshot with acceleration', w / 2, h - 6);
