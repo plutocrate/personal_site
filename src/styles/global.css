@@ -1000,7 +1000,7 @@ mark, .hl {
     top: 0;
     left: 0;
     right: 0;
-    height: calc(48px + env(safe-area-inset-top));
+    height: calc(54px + env(safe-area-inset-top));
     padding-top: env(safe-area-inset-top);
     background: var(--topbar-bg, rgba(244, 243, 239, 0.92));
     -webkit-backdrop-filter: blur(16px);
@@ -1010,13 +1010,42 @@ mark, .hl {
   }
 
   .mobile-topbar-inner {
-    height: 48px;
-    padding: 0 14px;
+    height: 54px;
+    padding: 0 16px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 14px;
     box-sizing: border-box;
+  }
+
+  /* Enhanced mobile slider button: wider, taller, and easier to tap */
+  .mobile-topbar-inner .pill {
+    width: 58px;
+    height: 28px;
+    padding: 3px;
+    border-radius: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+
+  .mobile-topbar-inner .knob {
+    width: 27px;
+    height: 20px;
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .mobile-topbar-inner .knob-nav-icon {
+    width: 13px;
+    gap: 2.2px;
+  }
+
+  .mobile-topbar-inner .knob-line {
+    width: 12px;
+    height: 1.5px;
+    border-radius: 1px;
+    opacity: 0.9;
   }
 
   .mobile-topbar-nav {
@@ -1027,7 +1056,7 @@ mark, .hl {
   }
 
   .mobile-topbar-nav .crumbs {
-    font-size: 13.5px;
+    font-size: 14px;
     display: flex;
     align-items: center;
     overflow: hidden;
@@ -1107,7 +1136,7 @@ mark, .hl {
   .main {
     width: 100vw;
     height: 100dvh;
-    padding-top: calc(48px + env(safe-area-inset-top));
+    padding-top: calc(54px + env(safe-area-inset-top));
   }
 
   .page {
@@ -1148,7 +1177,7 @@ mark, .hl {
 
   .topic-widget-sheet {
     position: fixed;
-    top: calc(48px + env(safe-area-inset-top) + 6px);
+    top: calc(54px + env(safe-area-inset-top) + 6px);
     right: 12px;
     left: 12px;
     width: auto;
