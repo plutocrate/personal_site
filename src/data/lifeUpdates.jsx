@@ -1,36 +1,68 @@
 import Highlight from '../components/Highlight.jsx';
 import Underline from '../components/Underline.jsx';
+import Arrow from '../components/Arrow.jsx';
 
 /* ==========================================================================
    LIFE UPDATES CMS / DATA STORE
    --------------------------------------------------------------------------
    Add, update, or remove life updates in this file.
-   The site automatically sorts items so the newest date always appears first.
+   The site automatically sorts items by timestamp (date + time) so the newest
+   post always appears first.
 
    MEDIA TYPES SUPPORTED:
-   1. YouTube Video:
+   1. Pinterest / External Embeds:
+      { type: 'iframe', src: 'https://assets.pinterest.com/ext/embed.html?id=882142646054062145' }
+
+   2. YouTube Video:
       { type: 'youtube', id: '<youtube-video-id>' }
       Example: For https://www.youtube.com/watch?v=-oq0Kr40f2M, the id is '-oq0Kr40f2M'
 
-   2. Local or Remote Image:
+   3. Local or Remote Image:
       { type: 'image', src: '/life/aug-07-2024.jpg' }
       Place image files inside the `/public/life/` folder.
 
    FORMATTING IN TEXT:
-   You can use both plain text AND rich formatted JSX components:
+   - <a href="..." target="_blank" rel="noreferrer" className="text-link">Name<Arrow /></a>
    - <Highlight color="yellow|green|blue|orange|rose|purple">text</Highlight>
    - <Underline color="blue|green|orange|rose|purple|teal" variant="default|developer|designer|linux|long">text</Underline>
    ========================================================================== */
 
 export const lifeUpdates = [
   {
+    id: 'disco-elysium',
+    date: '2026-10-10',
+    time: '21:55:00', // Internal hardcoded time of day for precise chronological sorting
+    media: {
+      type: 'iframe',
+      src: 'https://assets.pinterest.com/ext/embed.html?id=882142646054062145',
+      title: 'Disco Elysium Art',
+    },
+    text: (
+      <>
+        I would like to recommend you a game today. It’s{' '}
+        <a
+          href="https://store.steampowered.com/app/632470/Disco_Elysium__The_Final_Cut/"
+          target="_blank"
+          rel="noreferrer"
+          className="text-link"
+        >
+          Disco Elysium<Arrow />
+        </a>
+        , an RPG where you play as a detective who has absolutely no business being a detective. It’s{' '}
+        <Highlight color="yellow">fucking hilarious</Highlight>, weird,{' '}
+        <Highlight color="rose">depressing</Highlight>, and surprisingly{' '}
+        <Underline color="blue" variant="default">philosophical</Underline>. I love this game.
+      </>
+    ),
+  },
+  {
     id: 'bhalo-lage',
-    date: '2026-10-10', // YYYY-MM-DD format (today)
+    date: '2026-10-10',
+    time: '12:00:00',
     media: {
       type: 'youtube',
       id: '-oq0Kr40f2M',
     },
-    // Formatted with lighter pastel highlights and organic contrasting underlines
     text: (
       <>
         I would like to recommend you a song today. It’s{' '}
@@ -47,10 +79,11 @@ export const lifeUpdates = [
      --------------------------------------------------------------------------
      {
        id: 'my-new-update-slug',
-       date: '2024-09-15',
+       date: '2026-10-10',
+       time: '14:30:00',
        media: {
-         type: 'image', // or 'youtube'
-         src: '/life/your-photo.jpg', // or id: 'videoId'
+         type: 'iframe', // 'iframe' | 'youtube' | 'image'
+         src: 'https://...', // for iframe or image
        },
        text: (
          <>
@@ -60,10 +93,14 @@ export const lifeUpdates = [
        ),
      },
      ========================================================================== */
-].sort((a, b) => new Date(b.date) - new Date(a.date));
+].sort((a, b) => {
+  const timeA = a.time || '00:00:00';
+  const timeB = b.time || '00:00:00';
+  return new Date(`${b.date}T${timeB}`) - new Date(`${a.date}T${timeA}`);
+});
 
 /**
- * Helper to format ISO dates into clean readable strings (e.g., 'Aug 07, 2024')
+ * Helper to format ISO dates into clean readable strings (e.g., 'Oct 10, 2026')
  */
 export const formatDate = (iso) =>
   new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {

@@ -304,6 +304,35 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
   transform: translate(2px, -2px);
 }
 
+/* Anchored content text link with permanent underline and arrow */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink);
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1.5px;
+  text-decoration-color: var(--ink);
+  transition: opacity 0.15s ease, color 0.15s ease;
+  vertical-align: baseline;
+}
+
+.text-link:hover {
+  opacity: 0.75;
+}
+
+.text-link svg {
+  flex-shrink: 0;
+  transition: transform 0.18s ease;
+  transform: translate(1px, -1px);
+}
+
+.text-link:hover svg {
+  transform: translate(2.5px, -2.5px);
+}
+
 /* ---------- Highlights & Markers (Algorithmic, Contrast-Aware) ---------- */
 mark, .hl {
   display: inline;
