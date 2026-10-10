@@ -49,7 +49,7 @@ export default function MobileTopBar({ open, onOpenChange }) {
   if (pathname.startsWith('/life')) {
     const parts = pathname.split('/').filter(Boolean);
     const id = parts[1];
-    const index = Math.max(0, lifeUpdates.findIndex((x) => x.id === id));
+    const index = Math.max(0, lifeUpdates.findIndex((x) => x?.id === id));
     trail = [{ label: 'Life updates' }];
     reelInfo = {
       index,
@@ -60,8 +60,8 @@ export default function MobileTopBar({ open, onOpenChange }) {
     const parts = pathname.split('/').filter(Boolean);
     const isRead = parts[2] === 'read';
     const id = parts[1];
-    const item = sims.find((x) => x.id === id) || sims[0];
-    const index = Math.max(0, sims.findIndex((x) => x.id === item?.id));
+    const item = sims.find((x) => x?.id === id) || sims[0];
+    const index = Math.max(0, sims.findIndex((x) => x?.id === item?.id));
 
     if (isRead) {
       trail = [
@@ -84,8 +84,8 @@ export default function MobileTopBar({ open, onOpenChange }) {
     const parts = pathname.split('/').filter(Boolean);
     const isRead = parts[2] === 'read';
     const id = parts[1];
-    const item = caseStudies.find((x) => x.id === id) || caseStudies[0];
-    const index = Math.max(0, caseStudies.findIndex((x) => x.id === item?.id));
+    const item = caseStudies.find((x) => x?.id === id) || caseStudies[0];
+    const index = Math.max(0, caseStudies.findIndex((x) => x?.id === item?.id));
 
     if (isRead) {
       trail = [
@@ -108,8 +108,8 @@ export default function MobileTopBar({ open, onOpenChange }) {
     const parts = pathname.split('/').filter(Boolean);
     const isRead = parts[2] === 'read';
     const id = parts[1];
-    const item = journal.find((x) => x.id === id) || journal[0];
-    const index = Math.max(0, journal.findIndex((x) => x.id === item?.id));
+    const item = journal.find((x) => x?.id === id) || journal[0];
+    const index = Math.max(0, journal.findIndex((x) => x?.id === item?.id));
 
     if (isRead) {
       trail = [

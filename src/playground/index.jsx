@@ -864,7 +864,7 @@ export const startDoublePendulum = (canvas) => mount(canvas, (s) => {
       },
     ],
     stack: ['JavaScript', 'Lagrangian Dynamics', 'Canvas 2D'],
-  },,
+  },
   {
     id: "wasm-raylib-physics",
     title: "WebAssembly Physics Engine",
