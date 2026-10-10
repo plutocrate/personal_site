@@ -252,29 +252,33 @@ mark, .hl {
   transition: background 0.4s ease, color 0.4s ease;
 }
 
-/* Lower contrast palette (default across site) */
+/* Lower contrast palette (default across site, including life update card) */
 .hl-1, .hl-yellow { --hl-bg: var(--hl-low-1); }
 .hl-2, .hl-green  { --hl-bg: var(--hl-low-2); }
 .hl-3, .hl-teal   { --hl-bg: var(--hl-low-3); }
-.hl-4, .hl-blue   { --hl-bg: var(--hl-low-4); }
-.hl-5, .hl-purple { --hl-bg: var(--hl-low-5); }
-.hl-6, .hl-orange, .hl-rose { --hl-bg: var(--hl-low-6); }
+.hl-4, .hl-cyan   { --hl-bg: var(--hl-low-4); }
+.hl-5, .hl-blue   { --hl-bg: var(--hl-low-5); }
+.hl-6, .hl-purple { --hl-bg: var(--hl-low-6); }
+.hl-7, .hl-rose   { --hl-bg: var(--hl-low-7); }
+.hl-8, .hl-orange { --hl-bg: var(--hl-low-8); }
 .hl-default       { --hl-bg: var(--hl-low-1); }
 
-/* High contrast overrides on the About page */
-.about mark,
-.about .hl {
+/* High contrast overrides strictly on the bio text */
+.bio mark,
+.bio .hl {
   font-weight: 500;
   padding: 0.05em 0.32em;
   border-radius: 0.32em;
 }
-.about .hl-1, .about .hl-yellow { background: var(--hl-high-1); color: var(--hl-ink-high-1); }
-.about .hl-2, .about .hl-green  { background: var(--hl-high-2); color: var(--hl-ink-high-2); }
-.about .hl-3, .about .hl-teal   { background: var(--hl-high-3); color: var(--hl-ink-high-3); }
-.about .hl-4, .about .hl-blue   { background: var(--hl-high-4); color: var(--hl-ink-high-4); }
-.about .hl-5, .about .hl-purple { background: var(--hl-high-5); color: var(--hl-ink-high-5); }
-.about .hl-6, .about .hl-orange, .about .hl-rose { background: var(--hl-high-6); color: var(--hl-ink-high-6); }
-.about .hl-default { background: var(--hl-high-1); color: var(--hl-ink-high-1); }
+.bio .hl-1, .bio .hl-yellow { background: var(--hl-high-1); color: var(--hl-ink-high-1); }
+.bio .hl-2, .bio .hl-green  { background: var(--hl-high-2); color: var(--hl-ink-high-2); }
+.bio .hl-3, .bio .hl-teal   { background: var(--hl-high-3); color: var(--hl-ink-high-3); }
+.bio .hl-4, .bio .hl-cyan   { background: var(--hl-high-4); color: var(--hl-ink-high-4); }
+.bio .hl-5, .bio .hl-blue   { background: var(--hl-high-5); color: var(--hl-ink-high-5); }
+.bio .hl-6, .bio .hl-purple { background: var(--hl-high-6); color: var(--hl-ink-high-6); }
+.bio .hl-7, .bio .hl-rose   { background: var(--hl-high-7); color: var(--hl-ink-high-7); }
+.bio .hl-8, .bio .hl-orange { background: var(--hl-high-8); color: var(--hl-ink-high-8); }
+.bio .hl-default { background: var(--hl-high-1); color: var(--hl-ink-high-1); }
 
 /* ---------- Underlines / Squiggles (Algorithmic, Contrast-Aware) ---------- */
 .hand-drawn-wrap {
@@ -291,32 +295,36 @@ mark, .hl {
   height: 9px;
   pointer-events: none;
   overflow: visible;
-  color: var(--un-col, var(--un-low-4));
+  color: var(--un-col, var(--un-low-5));
   opacity: 0.45;
   transition: color 0.4s ease, opacity 0.4s ease;
 }
 
-/* Lower contrast palette (default across site) */
+/* Lower contrast palette (default across site, including life update card) */
 .un-1, .un-yellow { --un-col: var(--un-low-1); }
 .un-2, .un-green  { --un-col: var(--un-low-2); }
 .un-3, .un-teal   { --un-col: var(--un-low-3); }
-.un-4, .un-blue   { --un-col: var(--un-low-4); }
-.un-5, .un-purple { --un-col: var(--un-low-5); }
-.un-6, .un-orange, .un-rose { --un-col: var(--un-low-6); }
-.un-default       { --un-col: var(--un-low-4); }
+.un-4, .un-cyan   { --un-col: var(--un-low-4); }
+.un-5, .un-blue   { --un-col: var(--un-low-5); }
+.un-6, .un-purple { --un-col: var(--un-low-6); }
+.un-7, .un-rose   { --un-col: var(--un-low-7); }
+.un-8, .un-orange { --un-col: var(--un-low-8); }
+.un-default       { --un-col: var(--un-low-5); }
 
-/* High contrast overrides on the About page */
-.about .hand-drawn-squiggle {
+/* High contrast overrides strictly on the bio text */
+.bio .hand-drawn-squiggle {
   opacity: 0.95;
   height: 10px;
 }
-.about .un-1, .about .un-yellow { color: var(--un-high-1); }
-.about .un-2, .about .un-green  { color: var(--un-high-2); }
-.about .un-3, .about .un-teal   { color: var(--un-high-3); }
-.about .un-4, .about .un-blue   { color: var(--un-high-4); }
-.about .un-5, .about .un-purple { color: var(--un-high-5); }
-.about .un-6, .about .un-orange, .about .un-rose { color: var(--un-high-6); }
-.about .un-default { color: var(--un-high-4); }
+.bio .un-1, .bio .un-yellow { color: var(--un-high-1); }
+.bio .un-2, .bio .un-green  { color: var(--un-high-2); }
+.bio .un-3, .bio .un-teal   { color: var(--un-high-3); }
+.bio .un-4, .bio .un-cyan   { color: var(--un-high-4); }
+.bio .un-5, .bio .un-blue   { color: var(--un-high-5); }
+.bio .un-6, .bio .un-purple { color: var(--un-high-6); }
+.bio .un-7, .bio .un-rose   { color: var(--un-high-7); }
+.bio .un-8, .bio .un-orange { color: var(--un-high-8); }
+.bio .un-default { color: var(--un-high-5); }
 
 /* ---------- Ambient Mild Downward Color Rays (Apple / Vercel / Gemini Style) ---------- */
 .journal-hero {

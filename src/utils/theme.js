@@ -2,8 +2,8 @@
  * Dynamic subtle off-white canvas generator.
  * Algorithmically samples hues across the 360° color wheel
  * to generate ultra-subtle whites / off-whites with gentle tints.
- * Also dynamically computes harmonic highlight and underline colors
- * with high contrast for About and low contrast elsewhere.
+ * Also dynamically computes 8 harmonized highlight and underline colors
+ * with high contrast for the bio and lower contrast elsewhere.
  * No hardcoded color array — completely procedural math.
  */
 
@@ -33,30 +33,32 @@ export function getRandomSubtleTheme() {
   const ink2 = `hsl(${currentHue}, 10%, 33%)`;
   const ink3 = `hsl(${currentHue}, 8%, 54%)`;
 
-  // 6 dynamic harmonic hues distributed around the color wheel relative to currentHue
-  const accentOffsets = [38, 96, 168, 215, 278, 332];
+  // 8 distinct harmonic color slots evenly distributed around the color wheel
+  // Shuffled with a random rotation angle on every theme cycle / logo tap
+  const hueShift = Math.floor(Math.random() * 360);
+  const numSlots = 8;
   const highlights = {};
   const underlines = {};
 
-  accentOffsets.forEach((offset, idx) => {
-    const slot = idx + 1;
-    const h = Math.round((currentHue + offset) % 360);
+  for (let slot = 1; slot <= numSlots; slot++) {
+    const baseAngle = ((slot - 1) * (360 / numSlots) + hueShift) % 360;
+    const h = Math.round((baseAngle + (Math.random() - 0.5) * 16 + 360) % 360);
 
-    // High contrast (for About page):
-    // Rich pastel marker background with deep harmonious text
-    highlights[`--hl-high-${slot}`] = `hsla(${h}, 84%, 78%, 0.92)`;
-    highlights[`--hl-ink-high-${slot}`] = `hsl(${h}, 85%, 13%)`;
+    // High contrast (for About bio):
+    // Rich pastel marker background with deep matching high-contrast ink
+    highlights[`--hl-high-${slot}`] = `hsla(${h}, 86%, 77%, 0.94)`;
+    highlights[`--hl-ink-high-${slot}`] = `hsl(${h}, 88%, 12%)`;
 
-    // High contrast underline (for About page):
-    underlines[`--un-high-${slot}`] = `hsl(${h}, 88%, 42%)`;
+    // High contrast underline (for About bio):
+    underlines[`--un-high-${slot}`] = `hsl(${h}, 88%, 40%)`;
 
-    // Lower contrast (for elsewhere):
-    // Soft, delicate wash that doesn't overpower paragraph text
-    highlights[`--hl-low-${slot}`] = `hsla(${h}, 62%, 87%, 0.48)`;
+    // Lower contrast (for elsewhere, including life updates, case studies, etc.):
+    // Soft, gentle wash that doesn't overpower reading
+    highlights[`--hl-low-${slot}`] = `hsla(${h}, 60%, 86%, 0.46)`;
 
     // Low contrast underline (for elsewhere):
-    underlines[`--un-low-${slot}`] = `hsla(${h}, 68%, 50%, 0.45)`;
-  });
+    underlines[`--un-low-${slot}`] = `hsla(${h}, 66%, 50%, 0.42)`;
+  }
 
   return {
     hue: currentHue,

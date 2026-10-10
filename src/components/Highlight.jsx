@@ -2,24 +2,26 @@
  * Highlight Component
  * 
  * Renders text with an algorithmic pastel highlighter marker effect.
- * Colors are chosen procedurally based on the current canvas theme.
- * Contrast is high on the About page and gentle/lower elsewhere.
+ * Colors are chosen procedurally across 8 distinct color slots.
+ * Contrast is high in the About bio and gentle/lower elsewhere.
  */
 
 const COLOR_TO_SLOT = {
   yellow: 1,
   gold: 1,
   green: 2,
-  mint: 2,
+  lime: 2,
   teal: 3,
-  cyan: 3,
-  blue: 4,
-  purple: 5,
-  violet: 5,
-  rose: 6,
-  pink: 6,
-  orange: 6,
-  peach: 6,
+  mint: 3,
+  cyan: 4,
+  blue: 5,
+  purple: 6,
+  violet: 6,
+  rose: 7,
+  pink: 7,
+  orange: 8,
+  amber: 8,
+  peach: 8,
 };
 
 function hashString(str) {
@@ -35,8 +37,8 @@ function hashString(str) {
 
 export default function Highlight({ children, color, className = '' }) {
   let slot = color ? (COLOR_TO_SLOT[color] || parseInt(color, 10) || null) : null;
-  if (!slot || slot < 1 || slot > 6) {
-    slot = (hashString(children) % 6) + 1;
+  if (!slot || slot < 1 || slot > 8) {
+    slot = (hashString(children) % 8) + 1;
   }
 
   return (
