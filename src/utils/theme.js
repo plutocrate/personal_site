@@ -14,24 +14,26 @@ export function getRandomSubtleTheme() {
   const jump = 60 + Math.random() * 240;
   currentHue = Math.round((currentHue + jump) % 360);
 
-  // Noticeable yet soft and easy-on-the-eyes saturation (28% - 38%)
-  const sat = 28 + Math.random() * 10;
-  // Comfortable lightness (93.5% - 95.2%) ensuring tint is clearly perceived across all screen brightnesses
-  const light = 93.5 + Math.random() * 1.7;
+  // Subtle, soft saturation (22% - 30%) - reduced slightly so it is easy on the eyes while surely visible
+  const sat = 22 + Math.random() * 8;
+  // Comfortable lightness (94.6% - 96.0%)
+  const light = 94.6 + Math.random() * 1.4;
 
-  const sidebarLight = Math.min(97.2, light + 1.8);
-  const sidebarSat = Math.max(16, sat - 10);
+  // Secondary harmonic hue for dynamic subtle gradient (shifted 30° to 75°)
+  const hue2 = Math.round((currentHue + 35 + Math.random() * 40) % 360);
+  const sat2 = sat * 0.92;
+  const light2 = Math.min(96.8, light + 0.8);
 
-  const bg = `hsl(${currentHue}, ${sat.toFixed(1)}%, ${light.toFixed(1)}%)`;
-  const sidebar = `hsl(${currentHue}, ${sidebarSat.toFixed(1)}%, ${sidebarLight.toFixed(1)}%)`;
+  const bg = `linear-gradient(${Math.round(115 + Math.random() * 50)}deg, hsl(${currentHue}, ${sat.toFixed(1)}%, ${light.toFixed(1)}%) 0%, hsl(${hue2}, ${sat2.toFixed(1)}%, ${light2.toFixed(1)}%) 100%)`;
+  const sidebar = `hsl(${currentHue}, ${Math.max(12, sat - 9).toFixed(1)}%, ${Math.min(97.8, light + 1.6).toFixed(1)}%)`;
   const topbarBg = `hsla(${currentHue}, ${sat.toFixed(1)}%, ${light.toFixed(1)}%, 0.88)`;
   const surface = `rgba(255, 255, 255, 0.45)`;
-  const surface2 = `hsla(${currentHue}, 28%, 20%, 0.07)`;
-  const line = `hsla(${currentHue}, 20%, 20%, 0.11)`;
-  const knob = `hsla(${currentHue}, 20%, 20%, 0.16)`;
-  const ink = `hsl(${currentHue}, 20%, 11%)`;
-  const ink2 = `hsl(${currentHue}, 14%, 32%)`;
-  const ink3 = `hsl(${currentHue}, 10%, 52%)`;
+  const surface2 = `hsla(${currentHue}, 22%, 20%, 0.065)`;
+  const line = `hsla(${currentHue}, 18%, 20%, 0.10)`;
+  const knob = `hsla(${currentHue}, 18%, 20%, 0.15)`;
+  const ink = `hsl(${currentHue}, 18%, 11%)`;
+  const ink2 = `hsl(${currentHue}, 12%, 32%)`;
+  const ink3 = `hsl(${currentHue}, 9%, 52%)`;
 
   // 8 distinct harmonic color slots evenly distributed around the color wheel
   // Shuffled with a random rotation angle on every theme cycle / logo tap

@@ -271,22 +271,26 @@ mark, .hl {
 .hl-8, .hl-orange { --hl-bg: var(--hl-low-8); --hl-ink: var(--hl-ink-low-8); }
 .hl-default       { --hl-bg: var(--hl-low-1); --hl-ink: var(--hl-ink-low-1); }
 
-/* High contrast overrides strictly on the bio text */
+/* High contrast overrides on the bio text, life updates card, and life updates reel */
 .bio mark,
-.bio .hl {
+.bio .hl,
+.life mark,
+.life .hl,
+.reel mark,
+.reel .hl {
   font-weight: 500;
   padding: 0.05em 0.32em;
   border-radius: 0.32em;
 }
-.bio .hl-1, .bio .hl-yellow { background: var(--hl-high-1); color: var(--hl-ink-high-1); }
-.bio .hl-2, .bio .hl-green  { background: var(--hl-high-2); color: var(--hl-ink-high-2); }
-.bio .hl-3, .bio .hl-teal   { background: var(--hl-high-3); color: var(--hl-ink-high-3); }
-.bio .hl-4, .bio .hl-cyan   { background: var(--hl-high-4); color: var(--hl-ink-high-4); }
-.bio .hl-5, .bio .hl-blue   { background: var(--hl-high-5); color: var(--hl-ink-high-5); }
-.bio .hl-6, .bio .hl-purple { background: var(--hl-high-6); color: var(--hl-ink-high-6); }
-.bio .hl-7, .bio .hl-rose   { background: var(--hl-high-7); color: var(--hl-ink-high-7); }
-.bio .hl-8, .bio .hl-orange { background: var(--hl-high-8); color: var(--hl-ink-high-8); }
-.bio .hl-default { background: var(--hl-high-1); color: var(--hl-ink-high-1); }
+.bio .hl-1, .bio .hl-yellow, .life .hl-1, .life .hl-yellow, .reel .hl-1, .reel .hl-yellow { background: var(--hl-high-1); color: var(--hl-ink-high-1); }
+.bio .hl-2, .bio .hl-green,  .life .hl-2, .life .hl-green,  .reel .hl-2, .reel .hl-green  { background: var(--hl-high-2); color: var(--hl-ink-high-2); }
+.bio .hl-3, .bio .hl-teal,   .life .hl-3, .life .hl-teal,   .reel .hl-3, .reel .hl-teal   { background: var(--hl-high-3); color: var(--hl-ink-high-3); }
+.bio .hl-4, .bio .hl-cyan,   .life .hl-4, .life .hl-cyan,   .reel .hl-4, .reel .hl-cyan   { background: var(--hl-high-4); color: var(--hl-ink-high-4); }
+.bio .hl-5, .bio .hl-blue,   .life .hl-5, .life .hl-blue,   .reel .hl-5, .reel .hl-blue   { background: var(--hl-high-5); color: var(--hl-ink-high-5); }
+.bio .hl-6, .bio .hl-purple, .life .hl-6, .life .hl-purple, .reel .hl-6, .reel .hl-purple { background: var(--hl-high-6); color: var(--hl-ink-high-6); }
+.bio .hl-7, .bio .hl-rose,   .life .hl-7, .life .hl-rose,   .reel .hl-7, .reel .hl-rose   { background: var(--hl-high-7); color: var(--hl-ink-high-7); }
+.bio .hl-8, .bio .hl-orange, .life .hl-8, .life .hl-orange, .reel .hl-8, .reel .hl-orange { background: var(--hl-high-8); color: var(--hl-ink-high-8); }
+.bio .hl-default, .life .hl-default, .reel .hl-default { background: var(--hl-high-1); color: var(--hl-ink-high-1); }
 
 /* ---------- Underlines / Squiggles (Algorithmic, Contrast-Aware) ---------- */
 .hand-drawn-wrap {
@@ -319,20 +323,22 @@ mark, .hl {
 .un-8, .un-orange { --un-col: var(--un-low-8); }
 .un-default       { --un-col: var(--un-low-5); }
 
-/* High contrast overrides strictly on the bio text */
-.bio .hand-drawn-squiggle {
+/* High contrast overrides on the bio text, life updates card, and life updates reel */
+.bio .hand-drawn-squiggle,
+.life .hand-drawn-squiggle,
+.reel .hand-drawn-squiggle {
   opacity: 0.95;
   height: 10px;
 }
-.bio .un-1, .bio .un-yellow { color: var(--un-high-1); }
-.bio .un-2, .bio .un-green  { color: var(--un-high-2); }
-.bio .un-3, .bio .un-teal   { color: var(--un-high-3); }
-.bio .un-4, .bio .un-cyan   { color: var(--un-high-4); }
-.bio .un-5, .bio .un-blue   { color: var(--un-high-5); }
-.bio .un-6, .bio .un-purple { color: var(--un-high-6); }
-.bio .un-7, .bio .un-rose   { color: var(--un-high-7); }
-.bio .un-8, .bio .un-orange { color: var(--un-high-8); }
-.bio .un-default { color: var(--un-high-5); }
+.bio .un-1, .bio .un-yellow, .life .un-1, .life .un-yellow, .reel .un-1, .reel .un-yellow { color: var(--un-high-1); }
+.bio .un-2, .bio .un-green,  .life .un-2, .life .un-green,  .reel .un-2, .reel .un-green  { color: var(--un-high-2); }
+.bio .un-3, .bio .un-teal,   .life .un-3, .life .un-teal,   .reel .un-3, .reel .un-teal   { color: var(--un-high-3); }
+.bio .un-4, .bio .un-cyan,   .life .un-4, .life .un-cyan,   .reel .un-4, .reel .un-cyan   { color: var(--un-high-4); }
+.bio .un-5, .bio .un-blue,   .life .un-5, .life .un-blue,   .reel .un-5, .reel .un-blue   { color: var(--un-high-5); }
+.bio .un-6, .bio .un-purple, .life .un-6, .life .un-purple, .reel .un-6, .reel .un-purple { color: var(--un-high-6); }
+.bio .un-7, .bio .un-rose,   .life .un-7, .life .un-rose,   .reel .un-7, .reel .un-rose   { color: var(--un-high-7); }
+.bio .un-8, .bio .un-orange, .life .un-8, .life .un-orange, .reel .un-8, .reel .un-orange { color: var(--un-high-8); }
+.bio .un-default, .life .un-default, .reel .un-default { color: var(--un-high-5); }
 
 /* ---------- Ambient Mild Downward Color Rays (Apple / Vercel / Gemini Style) ---------- */
 .journal-hero {
