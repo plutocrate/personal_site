@@ -25,7 +25,7 @@ import Underline from '../components/Underline.jsx';
 export const lifeUpdates = [
   {
     id: 'bhalo-lage',
-    date: '2024-08-07', // YYYY-MM-DD format
+    date: '2026-10-10', // YYYY-MM-DD format (today)
     media: {
       type: 'youtube',
       id: '-oq0Kr40f2M',
