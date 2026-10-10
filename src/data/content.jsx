@@ -255,7 +255,7 @@ export const journal = [
  * Displayed in the sidebar contact drawer.
  */
 export const contacts = [
-  { label: 'LinkedIn', href: 'https://www.linkedin.com/in/your-handle' },
-  { label: 'GitHub', href: 'https://github.com/your-handle' },
-  { label: 'Mail', href: 'mailto:you@example.com' },
+  { label: 'LinkedIn', href: 'https://linkedin.com/in/prathammpurohit' },
+  { label: 'GitHub', href: 'https://github.com/plutocrate' },
+  { label: 'Mail', href: 'mailto:prathampurohitonline@outlook.com' },
 ];

@@ -61,10 +61,11 @@ export function getRandomSubtleTheme() {
     underlines[`--un-low-${slot}`] = `hsla(${h}, 80%, 44%, 0.72)`;
   }
 
-  // Dynamic vibrant marker colors for the "See all life updates" button / catchy links
-  const markerHue = (currentHue + 45 + Math.floor(Math.random() * 60)) % 360;
-  const mark = `hsl(${markerHue}, 94%, 56%)`;
-  const markInk = `hsl(${markerHue}, 96%, 10%)`;
+  // Harmonic marker colors for the "See all life updates" button / catchy links
+  // Matches the canvas theme harmoniously while having distinct, elegant button contrast
+  const mark = `hsla(${currentHue}, 28%, 88%, 0.95)`;
+  const markInk = `hsl(${currentHue}, 22%, 14%)`;
+  const markBorder = `hsla(${currentHue}, 20%, 20%, 0.14)`;
 
   return {
     hue: currentHue,
@@ -80,6 +81,7 @@ export function getRandomSubtleTheme() {
     ink3,
     mark,
     markInk,
+    markBorder,
     highlights,
     underlines,
   };
@@ -100,6 +102,7 @@ export function applyTheme(theme) {
   root.style.setProperty('--ink-3', theme.ink3);
   if (theme.mark) root.style.setProperty('--mark', theme.mark);
   if (theme.markInk) root.style.setProperty('--mark-ink', theme.markInk);
+  if (theme.markBorder) root.style.setProperty('--mark-border', theme.markBorder);
 
   // Apply dynamic highlight and underline CSS variables
   if (theme.highlights) {
