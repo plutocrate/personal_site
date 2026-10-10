@@ -10,7 +10,12 @@ const Slide = ({ c }) => (
     <div className="case-hero" style={{ '--hue': c.hue }}><span>{c.title}</span></div>
     <div className="info">
       <div className="info-head">
-        <h2>{c.title}</h2>
+        <h2>
+          <Link to={`/case-studies/${c.id}/read`} className="title-link">
+            <span>{c.title}</span>
+            <Arrow dir="up-right" size={13} />
+          </Link>
+        </h2>
         <i className={`dot ${c.status}`} title={c.status} />
         <span className="info-meta">{c.meta}</span>
       </div>

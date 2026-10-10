@@ -2,23 +2,8 @@
  * Underline (HandDrawnUnderline) Component
  * 
  * Renders text with an organic, hand-drawn vector squiggly underline.
- * Supports multiple contrasting colors in lighter/balanced tones that don't overwhelm text.
- * 
- * Available colors:
- * - 'blue'    : Apple signature / cyan blue
- * - 'green'   : Emerald / mint green
- * - 'orange'  : Warm amber / terracotta
- * - 'rose'    : Soft rose / coral
- * - 'purple'  : Vibrant lavender / violet
- * - 'teal'    : Soft ocean teal
- * - 'default' : Apple blue (--accent-blue)
- * 
- * Variants:
- * - 'default'   : Balanced natural hand-drawn wave
- * - 'developer' : Organic 3-wave wobble
- * - 'designer'  : Fluid extended wave
- * - 'linux'     : Compact punchy scribble
- * - 'long'      : Broad stroke for phrases
+ * Colors are chosen procedurally based on the current canvas theme.
+ * Contrast is high on the About page and gentle/lower elsewhere.
  */
 
 const SQUIGGLE_VARIANTS = {
@@ -44,14 +29,45 @@ const SQUIGGLE_VARIANTS = {
   }
 };
 
-export default function Underline({ children, variant = 'default', color = 'default', className = '' }) {
+const COLOR_TO_SLOT = {
+  yellow: 1,
+  gold: 1,
+  green: 2,
+  mint: 2,
+  teal: 3,
+  cyan: 3,
+  blue: 4,
+  purple: 5,
+  violet: 5,
+  rose: 6,
+  pink: 6,
+  orange: 6,
+  peach: 6,
+};
+
+function hashString(str) {
+  if (!str) return 4;
+  const s = typeof str === 'string' ? str : String(str);
+  let hash = 0;
+  for (let i = 0; i < s.length; i++) {
+    hash = (hash << 5) - hash + s.charCodeAt(i);
+    hash |= 0;
+  }
+  return Math.abs(hash);
+}
+
+export default function Underline({ children, variant = 'default', color, className = '' }) {
   const config = SQUIGGLE_VARIANTS[variant] || SQUIGGLE_VARIANTS.default;
+  let slot = color ? (COLOR_TO_SLOT[color] || parseInt(color, 10) || null) : null;
+  if (!slot || slot < 1 || slot > 6) {
+    slot = (hashString(children) % 6) + 1;
+  }
 
   return (
     <span className={`hand-drawn-wrap ${className}`}>
       {children}
       <svg
-        className={`hand-drawn-squiggle un-${color}`}
+        className={`hand-drawn-squiggle un-${slot}`}
         viewBox={config.viewBox}
         preserveAspectRatio="none"
         aria-hidden="true"
@@ -61,7 +77,7 @@ export default function Underline({ children, variant = 'default', color = 'defa
         <path
           d={config.path}
           stroke="currentColor"
-          strokeWidth="2.4"
+          strokeWidth="2.2"
           strokeLinecap="round"
           strokeLinejoin="round"
           vectorEffect="non-scaling-stroke"

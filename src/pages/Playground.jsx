@@ -8,7 +8,15 @@ const Slide = ({ s }) => (
   <>
     <div className="stage"><SimStage sim={s} /></div>
     <div className="info">
-      <div className="info-head"><h2>{s.title}</h2><span className="info-meta">{s.meta}</span></div>
+      <div className="info-head">
+        <h2>
+          <Link to={`/playground/${s.id}/read`} className="title-link">
+            <span>{s.title}</span>
+            <Arrow dir="up-right" size={13} />
+          </Link>
+        </h2>
+        <span className="info-meta">{s.meta}</span>
+      </div>
       <p>{s.description}</p>
       <div className="stack">{s.stack.map((t) => <span key={t} className="chip">{t}</span>)}</div>
       <Link to={`/playground/${s.id}/read`} className="marker read-more">Read more <Arrow /></Link>

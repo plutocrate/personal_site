@@ -14,7 +14,12 @@ const Slide = ({ j }) => (
     </div>
     <div className="info">
       <div className="info-head">
-        <h2>{j.title}</h2>
+        <h2>
+          <Link to={`/journal/${j.id}/read`} className="title-link">
+            <span>{j.title}</span>
+            <Arrow dir="up-right" size={13} />
+          </Link>
+        </h2>
         <span className="info-meta">{j.meta || j.date}</span>
       </div>
       {j.stack && (
