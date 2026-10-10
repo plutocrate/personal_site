@@ -50,4 +50,80 @@ export const quotes = [
   { text: 'The curious task of economics is to demonstrate to men how little they really know about what they imagine they can design.', author: 'Friedrich Hayek' },
   { text: 'The difficulty lies not so much in developing new ideas as in escaping from old ones.', author: 'John Maynard Keynes' },
   { text: 'The man who dies thus rich dies disgraced.', author: 'Andrew Carnegie' },
+
+  // --- Cult Classic Games & Unhinged Characters ---
+  // Disco Elysium
+  { text: 'Sunrise parabellum.', author: 'Disco Elysium' },
+  { text: 'Subversive radio waves are turning the youth into homosexual communist art critics.', author: 'Kim Kitsuragi, Disco Elysium' },
+  { text: 'In dark times, should the stars also go out?', author: 'Steban, Disco Elysium' },
+  { text: 'The road to healing is slow, and you may find yourself broken many times along the way.', author: 'Ancient Reptilian Brain, Disco Elysium' },
+  { text: 'True love is possible only in the next world — for new people. It is too late for us.', author: 'The Deserter, Disco Elysium' },
+  { text: 'I am a sensitive man who feels things deeply, okay? Leave me alone.', author: 'Harrier Du Bois, Disco Elysium' },
+  { text: 'Something beautiful is going to happen.', author: 'Disco Elysium' },
+  { text: 'The city is a beast that eats men. But you, detective, are the indigestion.', author: 'Horrific Necktie, Disco Elysium' },
+
+  // Postal 2 / Postal Dude
+  { text: 'Hi there, would you like to sign my petition?', author: 'The Postal Dude, Postal 2' },
+  { text: 'Now the flowers will grow.', author: 'The Postal Dude, Postal 2' },
+  { text: 'I regret nothing.', author: 'The Postal Dude, Postal 2' },
+  { text: 'Guns don’t kill people, I do.', author: 'The Postal Dude, Postal 2' },
+  { text: 'Look, just sign the stupid petition, I got stuff to do.', author: 'The Postal Dude, Postal 2' },
+
+  // S.T.A.L.K.E.R. / Metro
+  { text: 'Good hunting, Stalker.', author: 'Bartender, S.T.A.L.K.E.R.: Shadow of Chernobyl' },
+  { text: 'Cheeki breeki i v damke!', author: 'Bandit, S.T.A.L.K.E.R.' },
+  { text: 'If we are to survive, we must accept that there are things beyond human understanding in the Zone.', author: 'S.T.A.L.K.E.R.' },
+  { text: 'If not us, then who?', author: 'Miller, Metro 2033' },
+
+  // Deus Ex (2000)
+  { text: 'What a shame. He was a good man. What a rotten way to die.', author: 'JC Denton, Deus Ex' },
+  { text: 'Bravery is not a function of firepower.', author: 'JC Denton, Deus Ex' },
+  { text: 'Do you have a single fact to back that up?', author: 'JC Denton, Deus Ex' },
+  { text: 'Your need for financial security makes you ambitious. But ambition is a poor excuse for indifference to others.', author: 'Deus Ex' },
+
+  // Planescape: Torment
+  { text: 'What can change the nature of a man?', author: 'Ravel Puzzlewell, Planescape: Torment' },
+  { text: 'Endure. In enduring, grow strong.', author: 'Dak’kon, Planescape: Torment' },
+  { text: 'Time is not your enemy. Forever is.', author: 'Planescape: Torment' },
+
+  // Silent Hill 2
+  { text: 'In my restless dreams, I see that town. Silent Hill.', author: 'Mary, Silent Hill 2' },
+  { text: 'There was a hole here. It’s gone now.', author: 'Silent Hill 2' },
+  { text: 'For me, it’s always like this.', author: 'Angela, Silent Hill 2' },
+
+  // Pathologic / Ice-Pick Lodge
+  { text: 'A miracle is an event that creates faith.', author: 'Pathologic' },
+  { text: 'You cannot save everyone. You can barely save yourself.', author: 'Pathologic 2' },
+  { text: 'Accept the inevitability of the disease, and only then may you begin to fight it.', author: 'The Bachelor, Pathologic' },
+
+  // Hotline Miami
+  { text: 'Do you like hurting other people?', author: 'Richard, Hotline Miami' },
+  { text: 'Leaving this world is not as scary as it sounds.', author: 'Richard, Hotline Miami' },
+  { text: 'Some things are better left undiscovered.', author: 'Hotline Miami 2' },
+
+  // Bloodborne / Dark Souls
+  { text: 'A hunter must hunt.', author: 'Eileen the Crow, Bloodborne' },
+  { text: 'We are born of the blood, made men by the blood, undone by the blood.', author: 'Master Willem, Bloodborne' },
+  { text: 'Don’t you dare go Hollow.', author: 'Laurentius, Dark Souls' },
+  { text: 'Praise the sun!', author: 'Solaire of Astora, Dark Souls' },
+
+  // Max Payne
+  { text: 'There are no choices. Nothing but a straight line. The illusion comes afterwards.', author: 'Max Payne' },
+  { text: 'The past is a gaping hole. You try to run from it, but the more you run, the deeper, more terrible it grows.', author: 'Max Payne' },
+  { text: 'Life was good. The sun setting on a sweet summer day. The smell of fresh cut grass. And then the sky fell down.', author: 'Max Payne' },
+
+  // Fallout: New Vegas
+  { text: 'Truth is, the game was rigged from the start.', author: 'Benny, Fallout: New Vegas' },
+  { text: 'Nobody’s dick’s that long, not even Long Dick Johnson, and he had a fucking long dick. Thus, the name.', author: 'Rose of Sharon Cassidy, Fallout: New Vegas' },
+  { text: 'Finding it, though, that’s not the hard part. It’s letting go.', author: 'Father Elijah, Fallout: New Vegas' },
+  { text: 'Patrolling the Mojave almost makes you wish for a nuclear winter.', author: 'NCR Trooper, Fallout: New Vegas' },
+
+  // Grim Fandango
+  { text: 'Nobody knows what’s going to happen at the end of the line, so you might as well enjoy the trip.', author: 'Manny Calavera, Grim Fandango' },
+  { text: 'My scythe... I like to keep it where my heart used to be.', author: 'Manny Calavera, Grim Fandango' },
+
+  // Metal Gear Solid
+  { text: 'I’m no hero. Never was. I’m just an old killer, hired to do some wet work.', author: 'Solid Snake, MGS4' },
+  { text: 'We’re not tools of the government, or anyone else. Fighting was the only thing I was good at, but at least I fought for what I believed in.', author: 'Gray Fox, Metal Gear Solid' },
+  { text: 'Memes, the DNA of the soul.', author: 'Monsoon, Metal Gear Rising' },
 ];
