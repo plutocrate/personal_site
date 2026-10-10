@@ -48,9 +48,9 @@ export default function Journal() {
     return (
       <>
         <div className="page-crumbs desktop-only-bar">
-          <Crumbs trail={[{ label: 'Journal' }]} />
+          <Crumbs trail={[{ label: 'Essays' }]} />
         </div>
-        <EmptyState category="Journal" />
+        <EmptyState category="Essays" />
       </>
     );
   }
@@ -58,7 +58,7 @@ export default function Journal() {
   return (
     <ProjectReel
       base="/journal"
-      rootLabel="Journal"
+      rootLabel="Essays"
       items={journal}
       renderSlide={(j) => <Slide j={j} />}
     />

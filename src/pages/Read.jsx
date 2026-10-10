@@ -9,7 +9,7 @@ import { sims } from '../playground/index.js';
 const kinds = {
   playground: { base: '/playground', root: 'Concept playground', items: sims },
   caseStudies: { base: '/case-studies', root: 'Case studies', items: caseStudies },
-  journal: { base: '/journal', root: 'Journal', items: journal },
+  journal: { base: '/journal', root: 'Essays', items: journal },
 };
 
 // Full write-up behind a "Read more" link (concept playground, case studies, and journal).

@@ -35,7 +35,7 @@ export const nav = [
   { to: '/', label: 'About', end: true },
   { to: '/playground', label: 'Concept Playground' },
   { to: '/case-studies', label: 'Case Studies' },
-  { to: '/journal', label: 'Journal' },
+  { to: '/journal', label: 'Essays' },
   { to: '/life', label: 'Life updates' },
 ];
 

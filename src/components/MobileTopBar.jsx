@@ -113,13 +113,13 @@ export default function MobileTopBar({ open, onOpenChange }) {
 
     if (isRead) {
       trail = [
-        { label: 'Journal', to: '/journal' },
+        { label: 'Essays', to: '/journal' },
         { label: item?.title || 'Entry', to: `/journal/${item?.id || id}` },
         { label: 'Read' },
       ];
     } else {
       trail = [
-        { label: 'Journal', to: '/journal' },
+        { label: 'Essays', to: '/journal' },
         { label: item?.title || 'Entry' },
       ];
       reelInfo = {
