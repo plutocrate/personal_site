@@ -184,8 +184,8 @@ export const startTeapot = (canvas) => mount(canvas, (s) => {
     }
 
     // Top UI Control Bar with High Contrast
+    // 1. Mode Button
     ctx.save();
-    // Mode Button
     ctx.fillStyle = 'rgba(20, 20, 25, 0.06)';
     ctx.strokeStyle = 'rgba(20, 20, 25, 0.18)';
     ctx.lineWidth = 1;
@@ -199,13 +199,32 @@ export const startTeapot = (canvas) => mount(canvas, (s) => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(renderMode === 'solid' ? '● Shaded Mesh' : '○ Wireframe', 62, 28);
+    ctx.restore();
 
-    // Color Palette Button
+    // 2. Color Palette Button with current color swatch pip
+    ctx.save();
+    ctx.fillStyle = 'rgba(20, 20, 25, 0.06)';
+    ctx.strokeStyle = 'rgba(20, 20, 25, 0.18)';
+    ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.roundRect(118, 14, 96, 28, 7);
     ctx.fill();
     ctx.stroke();
-    ctx.fillText('🎨 Cycle Color', 166, 28);
+
+    // Color indicator pip
+    ctx.beginPath();
+    ctx.arc(134, 28, 5, 0, Math.PI * 2);
+    ctx.fillStyle = `hsl(${currentHue}, 85%, 45%)`;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.15)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = '#1c1917';
+    ctx.font = '600 11px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('Color', 170, 28);
     ctx.restore();
 
     // Helper hint text
