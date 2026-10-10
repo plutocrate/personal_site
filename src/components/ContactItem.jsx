@@ -10,31 +10,41 @@ import { vibrate } from '../utils/haptics.js';
  * Shows superscript count like other navigation items.
  */
 export default function ContactItem({ count }) {
-  const [hover, setHover] = useState(false);
-  const [pinned, setPinned] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const ref = useRef(null);
-  const open = hover || pinned;
 
   useEffect(() => {
-    const away = (e) => { if (!ref.current?.contains(e.target)) setPinned(false); };
+    const away = (e) => {
+      if (!ref.current?.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
     document.addEventListener('pointerdown', away);
     return () => document.removeEventListener('pointerdown', away);
   }, []);
 
+  const toggleOpen = () => {
+    vibrate(10);
+    setIsOpen((prev) => !prev);
+  };
+
   return (
-    <div className="contact" ref={ref} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+    <div
+      className="contact"
+      ref={ref}
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
       <button
-        className={`nav-item${open ? ' is-active' : ''}`}
-        onClick={() => {
-          vibrate(10);
-          setPinned((p) => !p);
-        }}
-        aria-expanded={open}
+        type="button"
+        className={`nav-item${isOpen ? ' is-active' : ''}`}
+        onClick={toggleOpen}
+        aria-expanded={isOpen}
       >
         <span>Contact{count != null && <sup className="nav-count">{count}</sup>}</span>
       </button>
       <AnimatePresence initial={false}>
-        {open && (
+        {isOpen && (
           <motion.div
             className="nav-sub"
             initial={{ height: 0, opacity: 0 }}
