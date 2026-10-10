@@ -257,6 +257,11 @@ export const FlappySquare = () => {
         cursor: 'pointer',
         userSelect: 'none',
         WebkitUserSelect: 'none',
+        MozUserSelect: 'none',
+        msUserSelect: 'none',
+        WebkitTouchCallout: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        outline: 'none',
         touchAction: 'none',
       }}
     >
@@ -274,6 +279,8 @@ export const FlappySquare = () => {
           fontWeight: '500',
           pointerEvents: 'none',
           fontVariantNumeric: 'tabular-nums',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
         }}
       >
         <span>Score: <b style={{ color: 'var(--ink)' }}>{score}</b></span>
@@ -288,6 +295,12 @@ export const FlappySquare = () => {
           display: 'block',
           background: 'transparent',
           border: 'none',
+          outline: 'none',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+          WebkitTapHighlightColor: 'transparent',
+          pointerEvents: 'none', // parent div receives click/tap to flap
         }}
       />
     </div>

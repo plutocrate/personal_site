@@ -14,24 +14,24 @@ export function getRandomSubtleTheme() {
   const jump = 60 + Math.random() * 240;
   currentHue = Math.round((currentHue + jump) % 360);
 
-  // Subtle saturation (12% - 20%) so it is a delicate whisper of color, never neon or loud
-  const sat = 13 + Math.random() * 7;
-  // High lightness (96.0% - 97.4%) so it reads as a clean, sophisticated off-white
-  const light = 96.0 + Math.random() * 1.4;
+  // Noticeable yet soft and easy-on-the-eyes saturation (28% - 38%)
+  const sat = 28 + Math.random() * 10;
+  // Comfortable lightness (93.5% - 95.2%) ensuring tint is clearly perceived across all screen brightnesses
+  const light = 93.5 + Math.random() * 1.7;
 
-  const sidebarLight = Math.min(98.3, light + 1.2);
-  const sidebarSat = Math.max(7, sat - 5);
+  const sidebarLight = Math.min(97.2, light + 1.8);
+  const sidebarSat = Math.max(16, sat - 10);
 
   const bg = `hsl(${currentHue}, ${sat.toFixed(1)}%, ${light.toFixed(1)}%)`;
   const sidebar = `hsl(${currentHue}, ${sidebarSat.toFixed(1)}%, ${sidebarLight.toFixed(1)}%)`;
   const topbarBg = `hsla(${currentHue}, ${sat.toFixed(1)}%, ${light.toFixed(1)}%, 0.88)`;
-  const surface = `rgba(255, 255, 255, 0.42)`;
-  const surface2 = `hsla(${currentHue}, 20%, 20%, 0.055)`;
-  const line = `hsla(${currentHue}, 15%, 20%, 0.09)`;
-  const knob = `hsla(${currentHue}, 15%, 20%, 0.14)`;
-  const ink = `hsl(${currentHue}, 16%, 11%)`;
-  const ink2 = `hsl(${currentHue}, 10%, 33%)`;
-  const ink3 = `hsl(${currentHue}, 8%, 54%)`;
+  const surface = `rgba(255, 255, 255, 0.45)`;
+  const surface2 = `hsla(${currentHue}, 28%, 20%, 0.07)`;
+  const line = `hsla(${currentHue}, 20%, 20%, 0.11)`;
+  const knob = `hsla(${currentHue}, 20%, 20%, 0.16)`;
+  const ink = `hsl(${currentHue}, 20%, 11%)`;
+  const ink2 = `hsl(${currentHue}, 14%, 32%)`;
+  const ink3 = `hsl(${currentHue}, 10%, 52%)`;
 
   // 8 distinct harmonic color slots evenly distributed around the color wheel
   // Shuffled with a random rotation angle on every theme cycle / logo tap
