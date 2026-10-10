@@ -41,7 +41,7 @@ export const FlappySquare = () => {
       s.pipes = [];
       setGameState('playing');
       setScore(0);
-      vibrate(12);
+      vibrate([24, 30, 24]); // Crisp double pulse when starting the game
       return;
     }
     if (s.state === 'gameover') {
@@ -52,12 +52,12 @@ export const FlappySquare = () => {
       s.pipes = [];
       setGameState('playing');
       setScore(0);
-      vibrate(15);
+      vibrate([24, 30, 24]); // Crisp double pulse when restarting the game
       return;
     }
     if (s.state === 'playing') {
       s.bird.vy = -5.8;
-      vibrate(8);
+      vibrate(10); // Light, crisp hop vibration (lesser than start and death)
     }
   };
 
@@ -159,7 +159,7 @@ export const FlappySquare = () => {
             if (collidesX && (collidesTop || collidesBottom)) {
               s.state = 'gameover';
               setGameState('gameover');
-              vibrate([30, 40, 30]);
+              vibrate([80, 50, 160]); // Longer, heavy impact vibration on collision
             }
 
             // Remove off-screen pipes
@@ -176,7 +176,7 @@ export const FlappySquare = () => {
           if (bird.y + halfSize >= h) {
             s.state = 'gameover';
             setGameState('gameover');
-            vibrate([30, 40, 30]);
+            vibrate([80, 50, 160]); // Longer, heavy impact vibration on crash
           }
         }
 
