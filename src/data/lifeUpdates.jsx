@@ -30,6 +30,25 @@ import Arrow from '../components/Arrow.jsx';
 
 export const lifeUpdates = [
   {
+    id: 'guitar-practice-terebina',
+    date: '2026-10-10',
+    time: '23:15:00', // Latest update
+    media: {
+      type: 'video',
+      src: '/life/terebinag.mp4',
+      width: 634,
+      height: 356,
+      aspectRatio: '634 / 356',
+      title: 'Guitar Practice - Tere Bina',
+    },
+    text: (
+      <>
+        Late-night <Highlight color="green">guitar practice session</Highlight> playing{' '}
+        <Underline color="blue" variant="default">“Tere Bina”</Underline>. Fingerpicking nuances, chord transitions, and unwinding with music after hours of deep programming.
+      </>
+    ),
+  },
+  {
     id: 'instagram-reel-meme',
     date: '2026-10-10',
     time: '22:50:00', // Today's newest update

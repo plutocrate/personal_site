@@ -160,9 +160,9 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 .site-toast {
   position: fixed;
   top: calc(20px + env(safe-area-inset-top));
-  /* On desktop: centers in the right content / main area (sidebar width is ~324px when open, 64px when closed) */
+  /* On desktop: center between sidebar edge and right screen edge */
   left: calc(var(--sidebar-w, 0px) + (100vw - var(--sidebar-w, 0px)) / 2);
-  transform: translateX(-50%);
+  transform: translateX(-50%) !important;
   width: min(calc(100vw - 32px), 480px);
   z-index: 9999;
   background: rgba(255, 255, 255, 0.88);
@@ -179,9 +179,12 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 
 @media (max-width: 860px) {
   .site-toast {
-    left: 50%;
-    transform: translateX(-50%);
-    width: min(calc(100vw - 28px), 440px);
+    left: 16px !important;
+    right: 16px !important;
+    margin-inline: auto !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: 440px !important;
   }
 }
 
