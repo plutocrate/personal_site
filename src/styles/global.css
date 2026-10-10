@@ -241,27 +241,27 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 /* ---------- Highlights & Markers (Algorithmic, Contrast-Aware) ---------- */
 mark, .hl {
   display: inline;
-  padding: 0.04em 0.28em;
+  padding: 0.05em 0.3em;
   margin: 0 -0.04em;
-  border-radius: 0.28em;
+  border-radius: 0.3em;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
   font-style: normal;
   background: var(--hl-bg, var(--hl-low-1));
-  color: var(--hl-ink, inherit);
+  color: var(--hl-ink, var(--ink));
   transition: background 0.4s ease, color 0.4s ease;
 }
 
 /* Lower contrast palette (default across site, including life update card) */
-.hl-1, .hl-yellow { --hl-bg: var(--hl-low-1); }
-.hl-2, .hl-green  { --hl-bg: var(--hl-low-2); }
-.hl-3, .hl-teal   { --hl-bg: var(--hl-low-3); }
-.hl-4, .hl-cyan   { --hl-bg: var(--hl-low-4); }
-.hl-5, .hl-blue   { --hl-bg: var(--hl-low-5); }
-.hl-6, .hl-purple { --hl-bg: var(--hl-low-6); }
-.hl-7, .hl-rose   { --hl-bg: var(--hl-low-7); }
-.hl-8, .hl-orange { --hl-bg: var(--hl-low-8); }
-.hl-default       { --hl-bg: var(--hl-low-1); }
+.hl-1, .hl-yellow { --hl-bg: var(--hl-low-1); --hl-ink: var(--hl-ink-low-1); }
+.hl-2, .hl-green  { --hl-bg: var(--hl-low-2); --hl-ink: var(--hl-ink-low-2); }
+.hl-3, .hl-teal   { --hl-bg: var(--hl-low-3); --hl-ink: var(--hl-ink-low-3); }
+.hl-4, .hl-cyan   { --hl-bg: var(--hl-low-4); --hl-ink: var(--hl-ink-low-4); }
+.hl-5, .hl-blue   { --hl-bg: var(--hl-low-5); --hl-ink: var(--hl-ink-low-5); }
+.hl-6, .hl-purple { --hl-bg: var(--hl-low-6); --hl-ink: var(--hl-ink-low-6); }
+.hl-7, .hl-rose   { --hl-bg: var(--hl-low-7); --hl-ink: var(--hl-ink-low-7); }
+.hl-8, .hl-orange { --hl-bg: var(--hl-low-8); --hl-ink: var(--hl-ink-low-8); }
+.hl-default       { --hl-bg: var(--hl-low-1); --hl-ink: var(--hl-ink-low-1); }
 
 /* High contrast overrides strictly on the bio text */
 .bio mark,
@@ -296,7 +296,7 @@ mark, .hl {
   pointer-events: none;
   overflow: visible;
   color: var(--un-col, var(--un-low-5));
-  opacity: 0.45;
+  opacity: 0.75;
   transition: color 0.4s ease, opacity 0.4s ease;
 }
 
@@ -412,14 +412,22 @@ mark, .hl {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 0.32em 0.85em;
+  padding: 0.38em 0.9em;
   border-radius: 0.55em;
   background: var(--mark);
   color: var(--mark-ink);
-  font-weight: 500;
-  transition: transform 0.16s ease, filter 0.16s ease;
+  font-weight: 550;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: transform 0.16s cubic-bezier(0.32, 0.72, 0, 1), filter 0.16s ease, box-shadow 0.16s ease;
 }
-.marker:hover { filter: brightness(0.97); }
+.marker:hover {
+  filter: brightness(0.96) saturate(1.05);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+.marker:active {
+  transform: translateY(0);
+}
 .life-more {
   margin-top: 18px;
   font-size: 15.5px;

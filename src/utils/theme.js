@@ -52,13 +52,19 @@ export function getRandomSubtleTheme() {
     // High contrast underline (for About bio):
     underlines[`--un-high-${slot}`] = `hsl(${h}, 88%, 40%)`;
 
-    // Lower contrast (for elsewhere, including life updates, case studies, etc.):
-    // Soft, gentle wash that doesn't overpower reading
-    highlights[`--hl-low-${slot}`] = `hsla(${h}, 60%, 86%, 0.46)`;
+    // Moderate / balanced lower contrast (for elsewhere across site):
+    // Clear, comfortable tint with higher saturation and visible opacity
+    highlights[`--hl-low-${slot}`] = `hsla(${h}, 78%, 82%, 0.72)`;
+    highlights[`--hl-ink-low-${slot}`] = `hsl(${h}, 82%, 18%)`;
 
-    // Low contrast underline (for elsewhere):
-    underlines[`--un-low-${slot}`] = `hsla(${h}, 66%, 50%, 0.42)`;
+    // Lower contrast underline (for elsewhere):
+    underlines[`--un-low-${slot}`] = `hsla(${h}, 80%, 44%, 0.72)`;
   }
+
+  // Dynamic vibrant marker colors for the "See all life updates" button / catchy links
+  const markerHue = (currentHue + 45 + Math.floor(Math.random() * 60)) % 360;
+  const mark = `hsl(${markerHue}, 94%, 56%)`;
+  const markInk = `hsl(${markerHue}, 96%, 10%)`;
 
   return {
     hue: currentHue,
@@ -72,6 +78,8 @@ export function getRandomSubtleTheme() {
     ink,
     ink2,
     ink3,
+    mark,
+    markInk,
     highlights,
     underlines,
   };
@@ -90,6 +98,8 @@ export function applyTheme(theme) {
   root.style.setProperty('--ink', theme.ink);
   root.style.setProperty('--ink-2', theme.ink2);
   root.style.setProperty('--ink-3', theme.ink3);
+  if (theme.mark) root.style.setProperty('--mark', theme.mark);
+  if (theme.markInk) root.style.setProperty('--mark-ink', theme.markInk);
 
   // Apply dynamic highlight and underline CSS variables
   if (theme.highlights) {
