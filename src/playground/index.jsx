@@ -1438,22 +1438,22 @@ int getMaxSparks(void) { return MAX_SPARKS; }
           <>
             The C kernel synthesizes the complete 3D manifold:
             <br />
-            • <b>Body Rings</b>: Lathed parametric splines connecting 7 radial cross-sections across 14 longitudinal ribs.<br />
+            • <b>Body Rings & Quad Facets</b>: Lathed parametric splines connecting 7 radial cross-sections across 14 longitudinal ribs, stitched into quad polygons for depth-sorted color shading.<br />
             • <b>Lid & Knob</b>: Octagonal conic cap with centered apex vertex.<br />
             • <b>Curved Spout</b>: Multi-tier tubular loft with tapering radius vectors.<br />
-            • <b>Loop Handle</b>: Elliptical torus arc spanning from upper rim to lower body.
+            • <b>Loop Handle</b>: Outward-arching parametric loop spanning from the upper rim to lower body, calculated with <code>ang = -PI/2 + t*PI</code> and <code>hx = -1.25 - 0.78 * cos(ang)</code> so the handle arches gracefully outside the teapot body.
           </>
         ),
       },
       {
         type: "heading",
-        text: "3. Continuous Auto-Rotation & Euler Matrix Transformation",
+        text: "3. Continuous Auto-Rotation, Polygon Shading & Inertia",
       },
       {
         type: "text",
         text: (
           <>
-            The C kernel maintains a steady baseline angular velocity <code>state.baseSpin</code> (0.85 rad/s) combined with user flick torque. To ensure completely glitch-free, infinite rotational continuity without drift, trigonometry uses a high-precision Bhaskara I approximation formula with O(1) modulo angle wrapping:
+            The C kernel maintains a steady baseline angular velocity <code>state.baseSpin</code> (0.85 rad/s) combined with user flick torque. To ensure completely glitch-free, infinite rotational continuity without drift, trigonometry uses a high-precision Bhaskara I approximation formula with O(1) modulo angle wrapping. The rasterizer supports both wireframe/shaded nodes mode and filled body polygons via Painter's depth sorting:
           </>
         ),
       },
@@ -1505,9 +1505,9 @@ for (int i = 0; i < vertexCount; i++) {
       },
       {
         type: "code",
-        code: `clang --target=wasm32 -O3 -nostdlib \
-  -Wl,--no-entry \
-  -Wl,--export-all \
+        code: `clang --target=wasm32 -O3 -nostdlib \\
+  -Wl,--no-entry \\
+  -Wl,--export-all \\
   -o public/wasm/teapot_sim.wasm src/wasm/teapot_sim.c`,
       },
       {
@@ -1523,12 +1523,14 @@ for (int i = 0; i < vertexCount; i++) {
 // Features:
 // - Parametric Utah Teapot 3D mesh (Body rings, lid knob, spout, loop handle)
 // - Robust continuous Euler rotation (Bhaskara trigonometric polynomial)
+// - Outward-arching handle geometry and quad polygon face generation
 // - Constant smooth ambient rotation + additive drag flick torque
 // - 3D affine matrix transformation & depth cueing
 // =============================================================================
 
 #define MAX_VERTICES 320
 #define MAX_EDGES 480
+#define MAX_FACES 240
 #define PI 3.14159265358979323846f
 #define TWO_PI 6.28318530717958647692f
 
@@ -1539,6 +1541,10 @@ typedef struct {
 typedef struct {
     int v0, v1;
 } Edge;
+
+typedef struct {
+    int v0, v1, v2, v3; // Quad polygon (or triangle if v3 == -1)
+} Face;
 
 typedef struct {
     float x, y, z;
@@ -1552,13 +1558,12 @@ static TeapotState state;
 static Vec3 baseVertices[MAX_VERTICES];
 static Vec3 transformedVertices[MAX_VERTICES];
 static Edge edges[MAX_EDGES];
+static Face faces[MAX_FACES];
 static int vertexCount = 0;
 static int edgeCount = 0;
+static int faceCount = 0;
 
-// High-fidelity Bhaskara I trigonometric approximation (Max error < 0.0016 across all angles)
-// Fast O(1) execution without loops or drift over indefinite rotations
 static float sinF(float x) {
-    // Wrap to [0, TWO_PI)
     if (x < 0.0f) {
         float k = (float)((int)(-x / TWO_PI) + 1);
         x += k * TWO_PI;
@@ -1601,10 +1606,20 @@ static void addEdge(int v0, int v1) {
     }
 }
 
-// Procedurally generate the iconic Utah Teapot geometric topology
+static void addFace(int v0, int v1, int v2, int v3) {
+    if (faceCount < MAX_FACES) {
+        faces[faceCount].v0 = v0;
+        faces[faceCount].v1 = v1;
+        faces[faceCount].v2 = v2;
+        faces[faceCount].v3 = v3;
+        faceCount++;
+    }
+}
+
 static void generateTeapotGeometry(void) {
     vertexCount = 0;
     edgeCount = 0;
+    faceCount = 0;
 
     // Body rings (lathe of teapot profile)
     int latSegments = 7;
@@ -1621,14 +1636,16 @@ static void generateTeapotGeometry(void) {
         }
     }
 
-    // Connect body rings and longitudinal ribs
+    // Connect body rings, ribs, and quad faces
     for (int lat = 0; lat < latSegments; lat++) {
         int base = lat * lonSegments;
         for (int lon = 0; lon < lonSegments; lon++) {
             int nextLon = (lon + 1) % lonSegments;
             addEdge(base + lon, base + nextLon);
             if (lat < latSegments - 1) {
-                addEdge(base + lon, base + lonSegments + lon);
+                int nextRow = base + lonSegments;
+                addEdge(base + lon, nextRow + lon);
+                addFace(base + lon, base + nextLon, nextRow + nextLon, nextRow + lon);
             }
         }
     }
@@ -1641,6 +1658,7 @@ static void generateTeapotGeometry(void) {
         addVertex(0.22f * cosF(phi), 0.92f, 0.22f * sinF(phi));
         addEdge(lidBase, lidBase + 1 + i);
         addEdge(lidBase + 1 + i, lidBase + 1 + ((i + 1) % 8));
+        addFace(lidBase, lidBase + 1 + i, lidBase + 1 + ((i + 1) % 8), -1);
     }
 
     // Spout curve
@@ -1665,15 +1683,17 @@ static void generateTeapotGeometry(void) {
             int nk = (k + 1) % 6;
             addEdge(b1 + k, b1 + nk);
             addEdge(b1 + k, b2 + k);
+            addFace(b1 + k, b1 + nk, b2 + nk, b2 + k);
         }
     }
     for (int k = 0; k < 6; k++) addEdge(spoutBase + 24 + k, spoutBase + 24 + ((k + 1) % 6));
 
-    // Handle loop
+    // Handle loop (arches outward toward -X)
     int handleBase = vertexCount;
     for (int h = 0; h < 9; h++) {
-        float ang = PI * 0.45f + ((float)h / 8.0f) * PI * 1.1f;
-        float hx = -1.25f - 0.75f * cosF(ang);
+        float t = (float)h / 8.0f;
+        float ang = -PI * 0.5f + t * PI;
+        float hx = -1.25f - 0.78f * cosF(ang);
         float hy = 0.2f + 0.65f * sinF(ang);
         addVertex(hx, hy, 0.08f);
         addVertex(hx, hy, -0.08f);
@@ -1681,6 +1701,7 @@ static void generateTeapotGeometry(void) {
             addEdge(handleBase + (h - 1) * 2, handleBase + h * 2);
             addEdge(handleBase + (h - 1) * 2 + 1, handleBase + h * 2 + 1);
             addEdge(handleBase + h * 2, handleBase + h * 2 + 1);
+            addFace(handleBase + (h - 1) * 2, handleBase + h * 2, handleBase + h * 2 + 1, handleBase + (h - 1) * 2 + 1);
         }
     }
 }
@@ -1693,7 +1714,7 @@ void initTeapot(void) {
     state.rz = 0.0f;
     state.vx_rot = 0.0f;
     state.vy_rot = 0.0f;
-    state.baseSpin = 0.85f; // Constant steady auto-rotation speed (rad/sec)
+    state.baseSpin = 0.85f;
     state.scale = 100.0f;
 }
 
@@ -1707,15 +1728,12 @@ __attribute__((visibility("default")))
 void updateTeapot(float dt) {
     if (dt > 0.05f) dt = 0.05f;
 
-    // 1. Continuous auto-rotation + dynamic user momentum
     state.ry += (state.baseSpin + state.vy_rot) * dt;
     state.rx += state.vx_rot * dt;
 
-    // Keep pitch bounded comfortably so teapot never flips upside-down awkwardly
     if (state.rx > 0.85f) state.rx = 0.85f;
     if (state.rx < -0.45f) state.rx = -0.45f;
 
-    // Wrap yaw cleanly to [0, TWO_PI)
     if (state.ry >= TWO_PI) {
         float k = (float)((int)(state.ry / TWO_PI));
         state.ry -= k * TWO_PI;
@@ -1724,11 +1742,9 @@ void updateTeapot(float dt) {
         state.ry += k * TWO_PI;
     }
 
-    // 2. Smooth exponential decay of added user flick torque back to steady base rotation
     state.vx_rot *= 0.94f;
     state.vy_rot *= 0.94f;
 
-    // 3. 3D Euler Transformation Matrix (Yaw Y, Pitch X)
     float cy = cosF(state.ry);
     float sy = sinF(state.ry);
     float cx = cosF(state.rx);
@@ -1736,13 +1752,10 @@ void updateTeapot(float dt) {
 
     for (int i = 0; i < vertexCount; i++) {
         Vec3 v = baseVertices[i];
-
-        // Yaw around Y
         float x1 = v.x * cy + v.z * sy;
         float y1 = v.y;
         float z1 = -v.x * sy + v.z * cy;
 
-        // Pitch around X
         float x2 = x1;
         float y2 = y1 * cx - z1 * sx;
         float z2 = y1 * sx + z1 * cx;
@@ -1764,6 +1777,12 @@ void* getTransformedVertices(void) { return (void*)transformedVertices; }
 
 __attribute__((visibility("default")))
 void* getEdges(void) { return (void*)edges; }
+
+__attribute__((visibility("default")))
+int getFaceCount(void) { return faceCount; }
+
+__attribute__((visibility("default")))
+void* getFaces(void) { return (void*)faces; }
 
 __attribute__((visibility("default")))
 float getRotationY(void) { return state.ry; }

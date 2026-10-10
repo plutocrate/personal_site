@@ -11,6 +11,7 @@
 
 #define MAX_VERTICES 320
 #define MAX_EDGES 480
+#define MAX_FACES 240
 #define PI 3.14159265358979323846f
 #define TWO_PI 6.28318530717958647692f
 
@@ -21,6 +22,10 @@ typedef struct {
 typedef struct {
     int v0, v1;
 } Edge;
+
+typedef struct {
+    int v0, v1, v2, v3; // Quad polygon (or triangle if v3 == -1)
+} Face;
 
 typedef struct {
     float x, y, z;
@@ -34,8 +39,10 @@ static TeapotState state;
 static Vec3 baseVertices[MAX_VERTICES];
 static Vec3 transformedVertices[MAX_VERTICES];
 static Edge edges[MAX_EDGES];
+static Face faces[MAX_FACES];
 static int vertexCount = 0;
 static int edgeCount = 0;
+static int faceCount = 0;
 
 // High-fidelity Bhaskara I trigonometric approximation (Max error < 0.0016 across all angles)
 // Fast O(1) execution without loops or drift over indefinite rotations
@@ -83,10 +90,21 @@ static void addEdge(int v0, int v1) {
     }
 }
 
+static void addFace(int v0, int v1, int v2, int v3) {
+    if (faceCount < MAX_FACES) {
+        faces[faceCount].v0 = v0;
+        faces[faceCount].v1 = v1;
+        faces[faceCount].v2 = v2;
+        faces[faceCount].v3 = v3;
+        faceCount++;
+    }
+}
+
 // Procedurally generate the iconic Utah Teapot geometric topology
 static void generateTeapotGeometry(void) {
     vertexCount = 0;
     edgeCount = 0;
+    faceCount = 0;
 
     // Body rings (lathe of teapot profile)
     int latSegments = 7;
@@ -103,14 +121,17 @@ static void generateTeapotGeometry(void) {
         }
     }
 
-    // Connect body rings and longitudinal ribs
+    // Connect body rings, longitudinal ribs, and quad faces
     for (int lat = 0; lat < latSegments; lat++) {
         int base = lat * lonSegments;
         for (int lon = 0; lon < lonSegments; lon++) {
             int nextLon = (lon + 1) % lonSegments;
             addEdge(base + lon, base + nextLon);
             if (lat < latSegments - 1) {
-                addEdge(base + lon, base + lonSegments + lon);
+                int nextRow = base + lonSegments;
+                addEdge(base + lon, nextRow + lon);
+                // Quad face spanning between ring (lat) and ring (lat + 1)
+                addFace(base + lon, base + nextLon, nextRow + nextLon, nextRow + lon);
             }
         }
     }
@@ -123,6 +144,7 @@ static void generateTeapotGeometry(void) {
         addVertex(0.22f * cosF(phi), 0.92f, 0.22f * sinF(phi));
         addEdge(lidBase, lidBase + 1 + i);
         addEdge(lidBase + 1 + i, lidBase + 1 + ((i + 1) % 8));
+        addFace(lidBase, lidBase + 1 + i, lidBase + 1 + ((i + 1) % 8), -1);
     }
 
     // Spout curve
@@ -147,22 +169,25 @@ static void generateTeapotGeometry(void) {
             int nk = (k + 1) % 6;
             addEdge(b1 + k, b1 + nk);
             addEdge(b1 + k, b2 + k);
+            addFace(b1 + k, b1 + nk, b2 + nk, b2 + k);
         }
     }
     for (int k = 0; k < 6; k++) addEdge(spoutBase + 24 + k, spoutBase + 24 + ((k + 1) % 6));
 
-    // Handle loop
+    // Handle loop (arches outward toward -X)
     int handleBase = vertexCount;
     for (int h = 0; h < 9; h++) {
-        float ang = PI * 0.45f + ((float)h / 8.0f) * PI * 1.1f;
-        float hx = -1.25f - 0.75f * cosF(ang);
-        float hy = 0.2f + 0.65f * sinF(ang);
+        float t = (float)h / 8.0f;
+        float ang = -PI * 0.5f + t * PI; // -PI/2 to +PI/2
+        float hx = -1.25f - 0.78f * cosF(ang); // bows outward to x = -2.03
+        float hy = 0.2f + 0.65f * sinF(ang);   // connects top y=0.85 to bottom y=-0.45
         addVertex(hx, hy, 0.08f);
         addVertex(hx, hy, -0.08f);
         if (h > 0) {
             addEdge(handleBase + (h - 1) * 2, handleBase + h * 2);
             addEdge(handleBase + (h - 1) * 2 + 1, handleBase + h * 2 + 1);
             addEdge(handleBase + h * 2, handleBase + h * 2 + 1);
+            addFace(handleBase + (h - 1) * 2, handleBase + h * 2, handleBase + h * 2 + 1, handleBase + (h - 1) * 2 + 1);
         }
     }
 }
@@ -246,6 +271,12 @@ void* getTransformedVertices(void) { return (void*)transformedVertices; }
 
 __attribute__((visibility("default")))
 void* getEdges(void) { return (void*)edges; }
+
+__attribute__((visibility("default")))
+int getFaceCount(void) { return faceCount; }
+
+__attribute__((visibility("default")))
+void* getFaces(void) { return (void*)faces; }
 
 __attribute__((visibility("default")))
 float getRotationY(void) { return state.ry; }

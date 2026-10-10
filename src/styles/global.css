@@ -100,7 +100,19 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 .page:has(.empty-state-wrap) { max-width: none; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
 
 /* ---------- Sidebar & Mobile Drawer ---------- */
-.sidebar { flex: none; height: 100%; overflow: visible; padding: 20px 18px; display: flex; flex-direction: column; background: var(--sidebar); border-right: 1px solid var(--line); position: relative; z-index: 50; }
+.sidebar {
+  flex: none;
+  height: 100%;
+  overflow: visible;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  background: var(--sidebar);
+  border-right: 1px solid var(--line);
+  position: relative;
+  z-index: 50;
+  pointer-events: auto;
+}
 .sidebar-head { height: 22px; margin-bottom: 18px; }
 .pill { width: 46px; height: 22px; padding: 3px; display: flex; justify-content: flex-start; align-items: center; border-radius: 11px; background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .pill.open { justify-content: flex-end; }
@@ -140,7 +152,7 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 .spell-particles-container { position: absolute; inset: 0; pointer-events: none; z-index: 15; overflow: visible; }
 .star-particle { position: absolute; left: 50%; top: 50%; margin: -8px 0 0 -8px; pointer-events: none; filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.85)); }
 
-.quote-wrap { flex: 1; min-width: 0; height: 100%; }
+.quote-wrap { flex: 1; min-width: 0; height: 100%; overflow: hidden; }
 .quote-box {
   height: 100%;
   padding: 12px 14px;
@@ -576,7 +588,7 @@ mark, .hl {
 
 /* ---------- Reels (life updates, playground, case studies, journal) ---------- */
 .reel { position: relative; height: 100vh; height: 100dvh; overflow: hidden; width: 100%; }
-.reel-bar { position: absolute; z-index: 5; inset: 22px 28px auto; display: flex; justify-content: space-between; font-size: 14px; color: var(--ink-3); pointer-events: none; }
+.reel-bar { position: absolute; z-index: 60; inset: 22px 28px auto; display: flex; justify-content: space-between; font-size: 14px; color: var(--ink-3); pointer-events: none; }
 .crumbs {
   display: flex;
   align-items: center;
@@ -1020,7 +1032,18 @@ mark, .hl {
 }
 .sidebar { display: block; user-select: none; cursor: grab; }
 .sidebar:active { cursor: grabbing; }
-.sidebar-inner { width: 324px; height: 100%; display: flex; flex-direction: column; overflow: visible; }
+.sidebar-inner {
+  width: 324px;
+  max-width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  pointer-events: auto;
+}
+.sidebar:not(.is-expanded) .sidebar-inner {
+  width: 48px;
+}
 
 /* ==========================================================================
    MOBILE & TABLET RESPONSIVENESS (App-like UX)
@@ -1429,26 +1452,26 @@ mark, .hl {
 [data-annotation]::after {
   content: attr(data-annotation);
   position: absolute;
-  left: calc(100% + 12px);
+  left: calc(100% + 14px);
   top: 50%;
   transform: translateY(-50%) translateX(-4px);
   background: var(--surface);
   color: var(--ink);
   border: 1px solid var(--line);
-  padding: 4px 10px;
-  border-radius: 7px;
-  font-size: 11.5px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
   font-weight: 550;
   letter-spacing: -0.01em;
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.14), 0 1px 3px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.16s;
-  z-index: 99999;
+  z-index: 999999;
 }
 
 [data-annotation]:hover::after {
