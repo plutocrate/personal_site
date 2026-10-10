@@ -18,6 +18,19 @@ export default function Read({ kind }) {
   const { base, root, items } = kinds[kind];
   const item = items.find((x) => x.id === id) || items[0];
 
+  if (!item) {
+    return (
+      <article className="article">
+        <div className="page-crumbs desktop-only-bar">
+          <Crumbs trail={[{ label: root, to: base }]} />
+        </div>
+        <p style={{ padding: '60px 0', textAlign: 'center', color: 'var(--ink-3)' }}>
+          Item not found.
+        </p>
+      </article>
+    );
+  }
+
   return (
     <article className="article">
       <div className="page-crumbs desktop-only-bar">

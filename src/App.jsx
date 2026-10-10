@@ -47,13 +47,13 @@ export default function App() {
               >
                 <Routes location={location}>
                   <Route path="/" element={<About />} />
-                  <Route path="/playground" element={<Navigate to={`/playground/${sims[0].id}`} replace />} />
+                  <Route path="/playground" element={<Navigate to={`/playground/${sims[0]?.id || ''}`} replace />} />
                   <Route path="/playground/:id" element={<Playground />} />
                   <Route path="/playground/:id/read" element={<Read kind="playground" />} />
-                  <Route path="/case-studies" element={<Navigate to={`/case-studies/${caseStudies[0].id}`} replace />} />
+                  <Route path="/case-studies" element={caseStudies.length > 0 ? <Navigate to={`/case-studies/${caseStudies[0].id}`} replace /> : <CaseStudies />} />
                   <Route path="/case-studies/:id" element={<CaseStudies />} />
                   <Route path="/case-studies/:id/read" element={<Read kind="caseStudies" />} />
-                  <Route path="/journal" element={<Navigate to={`/journal/${journal[0].id}`} replace />} />
+                  <Route path="/journal" element={journal.length > 0 ? <Navigate to={`/journal/${journal[0].id}`} replace /> : <Journal />} />
                   <Route path="/journal/:id" element={<Journal />} />
                   <Route path="/journal/:id/read" element={<Read kind="journal" />} />
                   <Route path="/life" element={<Navigate to={`/life/${lifeUpdates[0].id}`} replace />} />

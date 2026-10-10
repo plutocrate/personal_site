@@ -76,9 +76,9 @@ export default function Sidebar({ open, onOpenChange }) {
   };
 
   const getCount = (to) => {
-    if (to === '/playground') return sims.length;
-    if (to === '/case-studies') return caseStudies.length;
-    if (to === '/journal') return journal.length;
+    if (to === '/playground') return sims.length || undefined;
+    if (to === '/case-studies') return caseStudies.length || undefined;
+    if (to === '/journal') return journal.length || undefined;
     return undefined;
   };
 

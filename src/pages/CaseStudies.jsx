@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom';
 import ProjectReel from '../components/ProjectReel.jsx';
 import CaseBlocks from '../components/CaseBlocks.jsx';
 import Arrow from '../components/Arrow.jsx';
+import Crumbs from '../components/Crumbs.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import { caseStudies } from '../data/content.js';
 
 // Header image, then text and images until the space runs out, then a highlighted "Read more".
@@ -27,5 +29,15 @@ const Slide = ({ c }) => (
 );
 
 export default function CaseStudies() {
+  if (!caseStudies || caseStudies.length === 0) {
+    return (
+      <>
+        <div className="page-crumbs desktop-only-bar">
+          <Crumbs trail={[{ label: 'Case studies' }]} />
+        </div>
+        <EmptyState category="Case studies" />
+      </>
+    );
+  }
   return <ProjectReel base="/case-studies" rootLabel="Case studies" items={caseStudies} renderSlide={(c) => <Slide c={c} />} />;
 }

@@ -43,8 +43,27 @@ export const nav = [
  * 3. CASE STUDIES
  * --------------------------------------------------------------------------
  * Showcase your key design and engineering projects.
+ *
+ * BLUEPRINT TEMPLATE:
+ * To add a new case study, add an object to the `caseStudies` array below:
+ * ```js
+ * {
+ *   id: 'unique-slug',
+ *   title: 'Project Title',
+ *   meta: 'Personal · 2024',
+ *   status: 'shipped', // 'shipped' (green) | 'building' (blue) | 'draft' (gray)
+ *   hue: 210, // Accent hue angle for header card
+ *   stack: ['React', 'TypeScript', 'Node.js'],
+ *   blocks: mk(
+ *     <>First paragraph with <Highlight color="yellow">highlighted text</Highlight>.</>,
+ *     <>Second paragraph with <Underline color="blue" variant="default">underlined text</Underline>.</>,
+ *     <>Third paragraph concluding the writeup.</>
+ *   ),
+ * }
+ * ```
  */
 export const caseStudies = [
+  /*
   {
     id: 'pencil-box',
     title: 'Pencil Box',
@@ -140,6 +159,7 @@ export const caseStudies = [
     ),
     stack: ['Rust', 'Linux', 'TUI'],
   },
+  */
 ];
 
 /**
@@ -147,10 +167,27 @@ export const caseStudies = [
  * 4. JOURNAL / ESSAYS
  * --------------------------------------------------------------------------
  * Long-form writings, architectural reflections, and design notes.
- * Formatted identically to Case Studies with interactive reels, previews,
- * and deep read pages.
+ *
+ * BLUEPRINT TEMPLATE:
+ * To add a new journal entry, add an object to the `journal` array below:
+ * ```js
+ * {
+ *   id: 'essay-slug',
+ *   title: 'Essay Title',
+ *   meta: 'Essay · Aug 2024',
+ *   date: '2024-08-07', // YYYY-MM-DD
+ *   hue: 215, // Accent hue angle for ambient rays
+ *   stack: ['Design', 'Philosophy', 'Frontend'],
+ *   blocks: mk(
+ *     <>First paragraph with <Highlight color="yellow">highlighted thoughts</Highlight>.</>,
+ *     <>Second paragraph with <Underline color="blue" variant="default">underlined ideas</Underline>.</>,
+ *     <>Third paragraph conclusion.</>
+ *   ),
+ * }
+ * ```
  */
 export const journal = [
+  /*
   {
     id: 'rebuilding-portfolio',
     title: 'Why I keep rebuilding my portfolio',
@@ -246,6 +283,7 @@ export const journal = [
       </>
     ),
   },
+  */
 ];
 
 /**

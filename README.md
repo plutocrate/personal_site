@@ -110,35 +110,52 @@ Houses global website profile data, navigation, case studies, journal articles, 
   };
   ```
 
-- **Case Studies**:
-  ```js
+- **Case Studies (`src/data/content.jsx`)**:
+  Currently empty with blueprint templates commented inside. When empty, visitors see a cool **"nothing here....YET"** empty state with the **Flappy Square** mini-game.
+  
+  To add your own case study, add an object to the `caseStudies` array in `src/data/content.jsx`:
+  ```jsx
   {
     id: 'my-project-slug',     // URL: /case-studies/my-project-slug
     title: 'Project Title',
     meta: 'Personal · 2024',
     status: 'shipped',         // 'shipped' (green) | 'building' (blue) | 'draft' (gray)
     hue: 150,                  // Dynamic background gradient hue (0-360)
-    blocks: mk('Overview description text for the case study...'),
     stack: ['React', 'TypeScript', 'Tailwind'],
+    blocks: mk(
+      <>First paragraph with optional <Highlight color="yellow">highlights</Highlight>.</>,
+      <>Second paragraph with <Underline color="blue" variant="default">underlines</Underline>.</>,
+      <>Closing thoughts and conclusions.</>
+    ),
   }
   ```
 
-- **Journal**:
-  ```js
+- **Journal (`src/data/content.jsx`)**:
+  Currently empty with blueprint templates commented inside. When empty, visitors also see the cool **"nothing here....YET"** empty state with **Flappy Square**.
+  
+  To add a new essay or writing piece, add an object to the `journal` array in `src/data/content.jsx`:
+  ```jsx
   {
-    id: 'post-slug',
-    date: '2024-08-07',
+    id: 'my-essay-slug',       // URL: /journal/my-essay-slug
     title: 'Your Article Title',
-    blurb: 'Short teaser blurb for the post list.',
+    meta: 'Essay · Aug 2024',
+    date: '2024-08-07',        // YYYY-MM-DD
+    hue: 215,                  // Ambient ray hue angle (0-360)
+    stack: ['Design', 'Philosophy', 'Frontend'],
+    blocks: mk(
+      <>Opening ideas with <Highlight color="rose">visual styling</Highlight>.</>,
+      <>Deep-dive architectural reflection.</>,
+      <>Summary conclusion.</>
+    ),
   }
   ```
 
 - **Contact Links**:
   ```js
   export const contacts = [
-    { label: 'LinkedIn', href: 'https://linkedin.com/in/...' },
-    { label: 'GitHub', href: 'https://github.com/...' },
-    { label: 'Mail', href: 'mailto:you@example.com' },
+    { label: 'LinkedIn', href: 'https://linkedin.com/in/prathammpurohit' },
+    { label: 'GitHub', href: 'https://github.com/plutocrate' },
+    { label: 'Mail', href: 'mailto:prathampurohitonline@outlook.com' },
   ];
   ```
 

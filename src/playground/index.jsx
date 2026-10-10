@@ -1,6 +1,9 @@
 import { startBoids } from './boids.js';
 import { startGravity } from './gravity.js';
-import { mk, SOON } from '../data/blocks.js';
+import { startSpringChain } from './springChain.js';
+import { startReactionDiffusion } from './reactionDiffusion.js';
+import { startDoublePendulum } from './doublePendulum.js';
+import { mk } from '../data/blocks.js';
 import Highlight from '../components/Highlight.jsx';
 import Underline from '../components/Underline.jsx';
 
@@ -9,7 +12,7 @@ import Underline from '../components/Underline.jsx';
    --------------------------------------------------------------------------
    Register physics simulations and concept playgrounds here.
    - `start`: Animation starter function `start(canvas) => stop`
-   - `start: null`: Automatically displays "Coming soon" state.
+   - `start: null`: Displays "Coming soon" state.
    ========================================================================== */
 
 export const sims = [
@@ -67,52 +70,73 @@ export const sims = [
   {
     id: 'spring-chain',
     title: 'Spring chain',
-    meta: 'Coming soon',
+    meta: 'Live',
     hue: 30,
-    start: null,
+    start: startSpringChain,
     description: (
       <>
-        A chain of masses joined by springs that you can pull and release, with the physics step computed in <Highlight color="yellow">WebAssembly</Highlight>.
+        A chain of masses joined by springs that you can pull and release, with <Highlight color="yellow">real-time elasticity</Highlight> and smooth harmonic damping.
       </>
     ),
     blocks: mk(
-      'A chain of masses joined by springs that you can pull and release with real-time elasticity.',
-      ...SOON
+      <>
+        A linked chain of point masses responding to spring forces, gravity, and <Highlight color="yellow">elastic deformation</Highlight>.
+      </>,
+      <>
+        Hover or drag any node along the chain to deflect it. Hooke’s law calculates restore forces between neighbors, while <Underline color="blue" variant="default">quadratic Bézier interpolation</Underline> keeps the chain visually continuous.
+      </>,
+      <>
+        Velocity damping prevents erratic oscillation, letting the system settle smoothly back to equilibrium after disturbance.
+      </>
     ),
-    stack: ['Rust', 'WebAssembly', 'Canvas 2D'],
+    stack: ['JavaScript', 'Canvas 2D', 'Verlet'],
   },
   {
     id: 'reaction-diffusion',
     title: 'Reaction diffusion',
-    meta: 'Coming soon',
+    meta: 'Live',
     hue: 150,
-    start: null,
+    start: startReactionDiffusion,
     description: (
       <>
-        Two chemicals feeding and consuming each other, generating <Underline color="teal" variant="default">coral and spot patterns</Underline>. Computed on a grid in <Highlight color="green">WebAssembly</Highlight>.
+        Two chemicals feeding and consuming each other, generating <Underline color="teal" variant="default">coral and spot patterns</Underline>. Drag across the canvas to seed <Highlight color="green">new biological reactions</Highlight>.
       </>
     ),
     blocks: mk(
-      'Two chemicals feeding and consuming each other, producing biological Turing patterns.',
-      ...SOON
+      <>
+        The Gray-Scott reaction-diffusion system simulated in real-time, modeling how biological <Underline color="teal" variant="default">Turing patterns</Underline> emerge from chemical kinetics.
+      </>,
+      <>
+        Two virtual chemicals diffuse across a grid at different rates. Chemical U is continuously fed while chemical V is consumed, forming self-organizing spirals and leopard spots.
+      </>,
+      <>
+        Dragging your pointer introduces high concentrations of catalyst, creating <Highlight color="green">novel morphogenesis fronts</Highlight> that ripple across the surface.
+      </>
     ),
-    stack: ['C', 'WebAssembly', 'WebGL'],
+    stack: ['JavaScript', 'Grid Simulation', 'Canvas 2D'],
   },
   {
     id: 'double-pendulum',
     title: 'Double pendulum',
-    meta: 'Coming soon',
+    meta: 'Live',
     hue: 330,
-    start: null,
+    start: startDoublePendulum,
     description: (
       <>
-        A chaotic system you can nudge. Two almost identical starting angles <Underline color="rose" variant="default">drift apart within seconds</Underline>.
+        A chaotic system you can nudge. Two almost identical starting angles <Underline color="rose" variant="default">drift apart within seconds</Underline>, tracing intricate orbits.
       </>
     ),
     blocks: mk(
-      'A chaotic system you can nudge to observe deterministic chaos in real-time.',
-      ...SOON
+      <>
+        A classic double pendulum demonstrating <Highlight color="rose">deterministic chaos</Highlight> governed by coupled non-linear differential equations.
+      </>,
+      <>
+        Small changes in initial conditions produce drastically diverging trajectories. Even without random numbers, motion is <Underline color="rose" variant="default">inherently unpredictable</Underline>.
+      </>,
+      <>
+        Move your pointer near the apex to impart angular momentum and watch the glowing trail paint the chaotic attractor.
+      </>
     ),
-    stack: ['JavaScript', 'Canvas 2D'],
+    stack: ['JavaScript', 'Lagrangian Physics', 'Canvas 2D'],
   },
 ];

@@ -3,6 +3,8 @@ import ProjectReel from '../components/ProjectReel.jsx';
 import CaseBlocks from '../components/CaseBlocks.jsx';
 import Arrow from '../components/Arrow.jsx';
 import AmbientRays from '../components/AmbientRays.jsx';
+import Crumbs from '../components/Crumbs.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import { journal } from '../data/content.js';
 
 // Header banner with dynamic mild downward color rays, essay blocks, and read more
@@ -42,6 +44,17 @@ const Slide = ({ j }) => (
 );
 
 export default function Journal() {
+  if (!journal || journal.length === 0) {
+    return (
+      <>
+        <div className="page-crumbs desktop-only-bar">
+          <Crumbs trail={[{ label: 'Journal' }]} />
+        </div>
+        <EmptyState category="Journal" />
+      </>
+    );
+  }
+
   return (
     <ProjectReel
       base="/journal"
