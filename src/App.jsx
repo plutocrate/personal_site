@@ -18,7 +18,21 @@ import './utils/theme.js';
 
 export default function App() {
   const location = useLocation();
-  const [open, setOpen] = useState(() => window.innerWidth > 860);
+  const [open, setOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth > 860);
+
+  // Automatically close sidebar when screen width drops to smaller/mobile screens
+  useEffect(() => {
+    let wasMobile = window.innerWidth <= 860;
+    const handleResize = () => {
+      const isMobile = window.innerWidth <= 860;
+      if (isMobile && !wasMobile) {
+        setOpen(false);
+      }
+      wasMobile = isMobile;
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // "[" toggles the sidebar
   useEffect(() => {
