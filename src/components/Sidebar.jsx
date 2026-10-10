@@ -5,6 +5,7 @@ import Logo from './Logo.jsx';
 import QuoteBox from './QuoteBox.jsx';
 import NavItem from './NavItem.jsx';
 import ContactItem from './ContactItem.jsx';
+import MiniNav from './MiniNav.jsx';
 import { nav, caseStudies, journal, contacts, profile } from '../data/content.js';
 import { lifeUpdates } from '../data/lifeUpdates.js';
 import { sims } from '../playground/index.js';
@@ -155,21 +156,34 @@ export default function Sidebar({ open, onOpenChange }) {
             </AnimatePresence>
           </div>
 
-          <AnimatePresence initial={false}>
-            {open && (
+          <AnimatePresence initial={false} mode="wait">
+            {open ? (
               <motion.nav
+                key="full-nav"
                 className="nav"
                 aria-label="Primary"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                exit={{ opacity: 0, transition: { duration: 0.1 } }}
-                transition={{ delay: 0.1 }}
+                exit={{ opacity: 0, transition: { duration: 0.08 } }}
+                transition={{ delay: 0.08 }}
               >
                 {nav.map((n) => (
                   <NavItem key={n.to} {...n} count={getCount(n.to)} />
                 ))}
                 <ContactItem count={contacts.length} />
               </motion.nav>
+            ) : (
+              !isMobile && (
+                <motion.div
+                  key="mini-nav"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, transition: { duration: 0.08 } }}
+                  transition={{ delay: 0.08 }}
+                >
+                  <MiniNav getCount={getCount} />
+                </motion.div>
+              )
             )}
           </AnimatePresence>
 
