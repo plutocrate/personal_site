@@ -31,7 +31,14 @@ export default function LifeUpdates() {
         >
           {/* Date placed on top of media */}
           <div className="reel-date">{formatDate(item.date)}</div>
-          <div className="reel-media"><Media media={item.media} /></div>
+          <div
+            className="reel-media"
+            style={{
+              '--media-ratio': item.media?.aspectRatio || (item.media?.width && item.media?.height ? `${item.media.width} / ${item.media.height}` : '16 / 9'),
+            }}
+          >
+            <Media media={item.media} />
+          </div>
           <div className="reel-text">{item.text}</div>
         </motion.div>
       </AnimatePresence>

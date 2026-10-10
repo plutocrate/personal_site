@@ -35,6 +35,9 @@ export const lifeUpdates = [
     media: {
       type: 'iframe',
       src: 'https://assets.pinterest.com/ext/embed.html?id=882142646054062145',
+      width: 600,
+      height: 747,
+      aspectRatio: '600 / 747',
       title: 'Disco Elysium Art',
     },
     text: (

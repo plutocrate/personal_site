@@ -39,7 +39,14 @@ export default function About() {
             </div>
             <article className="life-card" onClick={() => navigate(`/life/${latest.id}`)}>
               <p className="life-text">{latest.text}</p>
-              <div className="life-media"><Media media={latest.media} /></div>
+              <div
+                className="life-media"
+                style={{
+                  '--media-ratio': latest.media?.aspectRatio || (latest.media?.width && latest.media?.height ? `${latest.media.width} / ${latest.media.height}` : '16 / 9'),
+                }}
+              >
+                <Media media={latest.media} />
+              </div>
             </article>
             <Link to="/life" className="marker life-more">
               <span>See all life updates</span>
