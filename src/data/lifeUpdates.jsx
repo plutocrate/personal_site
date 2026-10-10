@@ -29,29 +29,32 @@ import Arrow from '../components/Arrow.jsx';
 
 export const lifeUpdates = [
   {
-    id: 'holographic-card',
+    id: 'threads-ticket-hologram',
     date: '2026-10-10',
-    time: '22:15:00', // Today's newest update
+    time: '22:30:00', // Today's newest update
     media: {
       type: 'iframe',
-      src: 'https://codepen.io/simeydotme/embed/OJaVzzv?default-tab=js%2Cresult',
+      src: 'https://codepen.io/simeydotme/embed/QWJqRvB?default-tab=result',
       width: 600,
       height: 380,
       aspectRatio: '600 / 380',
-      title: 'Transparent Holographic Credit Card',
+      title: 'Threads ticket with Hologram Effect',
     },
     text: (
       <>
         Check out this insane CodePen experiment:{' '}
         <a
-          href="https://codepen.io/simeydotme/pen/OJaVzzv"
+          href="https://codepen.io/simeydotme/pen/QWJqRvB"
           target="_blank"
           rel="noreferrer"
           className="text-link"
         >
-          Transparent Holographic Credit Card<Arrow />
+          Threads ticket with Hologram Effect<Arrow />
         </a>{' '}
-        by <Highlight color="purple">Simey</Highlight>. The 3D tilting, glass refraction, and holographic foil reflections made purely with CSS and SVG filters are stunning!
+        by <Highlight color="purple">Simey</Highlight>. The{' '}
+        <Underline color="blue" variant="default">3D tilting</Underline>,{' '}
+        <Underline color="teal" variant="developer">holographic foil sheen</Underline>, and{' '}
+        <Underline color="rose" variant="designer">lighting reflections</Underline> made purely with CSS and SVG filters are stunning!
       </>
     ),
   },
