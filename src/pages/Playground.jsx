@@ -15,7 +15,7 @@ const Slide = ({ s }) => (
             <Arrow dir="up-right" size={13} />
           </Link>
         </h2>
-        <span className="info-meta">{s.meta}</span>
+        {s.meta && <span className="info-meta">{s.meta}</span>}
       </div>
       <p>{s.description}</p>
       <div className="stack">{s.stack.map((t) => <span key={t} className="chip">{t}</span>)}</div>

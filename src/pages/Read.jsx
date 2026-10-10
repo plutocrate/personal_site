@@ -47,7 +47,7 @@ export default function Read({ kind }) {
       <div className="info-head" style={{ marginTop: 28 }}>
         <h1 className="h1" style={{ margin: 0 }}>{item.title}</h1>
         {item.status && <i className={`dot ${item.status}`} title={item.status} />}
-        <span className="info-meta">{item.meta || item.date}</span>
+        {(item.meta || item.date) && <span className="info-meta">{item.meta || item.date}</span>}
       </div>
       {item.stack && (
         <div className="stack" style={{ margin: '14px 0 28px' }}>

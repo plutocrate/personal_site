@@ -1,7 +1,7 @@
 import { startBoids } from './boids.js';
 import { startGravity } from './gravity.js';
 import { startSpringChain } from './springChain.js';
-import { startReactionDiffusion } from './reactionDiffusion.js';
+import { startGameOfLife } from './gameOfLife.js';
 import { startDoublePendulum } from './doublePendulum.js';
 import { startPhysicsSandbox } from './physicsSandbox.js';
 import { startTeapot } from './teapot.js';
@@ -21,7 +21,6 @@ export const sims = [
   {
     id: 'flock',
     title: 'Flock',
-    meta: 'Live',
     hue: 210,
     start: startBoids,
     description: (
@@ -176,7 +175,6 @@ export const startBoids = (canvas) => mount(canvas, (s) => {
   {
     id: 'gravity-well',
     title: 'Gravity well',
-    meta: 'Live',
     hue: 260,
     start: startGravity,
     description: (
@@ -296,7 +294,6 @@ export const startGravity = (canvas) => mount(canvas, (s) => {
   {
     id: 'spring-chain',
     title: 'Spring chain',
-    meta: 'Live',
     hue: 30,
     start: startSpringChain,
     description: (
@@ -501,44 +498,45 @@ export const startSpringChain = (canvas) => mount(canvas, (s) => {
     stack: ['JavaScript', 'Canvas 2D', 'Classical Mechanics'],
   },
   {
-    id: 'reaction-diffusion',
-    title: 'Reaction diffusion',
-    meta: 'Live',
+    id: 'game-of-life',
+    title: 'Game of life',
     hue: 150,
-    start: startReactionDiffusion,
+    start: startGameOfLife,
     description: (
       <>
-        Two chemicals feeding and consuming each other, generating <Underline color="teal" variant="default">coral and spot patterns</Underline>. Drag across the canvas to seed <Highlight color="green">new biological reactions</Highlight>.
+        Conway’s iconic <Highlight color="green">cellular automaton</Highlight> simulated on an infinite toroidal grid. Simple local neighbor rules generate <Underline color="teal" variant="default">gliders, oscillators, and emergent digital life</Underline>. Click or drag across the stage to draw living cells.
       </>
     ),
     blocks: [
       {
         type: 'heading',
-        text: '1. Morphogenesis & The Gray-Scott PDE Model',
+        text: '1. Cellular Automata & Emergent Complexity',
       },
       {
         type: 'text',
         text: (
           <>
-            Alan Turing demonstrated that complex organic patterns (leopard spots, zebra stripes, and coral reefs) arise naturally from the reaction and differential diffusion of chemical morphogens.
+            Conway’s Game of Life (1970) proves that immense complexity, self-replication, and Turing completeness arise naturally from a discrete grid with just four zero-player deterministic rules.
           </>
         ),
       },
       {
         type: 'heading',
-        text: '2. Differential Diffusion & Discrete Laplacian Grids',
+        text: '2. The Four Rules & Toroidal Topology',
       },
       {
         type: 'text',
         text: (
           <>
-            Two chemical fields U and V diffuse across a discrete grid. The reaction converts chemical U into V in the presence of existing V (autocatalysis UV²):
+            Every cell interacts with its eight Moore neighbors (horizontal, vertical, diagonal) across a wrapped toroidal topology:
             <br />
-            • <Underline color="teal" variant="default">∂U/∂t = Du · ∇²U - U·V² + F·(1 - U)</Underline>
+            • <Highlight color="rose">Underpopulation</Highlight>: Any live cell with fewer than two live neighbors dies.
             <br />
-            • <Underline color="green" variant="default">∂V/∂t = Dv · ∇²V + U·V² - (F + K)·V</Underline>
+            • <Highlight color="green">Survival</Highlight>: Any live cell with two or three live neighbors lives on to the next generation.
             <br />
-            • Dragging injects morphogen V, generating ripples and spiraling biological structures.
+            • <Highlight color="yellow">Overpopulation</Highlight>: Any live cell with more than three live neighbors dies.
+            <br />
+            • <Highlight color="blue">Reproduction</Highlight>: Any dead cell with exactly three live neighbors becomes a live cell.
           </>
         ),
       },
@@ -549,14 +547,21 @@ export const startSpringChain = (canvas) => mount(canvas, (s) => {
       {
         type: 'code',
         lang: 'JavaScript',
-        code: `// 5-point discrete Laplacian convolution
-const lapU = (u[i - 1] + u[i + 1] + u[i - GW] + u[i + GW] - 4 * curU) * 0.2;
-const lapV = (v[i - 1] + v[i + 1] + v[i - GW] + v[i + GW] - 4 * curV) * 0.2;
-const uvv = curU * curV * curV;
+        code: `// 8 Moore neighbors sum with toroidal coordinate wrapping
+const neighbors =
+  grid[topIdx + xLeft] + grid[topIdx + x] + grid[topIdx + xRight] +
+  grid[rowIdx + xLeft] + grid[rowIdx + xRight] +
+  grid[botIdx + xLeft] + grid[botIdx + x] + grid[botIdx + xRight];
 
-// Gray-Scott reaction update
-nextU[i] = Math.max(0, Math.min(1, curU + (Du * lapU - uvv + F * (1.0 - curU))));
-nextV[i] = Math.max(0, Math.min(1, curV + (Dv * lapV + uvv - (F + K) * curV)));`,
+const idx = rowIdx + x;
+const alive = grid[idx];
+
+// B3/S23 transition law
+if (alive) {
+  nextGrid[idx] = (neighbors === 2 || neighbors === 3) ? 1 : 0;
+} else {
+  nextGrid[idx] = (neighbors === 3) ? 1 : 0;
+}`,
       },
       {
         type: 'heading',
@@ -567,100 +572,181 @@ nextV[i] = Math.max(0, Math.min(1, curV + (Dv * lapV + uvv - (F + K) * curV)));`
         lang: 'JavaScript',
         code: `import { mount } from './util.js';
 
-// Interactive Reaction Diffusion (Gray-Scott model on a high-speed simulation grid)
-export const startReactionDiffusion = (canvas) => mount(canvas, (s) => {
-  const GW = 140, GH = 90;
-  let u = new Float32Array(GW * GH);
-  let v = new Float32Array(GW * GH);
-  let nextU = new Float32Array(GW * GH);
-  let nextV = new Float32Array(GW * GH);
+/**
+ * Conway's Game of Life
+ * Cellular automaton simulated on a discrete toroidal 2D lattice.
+ * Supports interactive dragging to spawn live cells and gliders.
+ */
+export const startGameOfLife = (canvas) => mount(canvas, (s) => {
+  const CELL_SIZE = 8;
+  let cols = 0;
+  let rows = 0;
+  let grid = null;
+  let nextGrid = null;
+  let ageGrid = null;
 
-  // Initialize homogeneous field with chemical seeds in the center
-  for (let i = 0; i < GW * GH; i++) {
-    u[i] = 1.0;
-    v[i] = 0.0;
-  }
-  for (let y = GH * 0.4; y < GH * 0.6; y++) {
-    for (let x = GW * 0.4; x < GW * 0.6; x++) {
-      const idx = Math.floor(y) * GW + Math.floor(x);
-      u[idx] = 0.5 + Math.random() * 0.05;
-      v[idx] = 0.25 + Math.random() * 0.05;
-    }
-  }
+  const initGrid = () => {
+    const w = s.w || canvas.clientWidth || 600;
+    const h = s.h || canvas.clientHeight || 400;
+    cols = Math.max(16, Math.floor(w / CELL_SIZE));
+    rows = Math.max(12, Math.floor(h / CELL_SIZE));
 
-  // Offscreen canvas for fast pixel blitting
-  const offscreen = document.createElement('canvas');
-  offscreen.width = GW;
-  offscreen.height = GH;
-  const offCtx = offscreen.getContext('2d');
-  const imgData = offCtx.createImageData(GW, GH);
+    grid = new Uint8Array(cols * rows);
+    nextGrid = new Uint8Array(cols * rows);
+    ageGrid = new Uint8Array(cols * rows);
 
-  const Du = 0.2097, Dv = 0.105, F = 0.0545, K = 0.062;
-
-  const step = () => {
-    for (let y = 1; y < GH - 1; y++) {
-      for (let x = 1; x < GW - 1; x++) {
-        const i = y * GW + x;
-        const curU = u[i], curV = v[i];
-        const lapU = (u[i - 1] + u[i + 1] + u[i - GW] + u[i + GW] - 4 * curU) * 0.2;
-        const lapV = (v[i - 1] + v[i + 1] + v[i - GW] + v[i + GW] - 4 * curV) * 0.2;
-        const uvv = curU * curV * curV;
-
-        nextU[i] = Math.max(0, Math.min(1, curU + (Du * lapU - uvv + F * (1.0 - curU))));
-        nextV[i] = Math.max(0, Math.min(1, curV + (Dv * lapV + uvv - (F + K) * curV)));
+    for (let i = 0; i < cols * rows; i++) {
+      if (Math.random() < 0.16) {
+        grid[i] = 1;
+        ageGrid[i] = 1;
       }
     }
-    const tmpU = u; u = nextU; nextU = tmpU;
-    const tmpV = v; v = nextV; nextV = tmpV;
+
+    const cx = Math.floor(cols * 0.35);
+    const cy = Math.floor(rows * 0.35);
+    const glider = [
+      [0, 1], [1, 2], [2, 0], [2, 1], [2, 2]
+    ];
+    glider.forEach(([dx, dy]) => {
+      const idx = (cy + dy) * cols + (cx + dx);
+      if (idx < grid.length) {
+        grid[idx] = 1;
+        ageGrid[idx] = 1;
+      }
+    });
   };
 
-  return () => {
-    const { ctx, w, h } = s;
+  initGrid();
 
-    // Inject chemical V on pointer position gently
-    if (s.mx != null && s.my != null && w > 0 && h > 0) {
-      const gx = Math.floor((s.mx / w) * GW);
-      const gy = Math.floor((s.my / h) * GH);
-      for (let dy = -2; dy <= 2; dy++) {
-        for (let dx = -2; dx <= 2; dx++) {
-          const nx = gx + dx, ny = gy + dy;
-          if (nx >= 1 && nx < GW - 1 && ny >= 1 && ny < GH - 1) {
-            v[ny * GW + nx] = 0.55;
-            u[ny * GW + nx] = 0.35;
-          }
+  let lastSimStep = performance.now();
+  const STEP_INTERVAL_MS = 65;
+
+  return (dt) => {
+    const { ctx, w, h } = s;
+    if (!w || !h) return;
+
+    const curCols = Math.floor(w / CELL_SIZE);
+    const curRows = Math.floor(h / CELL_SIZE);
+    if (curCols !== cols || curRows !== rows) {
+      initGrid();
+    }
+
+    if (s.mx != null && s.my != null && s.mx >= 0 && s.mx < w && s.my >= 0 && s.my < h) {
+      const gx = Math.floor(s.mx / CELL_SIZE);
+      const gy = Math.floor(s.my / CELL_SIZE);
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = (gx + dx + cols) % cols;
+          const ny = (gy + dy + rows) % rows;
+          const idx = ny * cols + nx;
+          grid[idx] = 1;
+          ageGrid[idx] = 1;
         }
       }
     }
 
-    // Step physics once per frame for calm, deliberate diffusion rate
-    step();
+    const now = performance.now();
+    if (now - lastSimStep >= STEP_INTERVAL_MS) {
+      lastSimStep = now;
 
-    // Render image buffer
-    const d = imgData.data;
-    for (let i = 0; i < GW * GH; i++) {
-      const val = Math.max(0, Math.min(1, u[i] - v[i]));
-      const p = i * 4;
-      const intensity = Math.floor(val * 240);
-      d[p] = intensity;
-      d[p + 1] = Math.floor(intensity * 0.96);
-      d[p + 2] = Math.floor(intensity * 0.92);
-      d[p + 3] = 255;
+      for (let y = 0; y < rows; y++) {
+        const yTop = (y - 1 + rows) % rows;
+        const yBot = (y + 1) % rows;
+        const rowIdx = y * cols;
+        const topIdx = yTop * cols;
+        const botIdx = yBot * cols;
+
+        for (let x = 0; x < cols; x++) {
+          const xLeft = (x - 1 + cols) % cols;
+          const xRight = (x + 1) % cols;
+
+          const neighbors =
+            grid[topIdx + xLeft] +
+            grid[topIdx + x] +
+            grid[topIdx + xRight] +
+            grid[rowIdx + xLeft] +
+            grid[rowIdx + xRight] +
+            grid[botIdx + xLeft] +
+            grid[botIdx + x] +
+            grid[botIdx + xRight];
+
+          const idx = rowIdx + x;
+          const alive = grid[idx];
+
+          if (alive) {
+            if (neighbors === 2 || neighbors === 3) {
+              nextGrid[idx] = 1;
+              ageGrid[idx] = Math.min(255, ageGrid[idx] + 1);
+            } else {
+              nextGrid[idx] = 0;
+              ageGrid[idx] = 0;
+            }
+          } else {
+            if (neighbors === 3) {
+              nextGrid[idx] = 1;
+              ageGrid[idx] = 1;
+            } else {
+              nextGrid[idx] = 0;
+              ageGrid[idx] = 0;
+            }
+          }
+        }
+      }
+
+      const tmp = grid;
+      grid = nextGrid;
+      nextGrid = tmp;
     }
-    offCtx.putImageData(imgData, 0, 0);
 
     ctx.clearRect(0, 0, w, h);
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(offscreen, 0, 0, w, h);
+
+    const isDark = s.dark;
+    const gridLineColor = isDark ? 'rgba(255, 255, 255, 0.03)' : 'rgba(0, 0, 0, 0.035)';
+
+    ctx.strokeStyle = gridLineColor;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (let x = 0; x <= cols; x++) {
+      ctx.moveTo(x * CELL_SIZE, 0);
+      ctx.lineTo(x * CELL_SIZE, rows * CELL_SIZE);
+    }
+    for (let y = 0; y <= rows; y++) {
+      ctx.moveTo(0, y * CELL_SIZE);
+      ctx.lineTo(cols * CELL_SIZE, y * CELL_SIZE);
+    }
+    ctx.stroke();
+
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const idx = y * cols + x;
+        if (grid[idx]) {
+          const age = ageGrid[idx];
+          const px = x * CELL_SIZE;
+          const py = y * CELL_SIZE;
+
+          if (isDark) {
+            const hue = Math.min(180, 140 + age * 2);
+            ctx.fillStyle = \`hsl(\${hue}, 85%, \${Math.min(72, 58 + age)}%)\`;
+          } else {
+            const hue = Math.min(175, 145 + age * 2);
+            ctx.fillStyle = \`hsl(\${hue}, 80%, \${Math.max(34, 44 - age * 0.3)}%)\`;
+          }
+
+          ctx.beginPath();
+          ctx.roundRect(px + 1, py + 1, CELL_SIZE - 2, CELL_SIZE - 2, 2);
+          ctx.fill();
+        }
+      }
+    }
   };
 });`,
       },
     ],
-    stack: ['JavaScript', 'Grid PDE', 'Canvas 2D'],
+    stack: ['JavaScript', 'Cellular Automata', 'Canvas 2D'],
   },
   {
     id: 'double-pendulum',
     title: 'Double pendulum',
-    meta: 'Live',
     hue: 330,
     start: startDoublePendulum,
     description: (
@@ -869,7 +955,6 @@ export const startDoublePendulum = (canvas) => mount(canvas, (s) => {
   {
     id: "2d-physics-sandbox",
     title: "WebAssembly 2D Physics Engine",
-    meta: "Wasm · C · Rigid Body Dynamics",
     hue: 35,
     start: startPhysicsSandbox,
     description: (
@@ -1323,7 +1408,6 @@ int getMaxSparks(void) { return MAX_SPARKS; }
   {
     id: "utah-teapot-raylib",
     title: "3D Utah Teapot Dynamics",
-    meta: "3D Graphics · Raylib · Wasm",
     hue: 200,
     start: startTeapot,
     description: (
