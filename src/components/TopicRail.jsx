@@ -93,8 +93,16 @@ export default function TopicRail({ items, index, base }) {
             <Link
               key={it.id}
               to={`${base}/${it.id}`}
+              onPointerDown={(e) => {
+                // Prevent wrapper scrubber from hijacking direct click on item
+                e.stopPropagation();
+              }}
               onClick={(e) => {
-                if (hasMoved.current) e.preventDefault();
+                if (hasMoved.current) {
+                  e.preventDefault();
+                } else {
+                  navigate(`${base}/${it.id}`);
+                }
               }}
               className={`rail-item${d === 0 ? ' on' : ''}`}
               style={{ '--o': o }}

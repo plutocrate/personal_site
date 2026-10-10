@@ -867,107 +867,456 @@ export const startDoublePendulum = (canvas) => mount(canvas, (s) => {
   },
   {
     id: "2d-physics-sandbox",
-    title: "2D Physics & Collision Sandbox",
-    meta: "Dynamics · Collision · Inertia",
+    title: "WebAssembly 2D Physics Engine",
+    meta: "Wasm · C · Rigid Body Dynamics",
     hue: 35,
     start: startPhysicsSandbox,
     description: (
       <>
-        Interactive <Highlight color="orange">2D multi-body physics simulation</Highlight>. Drop geometric primitives (circles, boxes, triangles, beams, pentagons), pull and slingshot shapes with <Underline color="teal" variant="developer">acceleration & inertia</Underline>, and observe realistic impulse momentum exchange, boundary bouncing, restitution, and friction.
+        High-performance <Highlight color="orange">native C physics engine</Highlight> compiled to <Underline color="teal" variant="developer">WebAssembly (WASM)</Underline>. Drop geometric primitives (circles, boxes, triangles, pentagons, beams), pull and slingshot shapes with <Underline color="rose" variant="designer">acceleration & inertia</Underline>, and simulate impulse momentum collision resolution at 60+ FPS.
       </>
     ),
     blocks: [
       {
         type: "heading",
-        text: "1. Overview & Mechanics",
+        text: "1. Overview & Native WebAssembly Pipeline",
       },
       {
         type: "text",
         text: (
           <>
-            An interactive multi-body physics engine built from scratch. Select geometric shapes from the toolbar (circles, boxes, triangles, pentagons, and beams) and tap the canvas to spawn them into the world under gravitational acceleration. Grab any shape and pull backwards like a slingshot to inject impulse velocity vectors, launching objects into high-speed dynamic collisions.
+            This simulation runs a high-performance multi-body rigid dynamics and particle kernel authored in freestanding <b>C</b> and compiled directly into a compact 32-bit WebAssembly (WASM) binary using <code>clang</code> and <code>wasm-ld</code>. Position integration, pairwise momentum collision impulses, arena boundary bouncing, kinetic restitution, and spark particle dynamics all execute in near-bare-metal WASM linear memory.
           </>
         ),
       },
       {
         type: "heading",
-        text: "2. Kinematics, Inertia & Force Integration",
+        text: "2. Kinematics, Inertia & Slingshot Acceleration",
       },
       {
         type: "text",
         text: (
           <>
-            Each rigid body tracks linear velocity <code>(vx, vy)</code>, angular rotation <code>(angle, va)</code>, mass, and elasticity restitution:
+            Each rigid body tracks linear velocity <code>(vx, vy)</code>, angular velocity <code>(angle, va)</code>, mass, and coefficient of restitution:
             <br />
             • <b>Gravitational Acceleration</b>: Continuous downward force <code>vy += g * dt</code>.
             <br />
-            • <b>Aerodynamic Drag & Ground Friction</b>: Decays kinetic energy naturally preventing explosive instability.
+            • <b>Aerodynamic Drag & Friction</b>: Exponential decay factors <code>vx *= airDrag; vy *= airDrag;</code>.
             <br />
-            • <b>Slingshot Impulse</b>: Pull vector translates directly to kinetic momentum <code>F = -k * Δr</code> with real-time velocity badge readout.
+            • <b>Slingshot Impulse</b>: Grabbing and pulling any shape stretches a kinetic tether. On release, the vector calculates launch speed: <code>vx = cos(θ) * impulse; vy = sin(θ) * impulse;</code>.
           </>
         ),
       },
       {
         type: "code",
-        code: `// Euler Integration & Drag Decay
-shape.vy += GRAVITY * dt;
-shape.vx *= AIR_DRAG;
-shape.vy *= AIR_DRAG;
-shape.va *= 0.99; // Angular damping
+        code: `// C Kernel Step: Gravity, Drag, and Velocity Integration
+float floorY = worldHeight - 18.0f;
+float ceilY = 52.0f;
+float leftX = 16.0f;
+float rightX = worldWidth - 16.0f;
 
-shape.x += shape.vx * dt;
-shape.y += shape.vy * dt;
-shape.angle += shape.va * dt;`,
-      },
-      {
-        type: "heading",
-        text: "3. Impulse Momentum Collision Resolution",
-      },
-      {
-        type: "text",
-        text: (
-          <>
-            Pairwise body collisions compute contact normals, positional de-penetration, and 1D impulse along the impact axis using Newton's law of restitution:
-          </>
-        ),
-      },
-      {
-        type: "code",
-        code: `// Contact Normal & Relative Velocity
-const nx = dx / dist;
-const ny = dy / dist;
-const rvx = b.vx - a.vx;
-const rvy = b.vy - a.vy;
-const velAlongNormal = rvx * nx + rvy * ny;
+for (int i = 0; i < MAX_BODIES; i++) {
+    if (!bodies[i].active) continue;
+    Body* b = &bodies[i];
 
-if (velAlongNormal < 0) {
-  const e = Math.min(a.restitution, b.restitution);
-  const j = -(1 + e) * velAlongNormal / (1 / a.mass + 1 / b.mass);
-  
-  a.vx -= (j * nx) / a.mass;
-  a.vy -= (j * ny) / a.mass;
-  b.vx += (j * nx) / b.mass;
-  b.vy += (j * ny) / b.mass;
+    // Force integration
+    b->vy += gravityY * dt;
+    b->vx *= airDrag;
+    b->vy *= airDrag;
+    b->va *= 0.99f;
+
+    // Kinematic updates
+    b->x += b->vx * dt;
+    b->y += b->vy * dt;
+    b->angle += b->va * dt;
+
+    // Boundary bounce with restitution & friction
+    if (b->y + b->radius > floorY) {
+        b->y = floorY - b->radius;
+        if (b->vy > 0.0f) {
+            b->vy = -b->vy * b->restitution;
+            b->vx *= surfaceFriction;
+            b->va *= 0.85f;
+            if (b->vy < -60.0f) emitSparks(b->x, floorY, b->colorIdx, 3);
+        }
+    }
 }`,
       },
       {
         type: "heading",
-        text: "4. Interactive Controls & Features",
+        text: "3. Pairwise Impulse Momentum Collision Resolution",
       },
       {
         type: "text",
         text: (
           <>
-            • <b>Toolbar</b>: Select from Circle, Box, Triangle, Pentagon, and Beam.<br />
-            • <b>Tap to Spawn</b>: Tap anywhere in the simulation arena to drop a new object with initial kinetic velocity.<br />
-            • <b>Slingshot Acceleration</b>: Touch/click any body and pull back to see live trajectory vector and speed gauge.<br />
-            • <b>Impact Sparks</b>: High-energy collisions generate procedural particle bursts and tactile haptic vibration.<br />
-            • <b>Reset</b>: Tap ↺ Reset in the top-right to restore the world to its clean initial state.
+            When two geometric bodies penetrate, the contact solver computes the normal vector, separates overlapping geometries along the collision axis, and transfers 1D impulse according to Newton's law of restitution:
           </>
         ),
       },
+      {
+        type: "code",
+        code: `// Fast Distance & Collision Normal Resolution
+float distSq = dx * dx + dy * dy;
+float minDist = a->radius + b->radius;
+
+if (distSq < minDist * minDist && distSq > 0.001f) {
+    // Fast inverse square root
+    float dist = distSq;
+    float xhalf = 0.5f * dist;
+    int i_val = *(int*)&dist;
+    i_val = 0x5f3759df - (i_val >> 1);
+    float invDist = *(float*)&i_val;
+    invDist = invDist * (1.5f - xhalf * invDist * invDist);
+
+    float nx = dx * invDist;
+    float ny = dy * invDist;
+
+    // Relative velocity along contact normal
+    float rvx = b->vx - a->vx;
+    float rvy = b->vy - a->vy;
+    float velAlongNormal = rvx * nx + rvy * ny;
+
+    if (velAlongNormal < 0.0f) {
+        float e = a->restitution < b->restitution ? a->restitution : b->restitution;
+        float invMassSum = (1.0f / a->mass) + (1.0f / b->mass);
+        float impulse = -(1.0f + e) * velAlongNormal / invMassSum;
+
+        a->vx -= (impulse * nx) / a->mass;
+        a->vy -= (impulse * ny) / a->mass;
+        b->vx += (impulse * nx) / b->mass;
+        b->vy += (impulse * ny) / b->mass;
+    }
+}`,
+      },
+      {
+        type: "heading",
+        text: "4. WebAssembly Compilation Pipeline (Clang & wasm-ld)",
+      },
+      {
+        type: "text",
+        text: (
+          <>
+            The C source is compiled directly into a standalone 32-bit WebAssembly binary without needing Emscripten or large runtime overhead:
+          </>
+        ),
+      },
+      {
+        type: "code",
+        code: `clang --target=wasm32 -O3 -nostdlib \
+  -Wl,--no-entry \
+  -Wl,--export-all \
+  -o public/wasm/physics_sim.wasm src/wasm/physics_sim.c`,
+      },
+      {
+        type: "heading",
+        text: "5. Complete C WebAssembly Physics Engine Source Code",
+      },
+      {
+        type: "code",
+        code: `// =============================================================================
+// WebAssembly 2D Multi-Body Rigid & Particle Physics Kernel
+// Author: Pratham Purohit
+// Targets: freestanding wasm32 (-O3 -nostdlib)
+// Features:
+// - Multi-shape kinematics (Circle, Box, Triangle, Pentagon, Beam)
+// - Gravitational acceleration & drag integration
+// - Pairwise impulse collision resolution (Newton restitution)
+// - Arena boundary reflections & surface friction
+// - Slingshot kinetic impulse injection
+// - Particle spark emitter
+// =============================================================================
+
+#define MAX_BODIES 48
+#define MAX_SPARKS 96
+
+// Shape primitive IDs
+#define SHAPE_CIRCLE 0
+#define SHAPE_RECT 1
+#define SHAPE_TRIANGLE 2
+#define SHAPE_PENTAGON 3
+#define SHAPE_LINE 4
+
+typedef struct {
+    float x, y;
+    float vx, vy;
+    float angle, va;
+    float radius;
+    float w, h;
+    float mass;
+    float restitution;
+    int shapeType;
+    int colorIdx;
+    int active;
+} Body;
+
+typedef struct {
+    float x, y;
+    float vx, vy;
+    float life;
+    float maxLife;
+    int colorIdx;
+    int active;
+} Spark;
+
+// Global world state
+static Body bodies[MAX_BODIES];
+static Spark sparks[MAX_SPARKS];
+
+static float worldWidth = 800.0f;
+static float worldHeight = 600.0f;
+static float gravityY = 980.0f;
+static float airDrag = 0.998f;
+static float surfaceFriction = 0.94f;
+
+// Deterministic PRNG
+static unsigned int rng = 54321;
+static float randF(void) {
+    rng = (rng * 1664525u + 1013904223u);
+    return (float)(rng & 0x7FFFFFFF) / 2147483648.0f;
+}
+
+// Spark emitter
+static void emitSparks(float x, float y, int colorIdx, int count) {
+    for (int k = 0; k < count; k++) {
+        for (int i = 0; i < MAX_SPARKS; i++) {
+            if (!sparks[i].active) {
+                float ang = randF() * 6.2831853f;
+                float spd = 40.0f + randF() * 120.0f;
+                sparks[i].x = x;
+                sparks[i].y = y;
+                sparks[i].vx = spd * (float)(randF() - 0.5f) * 2.0f;
+                sparks[i].vy = -spd * (0.3f + randF() * 0.7f);
+                sparks[i].life = 0.0f;
+                sparks[i].maxLife = 0.35f + randF() * 0.35f;
+                sparks[i].colorIdx = colorIdx;
+                sparks[i].active = 1;
+                break;
+            }
+        }
+    }
+}
+
+__attribute__((visibility("default")))
+void initPhysicsWorld(float w, float h) {
+    worldWidth = w;
+    worldHeight = h;
+    for (int i = 0; i < MAX_BODIES; i++) bodies[i].active = 0;
+    for (int i = 0; i < MAX_SPARKS; i++) sparks[i].active = 0;
+}
+
+__attribute__((visibility("default")))
+int spawnBody(int type, float x, float y, float vx, float vy, int colorIdx) {
+    for (int i = 0; i < MAX_BODIES; i++) {
+        if (!bodies[i].active) {
+            Body* b = &bodies[i];
+            b->shapeType = type;
+            b->x = x;
+            b->y = y;
+            b->vx = vx;
+            b->vy = vy;
+            b->angle = (randF() - 0.5f) * 0.5f;
+            b->va = (randF() - 0.5f) * 3.0f;
+            b->colorIdx = colorIdx;
+            b->restitution = 0.75f + randF() * 0.12f;
+            b->active = 1;
+
+            if (type == SHAPE_CIRCLE) {
+                b->radius = 20.0f + randF() * 8.0f;
+                b->w = b->radius * 2.0f;
+                b->h = b->radius * 2.0f;
+                b->mass = (b->radius * b->radius) / 400.0f;
+            } else if (type == SHAPE_RECT) {
+                b->w = 38.0f + randF() * 16.0f;
+                b->h = 28.0f + randF() * 14.0f;
+                b->radius = (b->w > b->h ? b->w : b->h) * 0.6f;
+                b->mass = (b->w * b->h) / 600.0f;
+            } else if (type == SHAPE_TRIANGLE) {
+                float size = 34.0f + randF() * 12.0f;
+                b->w = size;
+                b->h = size;
+                b->radius = size * 0.65f;
+                b->mass = (size * size) / 500.0f;
+            } else if (type == SHAPE_PENTAGON) {
+                b->radius = 24.0f + randF() * 8.0f;
+                b->w = b->radius * 2.0f;
+                b->h = b->radius * 2.0f;
+                b->mass = (b->radius * b->radius) / 380.0f;
+            } else { // SHAPE_LINE / BEAM
+                b->w = 60.0f + randF() * 20.0f;
+                b->h = 10.0f;
+                b->radius = b->w * 0.5f;
+                b->mass = (b->w * b->h) / 300.0f;
+            }
+
+            emitSparks(x, y, colorIdx, 5);
+            return i;
+        }
+    }
+    return -1;
+}
+
+__attribute__((visibility("default")))
+void applyImpulse(int index, float vx, float vy, float va) {
+    if (index >= 0 && index < MAX_BODIES && bodies[index].active) {
+        bodies[index].vx = vx;
+        bodies[index].vy = vy;
+        bodies[index].va = va;
+        emitSparks(bodies[index].x, bodies[index].y, bodies[index].colorIdx, 8);
+    }
+}
+
+__attribute__((visibility("default")))
+void stepPhysics(float dt) {
+    if (dt > 0.033f) dt = 0.033f;
+
+    // 1. Update Sparks
+    for (int i = 0; i < MAX_SPARKS; i++) {
+        if (sparks[i].active) {
+            sparks[i].x += sparks[i].vx * dt;
+            sparks[i].y += sparks[i].vy * dt;
+            sparks[i].vy += 450.0f * dt;
+            sparks[i].life += dt;
+            if (sparks[i].life >= sparks[i].maxLife) sparks[i].active = 0;
+        }
+    }
+
+    // 2. Rigid Body Integration & Boundary Collisions
+    float floorY = worldHeight - 18.0f;
+    float ceilY = 52.0f;
+    float leftX = 16.0f;
+    float rightX = worldWidth - 16.0f;
+
+    for (int i = 0; i < MAX_BODIES; i++) {
+        if (!bodies[i].active) continue;
+        Body* b = &bodies[i];
+
+        // Gravitational acceleration & drag
+        b->vy += gravityY * dt;
+        b->vx *= airDrag;
+        b->vy *= airDrag;
+        b->va *= 0.99f;
+
+        // Position & Angle Integration
+        b->x += b->vx * dt;
+        b->y += b->vy * dt;
+        b->angle += b->va * dt;
+
+        // Floor collision
+        if (b->y + b->radius > floorY) {
+            b->y = floorY - b->radius;
+            if (b->vy > 0.0f) {
+                b->vy = -b->vy * b->restitution;
+                b->vx *= surfaceFriction;
+                b->va *= 0.85f;
+                if (b->vy < -60.0f) emitSparks(b->x, floorY, b->colorIdx, 3);
+            }
+        }
+        // Ceiling
+        if (b->y - b->radius < ceilY) {
+            b->y = ceilY + b->radius;
+            if (b->vy < 0.0f) b->vy = -b->vy * b->restitution;
+        }
+        // Left wall
+        if (b->x - b->radius < leftX) {
+            b->x = leftX + b->radius;
+            if (b->vx < 0.0f) {
+                b->vx = -b->vx * b->restitution;
+                b->va += b->vy * 0.02f;
+            }
+        }
+        // Right wall
+        if (b->x + b->radius > rightX) {
+            b->x = rightX - b->radius;
+            if (b->vx > 0.0f) {
+                b->vx = -b->vx * b->restitution;
+                b->va -= b->vy * 0.02f;
+            }
+        }
+    }
+
+    // 3. Pairwise Impulse Collision Solver
+    for (int i = 0; i < MAX_BODIES; i++) {
+        if (!bodies[i].active) continue;
+        Body* a = &bodies[i];
+
+        for (int j = i + 1; j < MAX_BODIES; j++) {
+            if (!bodies[j].active) continue;
+            Body* b = &bodies[j];
+
+            float dx = b->x - a->x;
+            float dy = b->y - a->y;
+            float distSq = dx * dx + dy * dy;
+            float minDist = a->radius + b->radius;
+
+            if (distSq < minDist * minDist && distSq > 0.001f) {
+                // Approximate square root via fast iterations
+                float dist = distSq;
+                // Basic Newton-Raphson for dist = sqrt(distSq)
+                float xhalf = 0.5f * dist;
+                int i_val = *(int*)&dist;
+                i_val = 0x5f3759df - (i_val >> 1);
+                float invDist = *(float*)&i_val;
+                invDist = invDist * (1.5f - xhalf * invDist * invDist);
+                dist = distSq * invDist;
+
+                float nx = dx * invDist;
+                float ny = dy * invDist;
+
+                // De-penetration
+                float overlap = minDist - dist;
+                a->x -= nx * overlap * 0.5f;
+                a->y -= ny * overlap * 0.5f;
+                b->x += nx * overlap * 0.5f;
+                b->y += ny * overlap * 0.5f;
+
+                // Relative velocity
+                float rvx = b->vx - a->vx;
+                float rvy = b->vy - a->vy;
+                float velAlongNormal = rvx * nx + rvy * ny;
+
+                if (velAlongNormal < 0.0f) {
+                    float e = a->restitution < b->restitution ? a->restitution : b->restitution;
+                    float invMassSum = (1.0f / a->mass) + (1.0f / b->mass);
+                    float impulse = -(1.0f + e) * velAlongNormal / invMassSum;
+
+                    float impX = impulse * nx;
+                    float impY = impulse * ny;
+
+                    a->vx -= impX / a->mass;
+                    a->vy -= impY / a->mass;
+                    b->vx += impX / b->mass;
+                    b->vy += impY / b->mass;
+
+                    a->va += (randF() - 0.5f) * 4.0f;
+                    b->va += (randF() - 0.5f) * 4.0f;
+
+                    if (velAlongNormal < -100.0f) {
+                        emitSparks(a->x + nx * a->radius, a->y + ny * a->radius, a->colorIdx, 4);
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Memory buffer accessors for JS
+__attribute__((visibility("default")))
+void* getBodiesBuffer(void) { return (void*)bodies; }
+
+__attribute__((visibility("default")))
+int getMaxBodies(void) { return MAX_BODIES; }
+
+__attribute__((visibility("default")))
+void* getSparksBuffer(void) { return (void*)sparks; }
+
+__attribute__((visibility("default")))
+int getMaxSparks(void) { return MAX_SPARKS; }
+`,
+      },
     ],
-    stack: ['JavaScript', 'Rigid Body Physics', 'Impulse Dynamics', 'Canvas 2D'],
+    stack: ['WebAssembly', 'C', 'Clang', 'Rigid Body Physics', 'Canvas 2D'],
   },
+
 
 ];
