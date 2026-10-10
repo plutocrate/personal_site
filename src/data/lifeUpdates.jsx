@@ -29,9 +29,27 @@ import Arrow from '../components/Arrow.jsx';
 
 export const lifeUpdates = [
   {
+    id: 'bhalo-lage',
+    date: '2026-10-10',
+    time: '21:55:00', // Newer post (appears at top / featured on About)
+    media: {
+      type: 'youtube',
+      id: '-oq0Kr40f2M',
+    },
+    text: (
+      <>
+        I would like to recommend you a song today. It’s{' '}
+        <Highlight color="yellow">“Bhalo lage”</Highlight> a{' '}
+        <Underline color="blue" variant="default">bengali</Underline> song by the 70’s band{' '}
+        <Highlight color="green">Mohineer Ghoraguli</Highlight>. It was the{' '}
+        <Underline color="orange" variant="long">India’s first rock band</Underline>, actually the first ever Indian music band!
+      </>
+    ),
+  },
+  {
     id: 'disco-elysium',
     date: '2026-10-10',
-    time: '21:55:00', // Internal hardcoded time of day for precise chronological sorting
+    time: '12:00:00', // Earlier post (appears below the music recommendation)
     media: {
       type: 'iframe',
       src: 'https://assets.pinterest.com/ext/embed.html?id=882142646054062145',
@@ -58,24 +76,7 @@ export const lifeUpdates = [
       </>
     ),
   },
-  {
-    id: 'bhalo-lage',
-    date: '2026-10-10',
-    time: '12:00:00',
-    media: {
-      type: 'youtube',
-      id: '-oq0Kr40f2M',
-    },
-    text: (
-      <>
-        I would like to recommend you a song today. It’s{' '}
-        <Highlight color="yellow">“Bhalo lage”</Highlight> a{' '}
-        <Underline color="blue" variant="default">bengali</Underline> song by the 70’s band{' '}
-        <Highlight color="green">Mohineer Ghoraguli</Highlight>. It was the{' '}
-        <Underline color="orange" variant="long">India’s first rock band</Underline>, actually the first ever Indian music band!
-      </>
-    ),
-  },
+
 
   /* ==========================================================================
      TEMPLATE FOR NEW UPDATE (Copy & paste to add another):

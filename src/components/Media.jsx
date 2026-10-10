@@ -14,14 +14,12 @@ export default function Media({ media }) {
       <div
         className="responsive-iframe-wrap"
         style={{
-          '--media-ratio': ratio,
           width: '100%',
           height: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          display: 'block',
           position: 'relative',
           overflow: 'hidden',
+          borderRadius: 'inherit',
           background: 'transparent',
         }}
       >
@@ -37,10 +35,7 @@ export default function Media({ media }) {
             height: '100%',
             border: 'none',
             display: 'block',
-            maxWidth: media.width ? `${media.width}px` : '100%',
-            maxHeight: media.height ? `${media.height}px` : '100%',
-            aspectRatio: ratio,
-            objectFit: 'contain',
+            borderRadius: 'inherit',
           }}
         />
       </div>
