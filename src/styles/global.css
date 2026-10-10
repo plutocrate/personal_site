@@ -233,6 +233,38 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 .nav-here { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 0; }
 .nav-here i { flex: 1; height: 1px; background: var(--line); }
 .nav-here em { font-style: normal; font-size: 12.5px; color: var(--ink-3); }
+
+/* Algorithmic highlight marker nav item with border */
+.nav-label-wrap {
+  display: inline-flex;
+  align-items: center;
+  transition: transform 0.16s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.nav-item.is-highlighted .nav-label-wrap {
+  padding: 0.24em 0.72em;
+  border-radius: 0.55em;
+  background: var(--mark);
+  color: var(--mark-ink);
+  border: 1px solid var(--mark-border, rgba(40, 38, 28, 0.12));
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.nav-item.is-highlighted:hover .nav-label-wrap {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+}
+.nav-item.is-highlighted.is-active .nav-label-wrap {
+  color: var(--mark-ink);
+  border-color: var(--mark-border, rgba(40, 38, 28, 0.2));
+  font-weight: 550;
+}
+.nav-item.is-highlighted .nav-count {
+  color: var(--mark-ink);
+  opacity: 0.75;
+}
 .sidebar-bottom { margin-top: auto; min-height: 20px; }
 .copyright { color: var(--ink-3); font-size: 12px; white-space: nowrap; display: flex; gap: 12px; }
 

@@ -6,6 +6,7 @@ import QuoteBox from './QuoteBox.jsx';
 import NavItem from './NavItem.jsx';
 import ContactItem from './ContactItem.jsx';
 import { nav, caseStudies, journal, contacts, profile } from '../data/content.js';
+import { lifeUpdates } from '../data/lifeUpdates.js';
 import { sims } from '../playground/index.js';
 import { vibrate } from '../utils/haptics.js';
 
@@ -76,6 +77,7 @@ export default function Sidebar({ open, onOpenChange }) {
   };
 
   const getCount = (to) => {
+    if (to === '/life') return lifeUpdates.length || undefined;
     if (to === '/playground') return sims.length || undefined;
     if (to === '/case-studies') return caseStudies.length || undefined;
     if (to === '/journal') return journal.length || undefined;

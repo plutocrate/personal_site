@@ -50,7 +50,7 @@ export default function MobileTopBar({ open, onOpenChange }) {
     const parts = pathname.split('/').filter(Boolean);
     const id = parts[1];
     const index = Math.max(0, lifeUpdates.findIndex((x) => x.id === id));
-    trail = [{ label: 'About', to: '/' }, { label: 'Life updates' }];
+    trail = [{ label: 'Life updates' }];
     reelInfo = {
       index,
       items: lifeUpdates,
