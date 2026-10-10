@@ -1500,6 +1500,13 @@ mark, .hl {
   border-top: 1px solid var(--line);
   border-bottom: none;
 }
-[data-annotation-pos="bottom"]:hover::before {
-  transform: translateX(-50%) translateY(0) rotate(45deg);
+/* Disable tooltip annotations on phones and touchscreens to prevent accidental sticky popups */
+@media (max-width: 860px), (hover: none) and (pointer: coarse) {
+  [data-annotation]::after,
+  [data-annotation]::before {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
 }

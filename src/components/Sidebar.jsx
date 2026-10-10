@@ -128,7 +128,6 @@ export default function Sidebar({ open, onOpenChange }) {
               aria-pressed={open}
               aria-label={open ? 'Collapse sidebar' : 'Expand sidebar'}
               data-annotation="Toggle sidebar  ["
-              data-annotation-pos="bottom"
             >
               <motion.span layout className="knob" transition={spring}>
                 <span className="knob-nav-icon" aria-hidden="true">

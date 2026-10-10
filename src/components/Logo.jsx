@@ -81,7 +81,7 @@ export default function Logo() {
         className={`logo-box ${isCasting ? 'casting-spell' : ''}`}
         onClick={triggerMagicSpell}
         aria-label="New quote & magic spell"
-        title="Tap for a fresh quote & magic ✨"
+        data-annotation="Tap for a fresh quote & magic ✨"
         whileTap={{ scale: 0.92 }}
         animate={
           isCasting

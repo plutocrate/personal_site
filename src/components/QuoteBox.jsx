@@ -25,7 +25,8 @@ export default function QuoteBox() {
     <div
       className="quote-box"
       aria-live="polite"
-      title="Tap logo for a new quote"
+      data-annotation="Tap logo for a fresh quote"
+      data-annotation-pos="bottom"
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
@@ -39,7 +40,6 @@ export default function QuoteBox() {
           <p
             className="quote-text is-clickable-quote"
             onClick={handleQuoteClick}
-            title="Tap to read full quote"
           >
             “{quote.text}”
           </p>
