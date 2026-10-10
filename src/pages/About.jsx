@@ -37,8 +37,17 @@ export default function About() {
               <span>Life update</span>
               <span>{formatDate(latest.date)}</span>
             </div>
-            <article className="life-card" onClick={() => navigate(`/life/${latest.id}`)}>
-              <p className="life-text">{latest.text}</p>
+            <article className="life-card">
+              <div
+                className="life-text-wrap"
+                onClick={() => navigate(`/life/${latest.id}`)}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: 'pointer' }}
+                title="View in Life updates"
+              >
+                <p className="life-text">{latest.text}</p>
+              </div>
               <div
                 className="life-media"
                 style={{
