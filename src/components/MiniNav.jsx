@@ -14,17 +14,17 @@ import { vibrate } from '../utils/haptics.js';
 // Email -> eml
 
 const shortLabels = {
-  '/': 'Abt',
-  '/playground': 'cpg',
-  '/case-studies': 'cs',
-  '/journal': 'esy',
-  '/life': 'lfud',
+  '/': 'ABT',
+  '/playground': 'CPG',
+  '/case-studies': 'CS',
+  '/journal': 'ESY',
+  '/life': 'LFUD',
 };
 
 const contactShortLabels = {
-  LinkedIn: 'li',
-  GitHub: 'gh',
-  Mail: 'eml',
+  LinkedIn: 'LI',
+  GitHub: 'GH',
+  Mail: 'EML',
 };
 
 export default function MiniNav({ getCount }) {
@@ -59,7 +59,7 @@ export default function MiniNav({ getCount }) {
       {/* Mini Contacts: cnt label + direct links (li, gh, eml) */}
       <div className="mini-nav-contacts">
         <span className="mini-nav-contact-title" title="Contact">
-          cnt
+          CNT
         </span>
         <div className="mini-nav-contact-links">
           {contacts.map((c) => {

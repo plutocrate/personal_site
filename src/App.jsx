@@ -18,7 +18,7 @@ import './utils/theme.js';
 
 export default function App() {
   const location = useLocation();
-  const [open, setOpen] = useState(() => typeof window !== 'undefined' && window.innerWidth > 860);
+  const [open, setOpen] = useState(false);
 
   // Automatically close sidebar when screen width drops to smaller/mobile screens
   useEffect(() => {
