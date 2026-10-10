@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-// Smooth, cinematic spring transition tailored for reel snaps
+// Fast, snappy spring transition for reels
 export const slideVariants = {
   enter: (d) => ({ y: d > 0 ? '100%' : '-100%', opacity: 0.95 }),
   center: { y: 0, opacity: 1 },
   exit: (d) => ({ y: d > 0 ? '-100%' : '100%', opacity: 0.95 }),
 };
-export const slideTransition = { duration: 0.55, ease: [0.22, 1, 0.36, 1] };
+export const slideTransition = { duration: 0.38, ease: [0.16, 1, 0.3, 1] };
 
-// useReel: Manages reel-like swipe and scroll physics.
-// Prevents accidental transitions on gentle scrolls / micro-swipes.
+// useReel: Highly responsive, fast reel swipe and wheel scroll.
 export function useReel(items, base) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -30,16 +29,16 @@ export function useReel(items, base) {
     L.on = true;
     L.accumulatedDelta = 0;
     const t0 = Date.now();
-    // Maintain lock to absorb trackpad / momentum wheel flickers
+    // Quick lock release (300ms) so consecutive scrolling feels instantaneous and fluid
     const release = () => {
-      if (Date.now() - L.last > 220 && Date.now() - t0 > 650) {
+      if (Date.now() - L.last > 140 && Date.now() - t0 > 320) {
         L.on = false;
         L.accumulatedDelta = 0;
       } else {
-        setTimeout(release, 60);
+        setTimeout(release, 40);
       }
     };
-    setTimeout(release, 60);
+    setTimeout(release, 40);
   }, [index, items, base, navigate]);
 
   useEffect(() => {
@@ -51,16 +50,15 @@ export function useReel(items, base) {
 
       if (lock.current.on) return;
 
-      // Reset accumulated scroll if user paused scrolling
-      if (now - lock.current.lastDeltaTime > 250) {
+      if (now - lock.current.lastDeltaTime > 200) {
         lock.current.accumulatedDelta = 0;
       }
       lock.current.lastDeltaTime = now;
       lock.current.accumulatedDelta += e.deltaY;
 
-      // Intentional gesture threshold: requires deliberate scroll (110px accumulated) or strong flick (> 90px single tick)
-      const threshold = 110;
-      if (Math.abs(lock.current.accumulatedDelta) >= threshold || Math.abs(e.deltaY) > 90) {
+      // Fast, responsive wheel threshold: 38px accumulated or 28px single tick
+      const threshold = 38;
+      if (Math.abs(lock.current.accumulatedDelta) >= threshold || Math.abs(e.deltaY) > 28) {
         const step = (lock.current.accumulatedDelta !== 0 ? lock.current.accumulatedDelta : e.deltaY) > 0 ? 1 : -1;
         go(step);
       }
@@ -80,17 +78,16 @@ export function useReel(items, base) {
   }, [go]);
 
   // Touch / Pointer Drag physics:
-  // Requires dragging past 28% of the viewport height or an intentional fast swipe (> 950px/s)
+  // Snappy response: 12% viewport distance threshold (~70px) or quick swipe velocity (> 400px/s)
   const dragProps = {
     drag: 'y',
     dragConstraints: { top: 0, bottom: 0 },
-    dragElastic: 0.28, // Firm, satisfying resistance
+    dragElastic: 0.35,
     dragMomentum: false,
     onDragEnd: (_, { offset, velocity }) => {
-      const distanceThreshold = Math.max(window.innerHeight * 0.26, 120);
-      const velocityThreshold = 950;
+      const distanceThreshold = Math.max(window.innerHeight * 0.12, 65);
+      const velocityThreshold = 400;
 
-      // Only transition if the drag was intentional
       if (offset.y < -distanceThreshold || velocity.y < -velocityThreshold) {
         go(1);
       } else if (offset.y > distanceThreshold || velocity.y > velocityThreshold) {
