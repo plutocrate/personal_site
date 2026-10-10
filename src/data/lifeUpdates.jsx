@@ -1,3 +1,4 @@
+import TruncatedLifeText from '../components/TruncatedLifeText.jsx';
 import Highlight from '../components/Highlight.jsx';
 import Underline from '../components/Underline.jsx';
 import Arrow from '../components/Arrow.jsx';
@@ -28,6 +29,40 @@ import Arrow from '../components/Arrow.jsx';
    ========================================================================== */
 
 export const lifeUpdates = [
+  {
+    id: 'instagram-reel-meme',
+    date: '2026-10-10',
+    time: '22:45:00', // Today's newest update
+    media: {
+      type: 'iframe',
+      src: 'https://www.instagram.com/reel/DeRrs6SO4bH/embed/',
+      width: 400,
+      height: 520,
+      aspectRatio: '400 / 520',
+      title: 'Instagram Reel - memesprcaf',
+    },
+    text: (
+      <TruncatedLifeText
+        text={
+          <>
+            Found this hilarious{' '}
+            <a
+              href="https://www.instagram.com/reel/DeRrs6SO4bH/"
+              target="_blank"
+              rel="noreferrer"
+              className="text-link"
+            >
+              Instagram reel<Arrow />
+            </a>{' '}
+            shared by <Highlight color="rose">@memesprcaf</Highlight>. The{' '}
+            <Underline color="blue" variant="default">absurd comedic timing</Underline> and{' '}
+            <Underline color="orange" variant="long">internet meme culture</Underline> never fail to deliver a good laugh during late-night coding sessions
+          </>
+        }
+        fullTextPlain='"I came across this hilarious Instagram reel today. The algorithmic meme culture, comedic pacing, and absurd editing never fail to bring some levity to a long coding session. Taking breaks to laugh is just as vital as writing clean architecture!"'
+      />
+    ),
+  },
   {
     id: 'threads-ticket-hologram',
     date: '2026-10-10',
