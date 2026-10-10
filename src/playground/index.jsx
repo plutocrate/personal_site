@@ -1328,7 +1328,7 @@ int getMaxSparks(void) { return MAX_SPARKS; }
     start: startTeapot,
     description: (
       <>
-        Iconic <Highlight color="blue">3D Utah Teapot parametric mesh</Highlight> with <Underline color="teal" variant="developer">Raylib-style rendering pipeline</Underline> and gyroscopic angular physics compiled to <Underline color="rose" variant="designer">WebAssembly (WASM)</Underline>. Drag and flick to impart rotational torque with inertial momentum damping.
+        Iconic <Highlight color="blue">3D Utah Teapot parametric mesh</Highlight> with <Underline color="teal" variant="developer">Raylib-style rendering pipeline</Underline> and continuous gyroscopic rotation compiled to <Underline color="rose" variant="designer">WebAssembly (WASM)</Underline>. Constantly auto-rotates in 3D space; drag and flick to impart additive rotational torque with natural inertial damping.
       </>
     ),
     blocks: [
@@ -1340,7 +1340,7 @@ int getMaxSparks(void) { return MAX_SPARKS; }
         type: "text",
         text: (
           <>
-            The Utah Teapot (created in 1975 by Martin Newell at the University of Utah) is computer graphics' most famous benchmark object. This project implements a freestanding 3D graphics and angular physics pipeline in <b>C (Raylib graphics architecture)</b>, compiled to a zero-overhead WebAssembly binary with <code>clang</code>.
+            The Utah Teapot (created in 1975 by Martin Newell at the University of Utah) is computer graphics' most famous benchmark object. This project implements a freestanding 3D graphics and angular physics pipeline in <b>C (Raylib graphics architecture)</b>, compiled to a zero-overhead WebAssembly binary with <code>clang</code>. The engine continuously rotates the parametric manifold in real time while allowing interactive user torque flicks.
           </>
         ),
       },
@@ -1363,19 +1363,27 @@ int getMaxSparks(void) { return MAX_SPARKS; }
       },
       {
         type: "heading",
-        text: "3. 3D Euler Matrix Rotation & Perspective Projection",
+        text: "3. Continuous Auto-Rotation & Euler Matrix Transformation",
       },
       {
         type: "text",
         text: (
           <>
-            The C module computes Yaw (rotation around Y-axis) and Pitch (rotation around X-axis) transformations in 3D Euclidean space before projecting to the 2D viewing plane:
+            The C kernel maintains a steady baseline angular velocity <code>state.baseSpin</code> (0.85 rad/s) combined with user flick torque. To ensure completely glitch-free, infinite rotational continuity without drift, trigonometry uses a high-precision Bhaskara I approximation formula with O(1) modulo angle wrapping:
           </>
         ),
       },
       {
         type: "code",
-        code: `// C 3D Euler Transformation
+        code: `// Continuous Auto-Rotation & Euler Transformation in C
+state.ry += (state.baseSpin + state.vy_rot) * dt;
+state.rx += state.vx_rot * dt;
+
+// Smooth exponential decay of added user flick torque back to steady spin
+state.vx_rot *= 0.94f;
+state.vy_rot *= 0.94f;
+
+// 3D Euler Transformation Matrix (Yaw Y, Pitch X)
 float cy = cosF(state.ry);
 float sy = sinF(state.ry);
 float cx = cosF(state.rx);
@@ -1384,12 +1392,12 @@ float sx = sinF(state.rx);
 for (int i = 0; i < vertexCount; i++) {
     Vec3 v = baseVertices[i];
 
-    // 1. Yaw rotation around Y axis
+    // Yaw around Y
     float x1 = v.x * cy + v.z * sy;
     float y1 = v.y;
     float z1 = -v.x * sy + v.z * cy;
 
-    // 2. Pitch rotation around X axis
+    // Pitch around X
     float x2 = x1;
     float y2 = y1 * cx - z1 * sx;
     float z2 = y1 * sx + z1 * cx;
@@ -1425,20 +1433,20 @@ for (int i = 0; i < vertexCount; i++) {
       {
         type: "code",
         code: `// =============================================================================
-// Raylib-Style 3D Utah Teapot Rendering & Inertia Dynamics Kernel
+// Raylib-Style 3D Utah Teapot Rendering & Continuous Inertia Kernel
 // Author: Pratham Purohit
 // Targets: freestanding wasm32 (-O3 -nostdlib)
 // Features:
-// - 3D parametric Utah Teapot wireframe & shaded polygon rasterization
-// - 3D Euler rotation matrix integration (Pitch, Yaw, Roll)
-// - Inertial angular drag & momentum damping
-// - Phong-style directional light shading (diffuse + specular highlight)
-// - Interactive orbit drag velocity accumulator
+// - Parametric Utah Teapot 3D mesh (Body rings, lid knob, spout, loop handle)
+// - Robust continuous Euler rotation (Bhaskara trigonometric polynomial)
+// - Constant smooth ambient rotation + additive drag flick torque
+// - 3D affine matrix transformation & depth cueing
 // =============================================================================
 
 #define MAX_VERTICES 320
 #define MAX_EDGES 480
 #define PI 3.14159265358979323846f
+#define TWO_PI 6.28318530717958647692f
 
 typedef struct {
     float x, y, z;
@@ -1450,11 +1458,10 @@ typedef struct {
 
 typedef struct {
     float x, y, z;
-    float rx, ry, rz;       // Rotation angles (radians)
-    float vx_rot, vy_rot;   // Angular momentum
+    float rx, ry, rz;       // Continuous Euler angles (radians)
+    float vx_rot, vy_rot;   // Dynamic angular momentum
+    float baseSpin;         // Constant base rotation speed (rad/s)
     float scale;
-    float lightDir[3];      // Directional light vector
-    int wireframeOnly;
 } TeapotState;
 
 static TeapotState state;
@@ -1464,12 +1471,29 @@ static Edge edges[MAX_EDGES];
 static int vertexCount = 0;
 static int edgeCount = 0;
 
+// High-fidelity Bhaskara I trigonometric approximation (Max error < 0.0016 across all angles)
+// Fast O(1) execution without loops or drift over indefinite rotations
 static float sinF(float x) {
-    // Fast Taylor series approximation for sin(x)
-    while (x > PI) x -= 2.0f * PI;
-    while (x < -PI) x += 2.0f * PI;
-    float x2 = x * x;
-    return x * (1.0f - x2 / 6.0f + (x2 * x2) / 120.0f);
+    // Wrap to [0, TWO_PI)
+    if (x < 0.0f) {
+        float k = (float)((int)(-x / TWO_PI) + 1);
+        x += k * TWO_PI;
+    }
+    if (x >= TWO_PI) {
+        float k = (float)((int)(x / TWO_PI));
+        x -= k * TWO_PI;
+    }
+
+    if (x <= PI) {
+        float num = 16.0f * x * (PI - x);
+        float den = 5.0f * PI * PI - 4.0f * x * (PI - x);
+        return num / den;
+    } else {
+        x -= PI;
+        float num = 16.0f * x * (PI - x);
+        float den = 5.0f * PI * PI - 4.0f * x * (PI - x);
+        return -(num / den);
+    }
 }
 
 static float cosF(float x) {
@@ -1508,7 +1532,7 @@ static void generateTeapotGeometry(void) {
         float r = bodyRadii[lat];
         float y = bodyY[lat];
         for (int lon = 0; lon < lonSegments; lon++) {
-            float phi = (2.0f * PI * (float)lon) / (float)lonSegments;
+            float phi = (TWO_PI * (float)lon) / (float)lonSegments;
             addVertex(r * cosF(phi), y, r * sinF(phi));
         }
     }
@@ -1529,7 +1553,7 @@ static void generateTeapotGeometry(void) {
     int lidBase = vertexCount;
     addVertex(0.0f, 1.05f, 0.0f);
     for (int i = 0; i < 8; i++) {
-        float phi = (2.0f * PI * (float)i) / 8.0f;
+        float phi = (TWO_PI * (float)i) / 8.0f;
         addVertex(0.22f * cosF(phi), 0.92f, 0.22f * sinF(phi));
         addEdge(lidBase, lidBase + 1 + i);
         addEdge(lidBase + 1 + i, lidBase + 1 + ((i + 1) % 8));
@@ -1546,7 +1570,7 @@ static void generateTeapotGeometry(void) {
         float sy = spoutProfileY[s];
         float sr = spoutRadius[s];
         for (int k = 0; k < 6; k++) {
-            float th = (2.0f * PI * (float)k) / 6.0f;
+            float th = (TWO_PI * (float)k) / 6.0f;
             addVertex(sx + sr * cosF(th) * 0.4f, sy + sr * sinF(th), sr * cosF(th));
         }
     }
@@ -1580,18 +1604,13 @@ static void generateTeapotGeometry(void) {
 __attribute__((visibility("default")))
 void initTeapot(void) {
     generateTeapotGeometry();
-    state.rx = 0.35f;
-    state.ry = 0.65f;
+    state.rx = 0.38f;
+    state.ry = 0.0f;
     state.rz = 0.0f;
     state.vx_rot = 0.0f;
-    state.vy_rot = 0.75f; // Initial spin
+    state.vy_rot = 0.0f;
+    state.baseSpin = 0.85f; // Constant steady auto-rotation speed (rad/sec)
     state.scale = 100.0f;
-    state.wireframeOnly = 0;
-
-    // Light direction vector (normalized)
-    state.lightDir[0] = 0.577f;
-    state.lightDir[1] = -0.577f;
-    state.lightDir[2] = 0.577f;
 }
 
 __attribute__((visibility("default")))
@@ -1604,15 +1623,28 @@ __attribute__((visibility("default")))
 void updateTeapot(float dt) {
     if (dt > 0.05f) dt = 0.05f;
 
-    // Angular momentum integration & inertial damping (Euler angles)
+    // 1. Continuous auto-rotation + dynamic user momentum
+    state.ry += (state.baseSpin + state.vy_rot) * dt;
     state.rx += state.vx_rot * dt;
-    state.ry += state.vy_rot * dt;
 
-    // Damping friction: slowly settles into gentle orbit
-    state.vx_rot *= 0.965f;
-    state.vy_rot = state.vy_rot * 0.965f + (0.55f * 0.035f); // Sustains elegant baseline rotation
+    // Keep pitch bounded comfortably so teapot never flips upside-down awkwardly
+    if (state.rx > 0.85f) state.rx = 0.85f;
+    if (state.rx < -0.45f) state.rx = -0.45f;
 
-    // 3D Euler Transformation Matrix (Yaw around Y, then Pitch around X)
+    // Wrap yaw cleanly to [0, TWO_PI)
+    if (state.ry >= TWO_PI) {
+        float k = (float)((int)(state.ry / TWO_PI));
+        state.ry -= k * TWO_PI;
+    } else if (state.ry < 0.0f) {
+        float k = (float)((int)(-state.ry / TWO_PI) + 1);
+        state.ry += k * TWO_PI;
+    }
+
+    // 2. Smooth exponential decay of added user flick torque back to steady base rotation
+    state.vx_rot *= 0.94f;
+    state.vy_rot *= 0.94f;
+
+    // 3. 3D Euler Transformation Matrix (Yaw Y, Pitch X)
     float cy = cosF(state.ry);
     float sy = sinF(state.ry);
     float cx = cosF(state.rx);
@@ -1621,12 +1653,12 @@ void updateTeapot(float dt) {
     for (int i = 0; i < vertexCount; i++) {
         Vec3 v = baseVertices[i];
 
-        // 1. Rotate Y (Yaw)
+        // Yaw around Y
         float x1 = v.x * cy + v.z * sy;
         float y1 = v.y;
         float z1 = -v.x * sy + v.z * cy;
 
-        // 2. Rotate X (Pitch)
+        // Pitch around X
         float x2 = x1;
         float y2 = y1 * cx - z1 * sx;
         float z2 = y1 * sx + z1 * cx;
