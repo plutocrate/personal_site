@@ -100,7 +100,7 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 .page:has(.empty-state-wrap) { max-width: none; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
 
 /* ---------- Sidebar & Mobile Drawer ---------- */
-.sidebar { flex: none; height: 100%; overflow: hidden; padding: 20px 18px; display: flex; flex-direction: column; background: var(--sidebar); border-right: 1px solid var(--line); }
+.sidebar { flex: none; height: 100%; overflow: visible; padding: 20px 18px; display: flex; flex-direction: column; background: var(--sidebar); border-right: 1px solid var(--line); position: relative; z-index: 50; }
 .sidebar-head { height: 22px; margin-bottom: 18px; }
 .pill { width: 46px; height: 22px; padding: 3px; display: flex; justify-content: flex-start; align-items: center; border-radius: 11px; background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .pill.open { justify-content: flex-end; }
@@ -1020,7 +1020,7 @@ mark, .hl {
 }
 .sidebar { display: block; user-select: none; cursor: grab; }
 .sidebar:active { cursor: grabbing; }
-.sidebar-inner { width: 324px; height: 100%; display: flex; flex-direction: column; }
+.sidebar-inner { width: 324px; height: 100%; display: flex; flex-direction: column; overflow: visible; }
 
 /* ==========================================================================
    MOBILE & TABLET RESPONSIVENESS (App-like UX)
@@ -1350,6 +1350,7 @@ mark, .hl {
   background: var(--surface-2);
   color: var(--ink);
   transform: translateY(-1px);
+  z-index: 20;
 }
 .mini-nav-item.is-active {
   background: var(--surface);
@@ -1357,6 +1358,7 @@ mark, .hl {
   border: 1px solid var(--line);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   font-weight: 650;
+  z-index: 10;
 }
 .mini-nav-tag {
   font-family: var(--font);
@@ -1442,11 +1444,11 @@ mark, .hl {
   pointer-events: none;
   opacity: 0;
   visibility: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.16s;
-  z-index: 1000;
+  z-index: 99999;
 }
 
 [data-annotation]:hover::after {
@@ -1472,7 +1474,7 @@ mark, .hl {
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.16s cubic-bezier(0.16, 1, 0.3, 1), transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.16s;
-  z-index: 1001;
+  z-index: 100000;
 }
 
 [data-annotation]:hover::before {
