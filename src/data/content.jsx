@@ -33,10 +33,10 @@ export const profile = {
  */
 export const nav = [
   { to: '/', label: 'About', end: true },
-  { to: '/life', label: 'Life updates', isHighlighted: true },
   { to: '/playground', label: 'Concept Playground' },
   { to: '/case-studies', label: 'Case Studies' },
   { to: '/journal', label: 'Journal' },
+  { to: '/life', label: 'Life updates' },
 ];
 
 /**
