@@ -14,11 +14,22 @@ import { caseStudies, journal } from './data/content.js';
 import { lifeUpdates } from './data/lifeUpdates.js';
 import Journal from './pages/Journal.jsx';
 import LifeUpdates from './pages/LifeUpdates.jsx';
+import { warmExternalEmbeds, prefetchUrl } from './utils/prefetch.js';
 import './utils/theme.js';
 
 export default function App() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+
+  // Warm up external embed hosts and prefetch all iframe media speculatively
+  useEffect(() => {
+    warmExternalEmbeds();
+    lifeUpdates.forEach((u) => {
+      if (u.media?.src && u.media?.type === 'iframe') {
+        prefetchUrl(u.media.src);
+      }
+    });
+  }, []);
 
   // Automatically close sidebar when screen width drops to smaller/mobile screens
   useEffect(() => {

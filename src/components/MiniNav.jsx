@@ -45,7 +45,8 @@ export default function MiniNav({ getCount }) {
               end={item.end}
               className={`mini-nav-item${active ? ' is-active' : ''}`}
               onClick={() => vibrate(8)}
-              title={item.label}
+              data-annotation={item.label}
+              aria-label={item.label}
             >
               <span className="mini-nav-tag">{short}</span>
               {count != null && <sup className="mini-nav-count">{count}</sup>}
@@ -58,7 +59,7 @@ export default function MiniNav({ getCount }) {
 
       {/* Mini Contacts: cnt label + direct links (li, gh, eml) */}
       <div className="mini-nav-contacts">
-        <span className="mini-nav-contact-title" title="Contact">
+        <span className="mini-nav-contact-title" data-annotation="Contacts" aria-label="Contacts">
           CNT
         </span>
         <div className="mini-nav-contact-links">
@@ -71,7 +72,8 @@ export default function MiniNav({ getCount }) {
                 target="_blank"
                 rel="noreferrer"
                 className="mini-contact-link"
-                title={c.label}
+                data-annotation={c.label}
+                aria-label={c.label}
               >
                 {short}
               </a>

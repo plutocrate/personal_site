@@ -1,6 +1,72 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import YouTube from './YouTube.jsx';
 import LocalVideo from './LocalVideo.jsx';
+import { prefetchUrl, preconnectOrigin } from '../utils/prefetch.js';
+
+// Global Frame Node Cache:
+// Preserves alive iframe DOM instances across slide switches and page transitions,
+// so when switching reels back and forth, the embed isn't destroyed or re-fetched.
+const iframeNodeCache = new Map();
+
+function PersistentIframe({ src, title, unlocked }) {
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!src || !containerRef.current) return;
+
+    // Prefetch URL and preconnect host speculatively
+    prefetchUrl(src);
+    preconnectOrigin(src);
+
+    let frame = iframeNodeCache.get(src);
+    if (!frame) {
+      frame = document.createElement('iframe');
+      frame.src = src;
+      frame.title = title || 'Embedded content';
+      frame.frameBorder = '0';
+      frame.scrolling = 'no';
+      frame.loading = 'eager';
+      frame.allowFullscreen = true;
+      frame.style.width = '100%';
+      frame.style.height = '100%';
+      frame.style.border = 'none';
+      frame.style.display = 'block';
+      frame.style.borderRadius = 'inherit';
+      iframeNodeCache.set(src, frame);
+    }
+
+    const container = containerRef.current;
+    if (frame.parentNode !== container) {
+      container.appendChild(frame);
+    }
+
+    return () => {
+      // Keep frame retained in cache without destroying the underlying document/player state
+      if (frame.parentNode === container) {
+        container.removeChild(frame);
+      }
+    };
+  }, [src, title]);
+
+  useEffect(() => {
+    const frame = iframeNodeCache.get(src);
+    if (frame) {
+      frame.style.pointerEvents = unlocked ? 'auto' : 'none';
+    }
+  }, [src, unlocked]);
+
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        width: '100%',
+        height: '100%',
+        borderRadius: 'inherit',
+        overflow: 'hidden',
+      }}
+    />
+  );
+}
 
 // media: { type: 'youtube', id } | { type: 'video', src, poster } | { type: 'iframe', src, width, height, aspectRatio } | { type: 'image', src }
 export default function Media({ media }) {
@@ -40,21 +106,10 @@ export default function Media({ media }) {
         }}
         onPointerLeave={() => setUnlocked(false)}
       >
-        <iframe
+        <PersistentIframe
           src={media.src}
           title={media.title || 'Embedded content'}
-          frameBorder="0"
-          scrolling="no"
-          loading="lazy"
-          allowFullScreen
-          style={{
-            width: '100%',
-            height: '100%',
-            border: 'none',
-            display: 'block',
-            borderRadius: 'inherit',
-            pointerEvents: unlocked ? 'auto' : 'none',
-          }}
+          unlocked={unlocked}
         />
 
         {/* Shield overlay that absorbs finger drags and prevents accidental reloads / sticks */}
