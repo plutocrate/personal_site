@@ -55,7 +55,10 @@ export function mount(canvas, setup) {
   const frame = setup(s);
   let raf, last = performance.now();
   const loop = (t) => {
-    frame(Math.min((t - last) / 16.67, 3));
+    // Clamp dt strictly so pauses/tab switches never produce explosive physics steps
+    const rawDt = (t - last) / 16.67;
+    const dt = Math.min(Math.max(rawDt, 0.2), 1.5);
+    frame(dt);
     last = t;
     raf = requestAnimationFrame(loop);
   };

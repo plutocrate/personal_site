@@ -334,34 +334,47 @@ nextV[i] = curV + (Dv * lapV + uvv - (F + K) * curV);`,
       },
       {
         type: 'heading',
-        text: 'Lagrangian Formulation of Motion',
+        text: 'Lagrangian Formulation & Sub-Stepping Stability',
       },
       {
         type: 'text',
         text: (
           <>
-            The equations of motion are derived using Lagrange’s equations d/dt (∂L/∂θ̇) - ∂L/∂θ = 0, resolving the angular accelerations α₁ and α₂:
+            The equations of motion are resolved through coupled Lagrangian angular accelerations. To eliminate numerical divergence when the bobs rotate at high velocity, the physics step executes 4 sub-steps per frame with an angular velocity clamp:
           </>
         ),
       },
       {
         type: 'code',
         lang: 'JavaScript',
-        code: `// Coupled Lagrangian equations for double pendulum
-const dth = th1 - th2;
-const den1 = l1 * (2 * m1 + m2 - m2 * Math.cos(2 * th1 - 2 * th2));
-const den2 = l2 * (2 * m1 + m2 - m2 * Math.cos(2 * th1 - 2 * th2));
+        code: `// Sub-stepping for rock-solid Lagrangian stability
+const substeps = 4;
+const subDt = (dt * 0.38) / substeps;
 
-const num1 = -g * (2 * m1 + m2) * Math.sin(th1) 
-  - m2 * g * Math.sin(th1 - 2 * th2) 
-  - 2 * Math.sin(dth) * m2 * (w2 * w2 * l2 + w1 * w1 * l1 * Math.cos(dth));
+for (let step = 0; step < substeps; step++) {
+  const dth = th1 - th2;
+  const den1 = l1 * (2 * m1 + m2 - m2 * Math.cos(2 * dth));
+  const den2 = l2 * (2 * m1 + m2 - m2 * Math.cos(2 * dth));
 
-const num2 = 2 * Math.sin(dth) * (w1 * w1 * l1 * (m1 + m2) 
-  + g * (m1 + m2) * Math.cos(th1) 
-  + w2 * w2 * l2 * m2 * Math.cos(dth));
+  const num1 = -g * (2 * m1 + m2) * Math.sin(th1)
+    - m2 * g * Math.sin(th1 - 2 * th2)
+    - 2 * Math.sin(dth) * m2 * (w2 * w2 * l2 + w1 * w1 * l1 * Math.cos(dth));
 
-w1 += (num1 / den1) * dt * 0.45;
-w2 += (num2 / den2) * dt * 0.45;`,
+  const num2 = 2 * Math.sin(dth) * (w1 * w1 * l1 * (m1 + m2)
+    + g * (m1 + m2) * Math.cos(th1)
+    + w2 * w2 * l2 * m2 * Math.cos(dth));
+
+  w1 += (num1 / den1) * subDt;
+  w2 += (num2 / den2) * subDt;
+
+  // Viscous air drag and speed limit preventing runaway singularity
+  w1 *= 0.9996; w2 *= 0.9996;
+  w1 = Math.max(-0.25, Math.min(0.25, w1));
+  w2 = Math.max(-0.35, Math.min(0.35, w2));
+
+  th1 += w1 * subDt;
+  th2 += w2 * subDt;
+}`,
       },
       {
         type: 'heading',
@@ -371,7 +384,7 @@ w2 += (num2 / den2) * dt * 0.45;`,
         type: 'text',
         text: (
           <>
-            The secondary bob’s spatial locus paints a glowing trajectory that fades over time. Notice how small angular perturbations from the cursor produce completely divergent geometric attractor orbits.
+            The secondary bob’s spatial locus paints a glowing trajectory that fades over time. Gentle proximity nudges from the cursor perturb initial conditions without destabilizing the system, clearly demonstrating sensitive dependence on initial conditions.
           </>
         ),
       },

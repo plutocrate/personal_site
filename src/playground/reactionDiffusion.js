@@ -50,23 +50,22 @@ export const startReactionDiffusion = (canvas) => mount(canvas, (s) => {
   return () => {
     const { ctx, w, h } = s;
 
-    // Inject chemical V on pointer position
+    // Inject chemical V on pointer position gently
     if (s.mx != null && s.my != null && w > 0 && h > 0) {
       const gx = Math.floor((s.mx / w) * GW);
       const gy = Math.floor((s.my / h) * GH);
-      for (let dy = -3; dy <= 3; dy++) {
-        for (let dx = -3; dx <= 3; dx++) {
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
           const nx = gx + dx, ny = gy + dy;
           if (nx >= 1 && nx < GW - 1 && ny >= 1 && ny < GH - 1) {
-            v[ny * GW + nx] = 0.8;
-            u[ny * GW + nx] = 0.2;
+            v[ny * GW + nx] = 0.55;
+            u[ny * GW + nx] = 0.35;
           }
         }
       }
     }
 
-    // Step physics twice per frame for smooth propagation
-    step();
+    // Step physics once per frame for calm, deliberate diffusion rate
     step();
 
     // Render image buffer

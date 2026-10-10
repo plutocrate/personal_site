@@ -48,8 +48,8 @@ export const startSpringChain = (canvas) => mount(canvas, (s) => {
       }
       if (dragNodeIndex !== -1) {
         const n = nodes[dragNodeIndex];
-        n.x += (s.mx - n.x) * 0.35;
-        n.y += (s.my - n.y) * 0.35;
+        n.x += (s.mx - n.x) * 0.18;
+        n.y += (s.my - n.y) * 0.18;
         n.vx = 0;
         n.vy = 0;
       }
@@ -58,9 +58,9 @@ export const startSpringChain = (canvas) => mount(canvas, (s) => {
     }
 
     const restLen = (w * 0.68) / (NUM_NODES - 1);
-    const k = 0.22;
-    const damping = 0.94;
-    const gravity = 0.16;
+    const k = 0.12; // Lower spring stiffness for unhurried, graceful elasticity
+    const damping = 0.96; // Higher damping so oscillation settles calmly
+    const gravity = 0.08; // Gentle gravity
 
     for (let i = 0; i < nodes.length - 1; i++) {
       const n1 = nodes[i];
