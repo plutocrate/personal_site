@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuote } from '../hooks/useQuote.jsx';
 import { useToast } from '../hooks/useToast.jsx';

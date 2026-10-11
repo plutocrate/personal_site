@@ -48,6 +48,10 @@ export function prefetchUrl(url) {
 
   preconnectOrigin(url);
 
+  // Avoid creating prefetch document links for sites like CodePen, Instagram, Pinterest that return 403 on speculative prefetch requests
+  const isEmbedSite = /codepen\.io|instagram\.com|pinterest\.com/i.test(url);
+  if (isEmbedSite) return;
+
   const link = document.createElement('link');
   link.rel = 'prefetch';
   link.href = url;
