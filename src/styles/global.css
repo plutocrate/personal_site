@@ -2022,8 +2022,10 @@ mark, .hl {
 
   .mobile-sheet-count {
     margin-left: 6px;
-    font-size: 11px;
-    color: var(--ink-3, #7a7974);
+    font-size: 11.5px;
+    font-weight: 550;
+    color: var(--ink-2, #3a3935);
+    opacity: 0.92;
     vertical-align: super;
   }
 
@@ -2056,7 +2058,7 @@ mark, .hl {
     color: var(--mark-ink, #0c4a6e);
   }
 
-  /* Contact accordion inside sheet - highly visible links with highlight marker effect */
+  /* Contact accordion inside sheet */
   .mobile-sheet-contact-wrap {
     margin-top: 6px;
     border-top: 1px solid var(--line, rgba(40, 38, 28, 0.14));
@@ -2077,49 +2079,68 @@ mark, .hl {
     opacity: 1 !important;
   }
 
+  /* Subtext count number made clearly visible */
   .mobile-sheet-contact-wrap .contact .nav-item .nav-count {
-    color: var(--ink-3, #7a7974);
-    opacity: 0.85;
+    color: var(--ink-2, #3a3935) !important;
+    font-weight: 550;
+    opacity: 0.92 !important;
     margin-left: 6px;
-    font-size: 11px;
+    font-size: 11.5px;
   }
 
   .mobile-sheet-contact-wrap .nav-sub {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 6px 12px 12px;
+    gap: 8px;
+    padding: 6px 12px 14px;
   }
 
-  /* Social links using the site's highlight marker style with rich opacity */
-  .mobile-sheet-contact-wrap .nav-sub a {
+  /* Social link container: clean link without full-button background */
+  .mobile-sheet-contact-wrap .nav-sub a.contact-sublink {
     display: inline-flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 0.38em 0.82em;
-    border-radius: 0.6em;
+    justify-content: flex-start;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 2px 0;
+    text-decoration: none;
+    width: fit-content;
+  }
+
+  /* Highlight only the text itself, with the arrow right beside it */
+  .mobile-sheet-contact-wrap .contact-link-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.22em 0.65em;
+    border-radius: 0.55em;
     background: var(--mark, #d6f31a);
     color: var(--mark-ink, #16160c);
     border: 1px solid var(--mark-border, rgba(40, 38, 28, 0.16));
     font-size: 15px;
     font-weight: 550;
-    text-decoration: none;
-    box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 1.5px 3.5px rgba(0, 0, 0, 0.05);
     transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-    opacity: 0.98;
   }
 
-  .mobile-sheet-contact-wrap .nav-sub a svg {
+  .mobile-sheet-contact-wrap .contact-link-text svg {
+    flex-shrink: 0;
     color: var(--mark-ink, #16160c);
-    opacity: 0.8;
+    opacity: 0.85;
+    transition: transform 0.16s ease;
   }
 
-  .mobile-sheet-contact-wrap .nav-sub a:hover {
+  .mobile-sheet-contact-wrap .nav-sub a.contact-sublink:hover .contact-link-text {
     transform: translateY(-1px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
   }
 
-  .mobile-sheet-contact-wrap .nav-sub a:active {
+  .mobile-sheet-contact-wrap .nav-sub a.contact-sublink:hover .contact-link-text svg {
+    transform: translate(1.5px, -1.5px);
+  }
+
+  .mobile-sheet-contact-wrap .nav-sub a.contact-sublink:active .contact-link-text {
     transform: scale(0.97);
   }
 

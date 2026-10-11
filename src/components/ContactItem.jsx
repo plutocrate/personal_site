@@ -77,9 +77,11 @@ export default function ContactItem({ count }) {
             transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
           >
             {contacts.map((c) => (
-              <a key={c.label} href={c.href} target="_blank" rel="noreferrer">
-                {c.label}
-                <Arrow />
+              <a key={c.label} href={c.href} target="_blank" rel="noreferrer" className="contact-sublink">
+                <span className="contact-link-text">
+                  <span>{c.label}</span>
+                  <Arrow />
+                </span>
               </a>
             ))}
           </motion.div>
