@@ -267,7 +267,7 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
 
     let cShake = 0.0;
     let colorTimer = 0;   // accumulates real elapsed seconds
-    const COLOR_SEC = 10; // palette shift every 10 real-seconds
+    const COLOR_SEC = 4; // palette shift every 4s — matches typical menu visit duration
 
     const render = (now) => {
       const elapsed = (now - t0) * 0.001;
