@@ -135,11 +135,23 @@ export const FlappySquare = () => {
           const shouldSpawn = s.pipes.length === 0 || (w + 20 - lastPipe.x >= pipeDistance);
 
           if (shouldSpawn) {
-            // Vertical passage gap between top and bottom obstacle: generous and comfortable (105px to 120px)
-            const gap = Math.min(120, Math.max(105, h * 0.35));
-            const minHeight = 30;
-            const maxTop = Math.max(minHeight, h - gap - minHeight);
-            const topHeight = Math.floor(minHeight + Math.random() * (maxTop - minHeight));
+            // Vertical passage gap: tuned slightly down from 105-120px to 96-108px (delicate, comfortable yet engaging)
+            const gap = Math.min(108, Math.max(96, h * 0.31));
+            const minMargin = 22;
+            const maxTop = Math.max(minMargin, h - gap - minMargin);
+
+            // Rich vertical height variation: alternate between low, high, and middle tunnels with random variance
+            // so successive pillars demand dynamic flapping adjustments
+            const lastTop = lastPipe ? lastPipe.top : h * 0.35;
+            // Introduce a significant height delta from the previous pipe (±35% of canvas height)
+            const delta = (Math.random() - 0.5) * (h * 0.70);
+            let rawTop = lastTop + delta;
+            // Wrap or clamp within permissible boundaries
+            if (rawTop < minMargin || rawTop > maxTop) {
+              rawTop = minMargin + Math.random() * (maxTop - minMargin);
+            }
+            const topHeight = Math.floor(Math.max(minMargin, Math.min(maxTop, rawTop)));
+
             const slotNum = ((s.pipes.length % 8) + 1);
             const slotColor = computed.getPropertyValue(`--hl-low-${slotNum}`).trim() || obstacleFill;
             // Width of pipe: 32px on phone up to 40px on laptop
@@ -148,7 +160,7 @@ export const FlappySquare = () => {
               x: w + 10,
               w: pipeW,
               top: topHeight,
-              bottom: Math.max(minHeight, h - (topHeight + gap)),
+              bottom: Math.max(minMargin, h - (topHeight + gap)),
               passed: false,
               color: slotColor,
             });
