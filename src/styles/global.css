@@ -1853,13 +1853,13 @@ mark, .hl {
     background: transparent;
   }
 
-  /* Glassmorphism Frosted Tint over WebGL canvas - fully transparent glass */
+  /* Glassmorphism Frosted Tint over WebGL canvas - increased frost for contrast */
   .mobile-sheet-frost {
     position: absolute;
     inset: 0;
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    background: rgba(255, 255, 255, 0.52);
+    backdrop-filter: blur(36px);
+    -webkit-backdrop-filter: blur(36px);
+    background: rgba(255, 255, 255, 0.72);
     pointer-events: none;
     z-index: 1;
   }
@@ -1892,26 +1892,34 @@ mark, .hl {
     align-items: center;
   }
 
+  /* Bigger Logo in Mobile Sheet */
   .mobile-sheet-logo .logo-box {
-    width: 42px;
-    height: 42px;
-    background: var(--surface, rgba(255, 255, 255, 0.7));
-    border-color: var(--line, rgba(40, 38, 28, 0.12));
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    background: var(--surface, rgba(255, 255, 255, 0.85));
+    border-color: var(--line, rgba(40, 38, 28, 0.14));
     color: var(--ink, #1d1d1f);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+  }
+
+  .mobile-sheet-logo .logo-box svg {
+    width: 27px;
+    height: 46px;
   }
 
   .mobile-sheet-close-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 5px 12px;
+    padding: 6px 14px;
     border-radius: 14px;
-    background: var(--surface, rgba(255, 255, 255, 0.7));
-    border: 1px solid var(--line, rgba(40, 38, 28, 0.14));
-    color: var(--ink-2, #3a3935);
-    font-size: 11.5px;
+    background: var(--surface, rgba(255, 255, 255, 0.85));
+    border: 1px solid var(--line, rgba(40, 38, 28, 0.16));
+    color: var(--ink, #1d1d1f);
+    font-size: 12px;
     font-weight: 500;
     letter-spacing: 0.02em;
     cursor: pointer;
@@ -1920,28 +1928,53 @@ mark, .hl {
   }
 
   .mobile-sheet-close-btn:active {
-    background: var(--surface-2, rgba(255, 255, 255, 0.9));
+    background: var(--surface-2, rgba(255, 255, 255, 0.95));
     transform: scale(0.96);
   }
 
+  /* Fixed height quote container so text truncation never shifts content position */
   .mobile-sheet-quote-wrap {
-    margin-bottom: 22px;
+    height: 74px;
+    margin-bottom: 20px;
     flex-shrink: 0;
   }
 
   .mobile-sheet-quote-wrap .quote-box {
-    background: var(--surface, rgba(255, 255, 255, 0.65));
-    border-color: var(--line, rgba(40, 38, 28, 0.12));
+    height: 100%;
+    background: var(--surface, rgba(255, 255, 255, 0.85));
+    border-color: var(--line, rgba(40, 38, 28, 0.14));
     color: var(--ink, #1d1d1f);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    cursor: pointer;
+    padding: 10px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .mobile-sheet-quote-wrap .quote-inner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .mobile-sheet-quote-wrap .quote-text {
     color: var(--ink, #1d1d1f);
     font-size: 13.5px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin: 0;
   }
 
   .mobile-sheet-quote-wrap .quote-author {
     color: var(--ink-3, #7a7974);
+    font-size: 12px;
+    margin: 4px 0 0;
+    margin-top: auto;
   }
 
   /* Nav Links in mobile sheet */
@@ -1962,7 +1995,7 @@ mark, .hl {
     font-size: 18px;
     font-weight: 500;
     letter-spacing: -0.01em;
-    color: var(--ink-2, #4a4944);
+    color: var(--ink, #1d1d1f);
     text-decoration: none;
     background: transparent;
     transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
@@ -1970,15 +2003,15 @@ mark, .hl {
   }
 
   .mobile-sheet-link:active {
-    background: var(--surface-2, rgba(255, 255, 255, 0.5));
+    background: var(--surface-2, rgba(255, 255, 255, 0.6));
     transform: scale(0.98);
   }
 
   .mobile-sheet-link.is-active {
     color: var(--ink, #1d1d1f);
-    background: var(--surface, rgba(255, 255, 255, 0.8));
-    border: 1px solid var(--line, rgba(40, 38, 28, 0.1));
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    background: var(--surface, rgba(255, 255, 255, 0.92));
+    border: 1px solid var(--line, rgba(40, 38, 28, 0.14));
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   }
 
   .mobile-sheet-link-label {
@@ -2022,22 +2055,46 @@ mark, .hl {
     color: var(--mark-ink, #0c4a6e);
   }
 
-  /* Contact accordion inside sheet */
+  /* Contact accordion inside sheet - highly visible links */
   .mobile-sheet-contact-wrap {
-    margin-top: 4px;
+    margin-top: 6px;
     border-top: 1px solid var(--line, rgba(40, 38, 28, 0.12));
     padding-top: 8px;
   }
 
   .mobile-sheet-contact-wrap .contact-btn {
-    color: var(--ink-2, #4a4944);
+    color: var(--ink, #1d1d1f);
     font-size: 18px;
     font-weight: 500;
     padding: 8px 12px;
   }
 
-  .mobile-sheet-contact-wrap .contact-links a {
+  .mobile-sheet-contact-wrap .nav-sub {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 4px 12px 10px;
+  }
+
+  .mobile-sheet-contact-wrap .nav-sub a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 10px;
     color: var(--ink, #1d1d1f);
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    background: var(--surface, rgba(255, 255, 255, 0.75));
+    border: 1px solid var(--line, rgba(40, 38, 28, 0.12));
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+
+  .mobile-sheet-contact-wrap .nav-sub a:active {
+    background: var(--surface-2, rgba(255, 255, 255, 0.95));
+    transform: scale(0.98);
   }
 
   .mobile-sheet-footer {

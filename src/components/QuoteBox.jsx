@@ -12,19 +12,18 @@ export default function QuoteBox() {
   const { quote } = useQuote();
   const { showToast } = useToast();
 
-  const handleQuoteClick = (e) => {
-    const el = e.currentTarget;
-    // Check if quote text is genuinely clamped/truncated (scrollHeight > clientHeight)
-    const isTruncated = el && el.scrollHeight > el.clientHeight + 2;
-    if (isTruncated && showToast) {
+  const handleQuoteClick = () => {
+    if (showToast) {
       showToast(quote.text, quote.author);
     }
   };
 
   return (
     <div
-      className="quote-box"
+      className="quote-box is-clickable-quote"
       aria-live="polite"
+      onClick={handleQuoteClick}
+      title="Tap to read full quote"
       data-annotation="Tap logo for a fresh quote"
       data-annotation-pos="bottom"
     >
@@ -37,10 +36,7 @@ export default function QuoteBox() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
         >
-          <p
-            className="quote-text is-clickable-quote"
-            onClick={handleQuoteClick}
-          >
+          <p className="quote-text">
             “{quote.text}”
           </p>
           <p className="quote-author">{quote.author}</p>

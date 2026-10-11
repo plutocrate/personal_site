@@ -1,12 +1,8 @@
 import { useEffect, useRef } from 'react';
 
-/**
- * Helper to convert hex / rgb / rgba strings to normalized [r, g, b] floats.
- */
 function parseCssColor(str) {
   if (!str) return null;
   const s = str.trim();
-  // hex #ffffff or #fff
   if (s.startsWith('#')) {
     let hex = s.slice(1);
     if (hex.length === 3) {
@@ -19,7 +15,6 @@ function parseCssColor(str) {
       (num & 255) / 255,
     ];
   }
-  // rgb(...) or rgba(...)
   const rgbMatch = s.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
   if (rgbMatch) {
     return [
@@ -28,7 +23,6 @@ function parseCssColor(str) {
       parseFloat(rgbMatch[3]) / 255,
     ];
   }
-  // hsl(...) or hsla(...)
   const hslMatch = s.match(/hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%/i);
   if (hslMatch) {
     const h = (parseFloat(hslMatch[1]) % 360) / 360;
@@ -55,13 +49,6 @@ function parseCssColor(str) {
   return null;
 }
 
-/**
- * MobileGeminiShader
- * High-performance WebGL shader rendering a transparent glass canvas with a
- * compact, ethereal fluid gas cloud that wanders across the screen and parts / splits
- * when sliced by user touch or clicks.
- * Colors are algorithmically sampled on every opening from the site's palette algorithm!
- */
 export default function MobileGeminiShader({ active }) {
   const canvasRef = useRef(null);
 
@@ -81,16 +68,25 @@ export default function MobileGeminiShader({ active }) {
 
     if (!gl) return;
 
-    // Sample dynamic colors from the theme algorithm variables
+    // Sample dynamic multiple colors from theme algorithm variables
     const computed = getComputedStyle(document.documentElement);
-    // Pick 3 random highlight slots from the 8 generated algorithm slots
     const r1 = Math.floor(Math.random() * 8) + 1;
     const r2 = ((r1 + 2) % 8) + 1;
-    const r3 = ((r1 + 5) % 8) + 1;
+    const r3 = ((r1 + 4) % 8) + 1;
+    const r4 = ((r1 + 6) % 8) + 1;
 
-    const c1 = parseCssColor(computed.getPropertyValue(`--hl-high-${r1}`)) || [0.35, 0.55, 0.95];
-    const c2 = parseCssColor(computed.getPropertyValue(`--hl-low-${r2}`)) || [0.85, 0.35, 0.65];
-    const c3 = parseCssColor(computed.getPropertyValue(`--hl-high-${r3}`)) || [0.25, 0.85, 0.75];
+    // Use deeper / richer chromatic values so colors are distinctly visible against the frosted glass
+    const baseC1 = parseCssColor(computed.getPropertyValue(`--hl-high-${r1}`)) || [0.15, 0.45, 0.95];
+    const baseC2 = parseCssColor(computed.getPropertyValue(`--hl-high-${r2}`)) || [0.85, 0.20, 0.55];
+    const baseC3 = parseCssColor(computed.getPropertyValue(`--hl-high-${r3}`)) || [0.10, 0.75, 0.65];
+    const baseC4 = parseCssColor(computed.getPropertyValue(`--hl-high-${r4}`)) || [0.92, 0.55, 0.15];
+
+    // Deepen slightly for rich cloud contrast
+    const deepen = (c, factor = 0.82) => [c[0] * factor, c[1] * factor, c[2] * factor];
+    const c1 = deepen(baseC1);
+    const c2 = deepen(baseC2);
+    const c3 = deepen(baseC3);
+    const c4 = deepen(baseC4);
 
     const vsSource = `
       attribute vec2 a_pos;
@@ -109,6 +105,7 @@ export default function MobileGeminiShader({ active }) {
       uniform vec3 u_color1;
       uniform vec3 u_color2;
       uniform vec3 u_color3;
+      uniform vec3 u_color4;
       uniform vec2 u_touch;
       uniform float u_touch_active;
 
@@ -121,8 +118,7 @@ export default function MobileGeminiShader({ active }) {
                            -0.577350269189626, 0.024390243902439);
         vec2 i  = floor(v + dot(v, C.yy));
         vec2 x0 = v -   i + dot(i, C.xx);
-        vec2 i1;
-        i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+        vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
         vec4 x12 = x0.xyxy + C.xxzz;
         x12.xy -= i1;
         i = mod289(i);
@@ -159,50 +155,47 @@ export default function MobileGeminiShader({ active }) {
       void main() {
         vec2 st = gl_FragCoord.xy / u_resolution.xy;
         float aspect = u_resolution.x / u_resolution.y;
-
-        // Correct for aspect ratio so cloud shape is isotropic
         vec2 p = vec2(st.x * aspect, st.y);
 
-        float t = u_time * 0.35;
+        float t = u_time * 0.38;
 
-        // The cloud floats gently around the container in a smooth Lissajous wandering trajectory
+        // Wandering trajectory of the cloud
         vec2 cloudCenter = vec2(
-          (0.5 + 0.22 * sin(t * 0.45) + 0.12 * cos(t * 0.22)) * aspect,
-          0.52 + 0.24 * cos(t * 0.38) + 0.10 * sin(t * 0.19)
+          (0.5 + 0.24 * sin(t * 0.42) + 0.12 * cos(t * 0.20)) * aspect,
+          0.50 + 0.26 * cos(t * 0.35) + 0.10 * sin(t * 0.18)
         );
 
-        // Vector and distance from the floating cloud center
         vec2 offset = p - cloudCenter;
         float d = length(offset);
 
-        // Organic cloud boundaries using domain warping
-        vec2 q = vec2(fbm(p * 2.0 + vec2(0.0, t * 0.15)),
-                      fbm(p * 2.0 + vec2(4.2, 1.2 - t * 0.12)));
+        // Fluid noise domain warping
+        vec2 q = vec2(fbm(p * 2.2 + vec2(0.0, t * 0.14)),
+                      fbm(p * 2.2 + vec2(5.2, 1.2 - t * 0.10)));
 
-        float noiseVal = fbm(p * 2.5 + 3.0 * q + vec2(t * 0.1));
+        vec2 r = vec2(fbm(p * 2.6 + 3.2 * q + vec2(t * 0.12)),
+                      fbm(p * 2.6 + 3.2 * q + vec2(8.4, 2.1 - t * 0.11)));
 
-        // Small compact cloud radius (~0.35 of screen dimension)
-        float cloudRadius = 0.34 + noiseVal * 0.14;
-        float cloudDensity = smoothstep(cloudRadius, 0.02, d);
+        float noiseVal = fbm(p * 2.8 + 3.5 * r);
 
-        // Interactive touch knife/cutting displacement:
-        // When touch is present, calculate distance from touch point.
-        // Tapping/dragging cuts directly through the cloud, pushing gas away radially
+        // Substantial, clearly visible cloud radius
+        float cloudRadius = 0.42 + noiseVal * 0.16;
+        float cloudDensity = smoothstep(cloudRadius, 0.04, d);
+
+        // Interactive touch knife/cutting displacement
         if (u_touch_active > 0.01) {
           vec2 touchP = vec2(u_touch.x * aspect, u_touch.y);
           float touchDist = length(p - touchP);
-          // Blade incision: cuts a clean trench in the cloud
-          float cutHole = smoothstep(0.04, 0.18, touchDist);
+          float cutHole = smoothstep(0.04, 0.22, touchDist);
           cloudDensity *= mix(1.0, cutHole, u_touch_active);
         }
 
-        // Color blending using algorithmically sampled palette
-        vec3 col = mix(u_color1, u_color2, clamp(noiseVal * 1.5, 0.0, 1.0));
-        col = mix(col, u_color3, clamp(length(q) * 1.2, 0.0, 1.0));
+        // Multi-chromatic color blending (multiple darker, vibrant colors inside cloud body)
+        vec3 col = mix(u_color1, u_color2, clamp(noiseVal * 1.8, 0.0, 1.0));
+        col = mix(col, u_color3, clamp(length(q) * 1.4, 0.0, 1.0));
+        col = mix(col, u_color4, clamp(pow(r.x, 2.0) * 1.6, 0.0, 1.0));
 
-        // Glass background is completely transparent!
-        // Cloud is soft, ethereal, and semi-translucent so content remains 100% visible
-        float alpha = clamp(cloudDensity * 0.48, 0.0, 0.65);
+        // Highly visible cloud opacity against frosted background
+        float alpha = clamp(cloudDensity * 0.72, 0.0, 0.85);
 
         gl_FragColor = vec4(col, alpha);
       }
@@ -246,17 +239,18 @@ export default function MobileGeminiShader({ active }) {
     const uColor1 = gl.getUniformLocation(program, 'u_color1');
     const uColor2 = gl.getUniformLocation(program, 'u_color2');
     const uColor3 = gl.getUniformLocation(program, 'u_color3');
+    const uColor4 = gl.getUniformLocation(program, 'u_color4');
     const uTouch = gl.getUniformLocation(program, 'u_touch');
     const uTouchActive = gl.getUniformLocation(program, 'u_touch_active');
 
     gl.uniform3f(uColor1, c1[0], c1[1], c1[2]);
     gl.uniform3f(uColor2, c2[0], c2[1], c2[2]);
     gl.uniform3f(uColor3, c3[0], c3[1], c3[2]);
+    gl.uniform3f(uColor4, c4[0], c4[1], c4[2]);
 
     let animId;
     let startTime = performance.now();
 
-    // Touch interaction tracking
     let targetTouchX = 0.5;
     let targetTouchY = 0.5;
     let touchStrength = 0.0;
@@ -265,21 +259,14 @@ export default function MobileGeminiShader({ active }) {
       const rect = canvas.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) {
         targetTouchX = (clientX - rect.left) / rect.width;
-        // Flip Y for WebGL coordinates
         targetTouchY = 1.0 - (clientY - rect.top) / rect.height;
         touchStrength = 1.0;
       }
     };
 
-    const handlePointerMove = (e) => {
-      updateTouch(e.clientX, e.clientY);
-    };
+    const handlePointerMove = (e) => updateTouch(e.clientX, e.clientY);
+    const handlePointerDown = (e) => updateTouch(e.clientX, e.clientY);
 
-    const handlePointerDown = (e) => {
-      updateTouch(e.clientX, e.clientY);
-    };
-
-    // Listen on window while active so gestures anywhere over the sheet slice the cloud
     window.addEventListener('pointermove', handlePointerMove, { passive: true });
     window.addEventListener('pointerdown', handlePointerDown, { passive: true });
 
@@ -306,11 +293,10 @@ export default function MobileGeminiShader({ active }) {
       const elapsed = (now - startTime) * 0.001;
       gl.uniform1f(uTime, elapsed);
 
-      // Smooth interpolation for fluid cutting slice
-      currentTouchX += (targetTouchX - currentTouchX) * 0.15;
-      currentTouchY += (targetTouchY - currentTouchY) * 0.15;
-      touchStrength *= 0.96; // fade cut decay
-      currentTouchStrength += (touchStrength - currentTouchStrength) * 0.15;
+      currentTouchX += (targetTouchX - currentTouchX) * 0.18;
+      currentTouchY += (targetTouchY - currentTouchY) * 0.18;
+      touchStrength *= 0.96;
+      currentTouchStrength += (touchStrength - currentTouchStrength) * 0.18;
 
       gl.uniform2f(uTouch, currentTouchX, currentTouchY);
       gl.uniform1f(uTouchActive, currentTouchStrength);

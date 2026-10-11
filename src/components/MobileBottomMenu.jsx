@@ -231,7 +231,7 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
                   </button>
                 </div>
 
-                {/* Quote Box snippet */}
+                {/* Quote Box snippet with locked fixed height so text truncation triggers toast */}
                 <div className="mobile-sheet-quote-wrap">
                   <QuoteBox />
                 </div>
