@@ -1,54 +1,37 @@
 import { useEffect, useRef } from 'react';
 
-function parseCssColor(str) {
-  if (!str) return null;
-  const s = str.trim();
-  if (s.startsWith('#')) {
-    let hex = s.slice(1);
-    if (hex.length === 3) {
-      hex = hex.split('').map((c) => c + c).join('');
-    }
-    const num = parseInt(hex.slice(0, 6), 16);
-    return [
-      ((num >> 16) & 255) / 255,
-      ((num >> 8) & 255) / 255,
-      (num & 255) / 255,
-    ];
-  }
-  const rgbMatch = s.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
-  if (rgbMatch) {
-    return [
-      parseFloat(rgbMatch[1]) / 255,
-      parseFloat(rgbMatch[2]) / 255,
-      parseFloat(rgbMatch[3]) / 255,
-    ];
-  }
-  const hslMatch = s.match(/hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%/i);
-  if (hslMatch) {
-    const h = (parseFloat(hslMatch[1]) % 360) / 360;
-    const sat = parseFloat(hslMatch[2]) / 100;
-    const l = parseFloat(hslMatch[3]) / 100;
-    if (sat === 0) return [l, l, l];
-    const hue2rgb = (p, q, t) => {
-      let val = t;
-      if (val < 0) val += 1;
-      if (val > 1) val -= 1;
-      if (val < 1 / 6) return p + (q - p) * 6 * val;
-      if (val < 1 / 2) return q;
-      if (val < 2 / 3) return p + (q - p) * (2 / 3 - val) * 6;
-      return p;
-    };
-    const q = l < 0.5 ? l * (1 + sat) : l + sat - l * sat;
-    const p = 2 * l - q;
-    return [
-      hue2rgb(p, q, h + 1 / 3),
-      hue2rgb(p, q, h),
-      hue2rgb(p, q, h - 1 / 3),
-    ];
-  }
-  return null;
+/**
+ * Procedural color converter for HSL -> normalized [r, g, b] float tuple
+ */
+function hslToRgb(h, s, l) {
+  h = (h % 360 + 360) % 360 / 360;
+  if (s === 0) return [l, l, l];
+  const hue2rgb = (p, q, t) => {
+    let val = t;
+    if (val < 0) val += 1;
+    if (val > 1) val -= 1;
+    if (val < 1 / 6) return p + (q - p) * 6 * val;
+    if (val < 1 / 2) return q;
+    if (val < 2 / 3) return p + (q - p) * (2 / 3 - val) * 6;
+    return p;
+  };
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  return [
+    hue2rgb(p, q, h + 1 / 3),
+    hue2rgb(p, q, h),
+    hue2rgb(p, q, h - 1 / 3),
+  ];
 }
 
+/**
+ * MobileGeminiShader
+ * Direct implementation of the site's procedural color wheel algorithm:
+ * Dynamically computes a completely fresh set of 4 harmonized, slightly darker,
+ * yet beautifully diffused atmospheric cloud hues on every opening.
+ * Generates an unmistakable, rich, ambient volumetric cloud that floats across the screen
+ * and parts dynamically when sliced by user touch.
+ */
 export default function MobileGeminiShader({ active }) {
   const canvasRef = useRef(null);
 
@@ -68,25 +51,21 @@ export default function MobileGeminiShader({ active }) {
 
     if (!gl) return;
 
-    // Sample dynamic multiple colors from theme algorithm variables
-    const computed = getComputedStyle(document.documentElement);
-    const r1 = Math.floor(Math.random() * 8) + 1;
-    const r2 = ((r1 + 2) % 8) + 1;
-    const r3 = ((r1 + 4) % 8) + 1;
-    const r4 = ((r1 + 6) % 8) + 1;
+    // Execute the exact mathematical color picker algorithm to generate 4 distinct harmonic hues
+    const baseRotation = Math.floor(Math.random() * 360);
+    // 4 harmonic positions distributed around the 360° wheel with organic offset
+    const h1 = Math.round((baseRotation + 0 + (Math.random() - 0.5) * 20 + 360) % 360);
+    const h2 = Math.round((baseRotation + 90 + (Math.random() - 0.5) * 20 + 360) % 360);
+    const h3 = Math.round((baseRotation + 180 + (Math.random() - 0.5) * 20 + 360) % 360);
+    const h4 = Math.round((baseRotation + 270 + (Math.random() - 0.5) * 20 + 360) % 360);
 
-    // Use deeper / richer chromatic values so colors are distinctly visible against the frosted glass
-    const baseC1 = parseCssColor(computed.getPropertyValue(`--hl-high-${r1}`)) || [0.15, 0.45, 0.95];
-    const baseC2 = parseCssColor(computed.getPropertyValue(`--hl-high-${r2}`)) || [0.85, 0.20, 0.55];
-    const baseC3 = parseCssColor(computed.getPropertyValue(`--hl-high-${r3}`)) || [0.10, 0.75, 0.65];
-    const baseC4 = parseCssColor(computed.getPropertyValue(`--hl-high-${r4}`)) || [0.92, 0.55, 0.15];
-
-    // Deepen slightly for rich cloud contrast
-    const deepen = (c, factor = 0.82) => [c[0] * factor, c[1] * factor, c[2] * factor];
-    const c1 = deepen(baseC1);
-    const c2 = deepen(baseC2);
-    const c3 = deepen(baseC3);
-    const c4 = deepen(baseC4);
+    // Slightly darker yet rich and diffused saturation/lightness:
+    // Saturation: 85%-92% (deep, vivid tint)
+    // Lightness: 38%-46% (slightly darker so it projects distinct volumetric contrast behind frosted glass)
+    const c1 = hslToRgb(h1, 0.88, 0.42);
+    const c2 = hslToRgb(h2, 0.86, 0.40);
+    const c3 = hslToRgb(h3, 0.84, 0.44);
+    const c4 = hslToRgb(h4, 0.88, 0.38);
 
     const vsSource = `
       attribute vec2 a_pos;
@@ -157,45 +136,46 @@ export default function MobileGeminiShader({ active }) {
         float aspect = u_resolution.x / u_resolution.y;
         vec2 p = vec2(st.x * aspect, st.y);
 
-        float t = u_time * 0.38;
+        float t = u_time * 0.40;
 
-        // Wandering trajectory of the cloud
+        // Dynamic wandering Lissajous path across the viewport
         vec2 cloudCenter = vec2(
-          (0.5 + 0.24 * sin(t * 0.42) + 0.12 * cos(t * 0.20)) * aspect,
-          0.50 + 0.26 * cos(t * 0.35) + 0.10 * sin(t * 0.18)
+          (0.5 + 0.22 * sin(t * 0.45) + 0.12 * cos(t * 0.22)) * aspect,
+          0.50 + 0.25 * cos(t * 0.38) + 0.10 * sin(t * 0.18)
         );
 
         vec2 offset = p - cloudCenter;
         float d = length(offset);
 
-        // Fluid noise domain warping
-        vec2 q = vec2(fbm(p * 2.2 + vec2(0.0, t * 0.14)),
-                      fbm(p * 2.2 + vec2(5.2, 1.2 - t * 0.10)));
+        // Fluid multi-octave domain warping
+        vec2 q = vec2(fbm(p * 2.2 + vec2(0.0, t * 0.16)),
+                      fbm(p * 2.2 + vec2(5.2, 1.2 - t * 0.12)));
 
-        vec2 r = vec2(fbm(p * 2.6 + 3.2 * q + vec2(t * 0.12)),
-                      fbm(p * 2.6 + 3.2 * q + vec2(8.4, 2.1 - t * 0.11)));
+        vec2 r = vec2(fbm(p * 2.6 + 3.2 * q + vec2(t * 0.14)),
+                      fbm(p * 2.6 + 3.2 * q + vec2(8.4, 2.1 - t * 0.12)));
 
-        float noiseVal = fbm(p * 2.8 + 3.5 * r);
+        float noiseVal = fbm(p * 2.8 + 3.2 * r);
 
-        // Substantial, clearly visible cloud radius
-        float cloudRadius = 0.42 + noiseVal * 0.16;
-        float cloudDensity = smoothstep(cloudRadius, 0.04, d);
+        // Prominent, well-formed gaseous cloud radius
+        float cloudRadius = 0.48 + noiseVal * 0.18;
+        // Soft gaseous falloff from cloud core to outer ambient veil
+        float cloudDensity = smoothstep(cloudRadius, 0.02, d);
 
-        // Interactive touch knife/cutting displacement
+        // Interactive touch slice / cutting blade effect
         if (u_touch_active > 0.01) {
           vec2 touchP = vec2(u_touch.x * aspect, u_touch.y);
           float touchDist = length(p - touchP);
-          float cutHole = smoothstep(0.04, 0.22, touchDist);
+          float cutHole = smoothstep(0.04, 0.24, touchDist);
           cloudDensity *= mix(1.0, cutHole, u_touch_active);
         }
 
-        // Multi-chromatic color blending (multiple darker, vibrant colors inside cloud body)
+        // Multi-chromatic color blending using algorithmically generated harmonic colors
         vec3 col = mix(u_color1, u_color2, clamp(noiseVal * 1.8, 0.0, 1.0));
         col = mix(col, u_color3, clamp(length(q) * 1.4, 0.0, 1.0));
-        col = mix(col, u_color4, clamp(pow(r.x, 2.0) * 1.6, 0.0, 1.0));
+        col = mix(col, u_color4, clamp(pow(r.x, 2.0) * 1.5, 0.0, 1.0));
 
-        // Highly visible cloud opacity against frosted background
-        float alpha = clamp(cloudDensity * 0.72, 0.0, 0.85);
+        // Atmospheric diffusion: distinct, rich cloud visibility while keeping the surrounding glass airy
+        float alpha = clamp(cloudDensity * 0.78, 0.0, 0.92);
 
         gl_FragColor = vec4(col, alpha);
       }
