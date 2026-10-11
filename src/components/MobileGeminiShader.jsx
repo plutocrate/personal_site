@@ -77,6 +77,7 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
       uniform vec2  u_touch;
       uniform float u_touch_active;
       uniform float u_shake;
+      uniform float u_breathe; // 0..1 sinusoidal breathing phase from JS
 
       vec3 mod289v3(vec3 x){ return x - floor(x*(1.0/289.0))*289.0; }
       vec2 mod289v2(vec2 x){ return x - floor(x*(1.0/289.0))*289.0; }
@@ -134,7 +135,11 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
         // ── Soft cloud centred on JS-computed position (no glitch ever) ──────
         vec2 cc = vec2(u_cloud_center.x*aspect, u_cloud_center.y);
         float dist   = length(pA - cc);
-        float radius = 0.38 + n*0.14;
+
+        // Breathing: radius gently expands on inhale (+12%), contracts on exhale (-8%)
+        // u_breathe is a 0→1 sine wave at ~4.5s period, computed in JS
+        float breathExpand = mix(-0.03, 0.05, u_breathe);
+        float radius = 0.36 + n*0.13 + breathExpand;
         float cloud  = smoothstep(radius, 0.02, dist);
 
         // ── Idle monochrome colour ────────────────────────────────────────────
@@ -165,9 +170,15 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
 
         // ── Final blend ───────────────────────────────────────────────────────
         float shake = clamp(u_shake*1.1, 0.0, 1.0);
+
+        // Breathing: alpha swells gently on inhale, softens on exhale
+        // Mix: 0.76 (exhale) → 0.88 (inhale), suppressed fully during shake
+        float breathAlpha = mix(0.76, 0.88, u_breathe);
+        float idleAlpha = clamp(cloud * breathAlpha, 0.0, 0.92);
+
         gl_FragColor = vec4(
           mix(col, gasCol, shake),
-          mix(clamp(cloud*0.84, 0.0, 0.90), clamp(gasDensity*0.94, 0.0, 1.0), shake)
+          mix(idleAlpha, clamp(gasDensity*0.94, 0.0, 1.0), shake)
         );
       }
     `;
@@ -196,17 +207,18 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
 
-    const uRes   = gl.getUniformLocation(program, 'u_resolution');
-    const uTime  = gl.getUniformLocation(program, 'u_time');
-    const uCC    = gl.getUniformLocation(program, 'u_cloud_center');
-    const uC1    = gl.getUniformLocation(program, 'u_color1');
-    const uC2    = gl.getUniformLocation(program, 'u_color2');
-    const uC3    = gl.getUniformLocation(program, 'u_color3');
-    const uC4    = gl.getUniformLocation(program, 'u_color4');
-    const uC5    = gl.getUniformLocation(program, 'u_color5');
-    const uTouch = gl.getUniformLocation(program, 'u_touch');
-    const uTA    = gl.getUniformLocation(program, 'u_touch_active');
-    const uShake = gl.getUniformLocation(program, 'u_shake');
+    const uRes    = gl.getUniformLocation(program, 'u_resolution');
+    const uTime   = gl.getUniformLocation(program, 'u_time');
+    const uCC     = gl.getUniformLocation(program, 'u_cloud_center');
+    const uC1     = gl.getUniformLocation(program, 'u_color1');
+    const uC2     = gl.getUniformLocation(program, 'u_color2');
+    const uC3     = gl.getUniformLocation(program, 'u_color3');
+    const uC4     = gl.getUniformLocation(program, 'u_color4');
+    const uC5     = gl.getUniformLocation(program, 'u_color5');
+    const uTouch  = gl.getUniformLocation(program, 'u_touch');
+    const uTA     = gl.getUniformLocation(program, 'u_touch_active');
+    const uShake  = gl.getUniformLocation(program, 'u_shake');
+    const uBreathe = gl.getUniformLocation(program, 'u_breathe');
 
     const onTheme = (e) => {
       const h = e.detail?.hue;
@@ -267,17 +279,21 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
       // Wrap time to keep GLSL float well-behaved forever
       gl.uniform1f(uTime, elapsed % 1000.0);
 
-      // ── Drift: slow dual-angle lissajous in JS doubles ─────────────────────
-      // ang1: ~38s per full orbit, ang2: ~55s per full orbit
-      // The cloud moves continuously — no lerp needed since the angles
-      // themselves change slowly and smoothly each frame.
-      ang1 += 0.0026 * dt;
-      ang2 += 0.0018 * dt;
-      cx = 0.5 + 0.22 * Math.sin(ang1) + 0.10 * Math.cos(ang2 * 1.4);
-      cy = 0.5 + 0.23 * Math.cos(ang2) + 0.09 * Math.sin(ang1 * 0.75);
+      // ── Drift: breathing-cadence lissajous (JS doubles, never glitches) ────
+      // ang1: ~12s orbit, ang2: ~17s orbit — slow, organic, like deep breathing
+      // The two independent periods ensure a non-repeating, natural-feeling path.
+      ang1 += (Math.PI * 2 / 12)  * rawDt;  // full orbit every 12 real-seconds
+      ang2 += (Math.PI * 2 / 17)  * rawDt;  // full orbit every 17 real-seconds
+      cx = 0.5 + 0.20 * Math.sin(ang1) + 0.08 * Math.cos(ang2 * 1.3);
+      cy = 0.5 + 0.21 * Math.cos(ang2) + 0.07 * Math.sin(ang1 * 0.78);
       cx = Math.max(0.18, Math.min(0.82, cx));
       cy = Math.max(0.14, Math.min(0.86, cy));
       gl.uniform2f(uCC, cx, cy);
+
+      // ── Breathing pulse: 4.5s inhale/exhale cycle ───────────────────────────
+      // sin goes -1→+1; we normalize to 0→1 for the shader
+      const breatheSin = Math.sin((elapsed * Math.PI * 2) / 4.5);
+      gl.uniform1f(uBreathe, (breatheSin + 1.0) * 0.5);
 
       // ── Colour cycle ────────────────────────────────────────────────────────
       colorTimer += rawDt; // accumulate real seconds
