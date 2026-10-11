@@ -308,7 +308,18 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
 
                 {/* Bottom Footer Details with 'shake your phone' hint */}
                 <div className="mobile-sheet-footer">
-                  <span className="mobile-sheet-shake-hint">
+                  <span
+                    className="mobile-sheet-shake-hint"
+                    onClick={() => {
+                      vibrate(20);
+                      setShakeIntensity(1);
+                      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current);
+                      shakeTimeoutRef.current = setTimeout(() => {
+                        setShakeIntensity(0);
+                      }, 2000);
+                    }}
+                    style={{ cursor: 'pointer', userSelect: 'none' }}
+                  >
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <rect x="5" y="2" width="14" height="20" rx="3" ry="3" />
                       <line x1="12" y1="18" x2="12.01" y2="18" />

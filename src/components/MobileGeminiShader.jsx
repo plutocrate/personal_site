@@ -61,6 +61,7 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
     currentColorsRef.current = initialColors;
     targetColorsRef.current = initialColors;
     lastLoopCycleRef.current = 0;
+    let wasShaking = false;
 
     const vsSource = `
       attribute vec2 a_pos;
@@ -128,7 +129,7 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
         return v;
       }
 
-      // Procedural 20-color prism generator used during vigorous shake!
+      // Multi-spectral prism generator for rising gas plumes during shake (spanning up to 20 color hues)
       vec3 prismRainbow(float t) {
         return 0.54 + 0.44 * cos(6.28318 * (t + vec3(0.0, 0.33, 0.67)));
       }
@@ -138,67 +139,85 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
         float aspect = u_resolution.x / u_resolution.y;
         vec2 p = vec2(st.x * aspect, st.y);
 
-        // Shake speed accelerator: shaking causes fast turbulence
-        float speedMultiplier = 1.0 + u_shake * 3.8;
-        float t = u_time * 0.85 * speedMultiplier;
+        // Standard gentle ambient wandering
+        float t = u_time * 0.85;
 
-        // Wandering trajectory across the container
+        // Wandering trajectory across the container for idle mode
         vec2 cloudCenter = vec2(
-          (0.5 + (0.24 + u_shake * 0.15) * sin(t * 0.50) + 0.12 * cos(t * 0.25)) * aspect,
-          0.50 + (0.26 + u_shake * 0.15) * cos(t * 0.42) + 0.10 * sin(t * 0.22)
+          (0.5 + 0.24 * sin(t * 0.50) + 0.12 * cos(t * 0.25)) * aspect,
+          0.50 + 0.26 * cos(t * 0.42) + 0.10 * sin(t * 0.22)
         );
 
         vec2 offset = p - cloudCenter;
         float d = length(offset);
 
-        // Fractal domain warping with chaotic shake agitation
-        vec2 shakeJitter = vec2(
-          sin(t * 8.0 + p.y * 12.0),
-          cos(t * 8.0 + p.x * 12.0)
-        ) * (u_shake * 0.18);
-
-        vec2 q = vec2(fbm(p * (2.2 + u_shake * 1.5) + shakeJitter + vec2(0.0, t * 0.20)),
-                      fbm(p * (2.2 + u_shake * 1.5) + shakeJitter + vec2(5.2, 1.2 - t * 0.16)));
-
+        // Normal gentle domain warping
+        vec2 q = vec2(fbm(p * 2.2 + vec2(0.0, t * 0.20)),
+                      fbm(p * 2.2 + vec2(5.2, 1.2 - t * 0.16)));
         vec2 r = vec2(fbm(p * 2.6 + 3.2 * q + vec2(t * 0.18)),
                       fbm(p * 2.6 + 3.2 * q + vec2(8.4, 2.1 - t * 0.15)));
+        float normalNoise = fbm(p * 2.8 + 3.2 * r);
 
-        float noiseVal = fbm(p * 2.8 + 3.2 * r);
+        // Standard idle cloud shape and density
+        float normalRadius = 0.38 + normalNoise * 0.16;
+        float normalCloudDensity = smoothstep(normalRadius, 0.01, d);
 
-        // Slightly smaller standard cloud radius (~0.38), but when shaken vigorously,
-        // it explodes and diffuses completely to take over the container
-        float baseRadius = 0.38 + noiseVal * 0.16;
-        float shakenRadius = 1.45 + noiseVal * 0.40;
-        float cloudRadius = mix(baseRadius, shakenRadius, u_shake);
-
-        // Soft, highly diffused atmospheric edge falloff
-        float cloudDensity = smoothstep(cloudRadius, 0.01, d);
-
-        // Interactive touch slice
-        if (u_touch_active > 0.01) {
-          vec2 touchP = vec2(u_touch.x * aspect, u_touch.y);
-          float touchDist = length(p - touchP);
-          float cutHole = smoothstep(0.04, 0.24, touchDist);
-          cloudDensity *= mix(1.0, cutHole, u_touch_active);
-        }
-
-        // Tonal monochromatic blend for standard idle wandering
-        vec3 normalCol = mix(u_color1, u_color2, clamp(noiseVal * 2.0, 0.0, 1.0));
+        // Monochromatic blend for standard idle wandering
+        vec3 normalCol = mix(u_color1, u_color2, clamp(normalNoise * 2.0, 0.0, 1.0));
         normalCol = mix(normalCol, u_color3, clamp(length(q) * 1.5, 0.0, 1.0));
         normalCol = mix(normalCol, u_color4, clamp(pow(r.x, 2.0) * 1.5, 0.0, 1.0));
         normalCol = mix(normalCol, u_color5, clamp(pow(r.y, 2.0) * 1.5, 0.0, 1.0));
 
-        // 20-color prism chaos when shaken vigorously
-        float prismAngle = fract(length(p - vec2(0.5 * aspect, 0.5)) * 4.0 + atan(offset.y, offset.x) * 3.183 + noiseVal * 2.5 + t * 0.5);
-        vec3 prismCol = prismRainbow(prismAngle);
+        // -------------------------------------------------------------
+        // SHAKE MODE: Gassy-gassy colors rising everywhere (up to 20 colors)
+        // -------------------------------------------------------------
+        // Fast upward convective drift (smoke / gas plumes rising from bottom to top)
+        float riseSpeed = u_time * 2.2;
+        vec2 riseP = vec2(p.x, p.y - riseSpeed);
 
-        // Interpolate between single-shade cloud and the vibrant 20-color explosion
-        vec3 col = mix(normalCol, prismCol, clamp(u_shake * 1.25, 0.0, 1.0));
+        // Turbulent rising distortion
+        vec2 gasWarp = vec2(
+          fbm(riseP * 3.0 + vec2(u_time * 0.8, -riseSpeed * 0.5)),
+          fbm(riseP * 3.5 + vec2(5.1, u_time * 0.6))
+        );
 
-        // Cloud opacity: highly diffused and dense, expands to full coverage when shaken
-        float normalAlpha = clamp(cloudDensity * 0.82, 0.0, 0.92);
-        float shakenAlpha = clamp(cloudDensity * 0.98, 0.0, 1.0);
-        float alpha = mix(normalAlpha, shakenAlpha, u_shake);
+        float gasFbm = fbm(riseP * 2.6 + gasWarp * 2.8);
+
+        // Multiple plume streams rising across different X coordinates
+        float plume1 = smoothstep(0.75, 0.15, abs(fract(p.x * 2.4 + gasWarp.x * 0.6 + sin(p.y * 3.0 + u_time)) - 0.5));
+        float plume2 = smoothstep(0.80, 0.10, abs(fract(p.x * 3.8 - gasWarp.y * 0.5 + cos(p.y * 4.0 + u_time * 1.3)) - 0.5));
+        float gasDensity = clamp(gasFbm * 0.7 + plume1 * 0.45 + plume2 * 0.35 + 0.25, 0.0, 1.0);
+
+        // Rich 20-color spectrum distributed through the rising turbulence and height
+        float colorIndex = fract(
+          (1.0 - st.y) * 1.8 + // Color shifts as gas rises from bottom to top
+          gasWarp.x * 2.2 +
+          gasWarp.y * 1.8 +
+          gasFbm * 3.5 +
+          u_time * 0.35
+        );
+        vec3 gasCol = prismRainbow(colorIndex);
+
+        // Add secondary tonal variation across plumes
+        float colorIndex2 = fract(colorIndex + 0.35 + gasFbm * 0.5);
+        vec3 gasCol2 = prismRainbow(colorIndex2);
+        gasCol = mix(gasCol, gasCol2, clamp(gasWarp.y * 1.4, 0.0, 1.0));
+
+        // Interactive touch slice (applicable in idle mode)
+        if (u_touch_active > 0.01) {
+          vec2 touchP = vec2(u_touch.x * aspect, u_touch.y);
+          float touchDist = length(p - touchP);
+          float cutHole = smoothstep(0.04, 0.24, touchDist);
+          normalCloudDensity *= mix(1.0, cutHole, u_touch_active);
+        }
+
+        // Blend between standard single-color cloud and the rising gassy 20-color explosion
+        float shakeFactor = clamp(u_shake * 1.15, 0.0, 1.0);
+        vec3 col = mix(normalCol, gasCol, shakeFactor);
+
+        float normalAlpha = clamp(normalCloudDensity * 0.82, 0.0, 0.92);
+        float gasAlpha = clamp(gasDensity * 0.95, 0.0, 1.0);
+        float alpha = mix(normalAlpha, gasAlpha, shakeFactor);
 
         gl_FragColor = vec4(col, alpha);
       }
@@ -341,8 +360,20 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
       gl.uniform2f(uTouch, currentTouchX, currentTouchY);
       gl.uniform1f(uTouchActive, currentTouchStrength);
 
-      // Shake smoothing
-      currentShake += (shakeIntensity - currentShake) * 0.16;
+      // Smooth shake decay (settling over ~2-3 seconds when shakeIntensity goes back to 0)
+      if (shakeIntensity > 0.05) {
+        currentShake += (shakeIntensity - currentShake) * 0.20;
+        wasShaking = true;
+      } else {
+        if (wasShaking) {
+          // Shaking has stopped! Choose a brand new random color to settle down into
+          wasShaking = false;
+          hueRef.current = Math.floor(Math.random() * 360);
+          targetColorsRef.current = generateMonochromeShades(hueRef.current);
+        }
+        // Smoothly decay shake to 0 over ~2.5 seconds (rate ~0.012 * dt)
+        currentShake = Math.max(0.0, currentShake - 0.012 * dt);
+      }
       gl.uniform1f(uShake, currentShake);
 
       gl.clearColor(0, 0, 0, 0);
