@@ -47,6 +47,17 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Scroll to top on route change so new pages always start at top
+  useEffect(() => {
+    const mainEl = document.getElementById('main');
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [location.pathname]);
+
   // "[" toggles the sidebar
   useEffect(() => {
     const onKey = (e) => {
