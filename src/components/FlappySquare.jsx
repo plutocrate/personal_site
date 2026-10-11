@@ -135,9 +135,8 @@ export const FlappySquare = () => {
           const shouldSpawn = s.pipes.length === 0 || (w + 20 - lastPipe.x >= pipeDistance);
 
           if (shouldSpawn) {
-            // Vertical passage gap: reduced from 118px down to 68px-82px (approx 3x-3.5x the 22px bird size)
-            // Just like classic Flappy Bird, requires deliberate, focused flapping
-            const gap = Math.min(82, Math.max(68, h * 0.23));
+            // Vertical passage gap between top and bottom obstacle: generous and comfortable (105px to 120px)
+            const gap = Math.min(120, Math.max(105, h * 0.35));
             const minHeight = 30;
             const maxTop = Math.max(minHeight, h - gap - minHeight);
             const topHeight = Math.floor(minHeight + Math.random() * (maxTop - minHeight));
