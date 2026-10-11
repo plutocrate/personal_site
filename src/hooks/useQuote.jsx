@@ -18,12 +18,15 @@ export function QuoteProvider({ children }) {
   const [tick, setTick] = useState(0);
 
   const next = useCallback(() => {
+    let nextQuote = null;
     setIndex((i) => {
       let n;
       do { n = Math.floor(Math.random() * quotes.length); } while (n === i && quotes.length > 1);
+      nextQuote = quotes[n];
       return n;
     });
     setTick((t) => t + 1);
+    return nextQuote;
   }, []);
 
   return <Ctx.Provider value={{ quote: quotes[index], tick, next }}>{children}</Ctx.Provider>;

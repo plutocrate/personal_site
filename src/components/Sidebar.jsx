@@ -140,7 +140,7 @@ export default function Sidebar({ open, onOpenChange }) {
           </div>
 
           <div className="sidebar-top">
-            <Logo />
+            <Logo sidebarOpen={open} />
             <AnimatePresence initial={false}>
               {open && (
                 <motion.div

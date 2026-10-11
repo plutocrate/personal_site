@@ -96,7 +96,7 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 }
 .page { position: relative; min-height: 100%; padding: calc(var(--pad) + 8px) var(--pad) calc(80px + env(safe-area-inset-bottom)); max-width: 980px; }
 .page:has(.reel) { padding: 0; max-width: none; }
-.page:has(.article) { max-width: none; }
+.page:has(.article) { max-width: none; display: flex; flex-direction: column; align-items: center; }
 .page:has(.about) { max-width: none; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
 .page:has(.empty-state-wrap) { max-width: none; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
 .page:has(.flappy-standalone-page) { max-width: none; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
@@ -1560,10 +1560,16 @@ mark, .hl {
    ========================================================================== */
 .site-footer {
   width: 100%;
+  max-width: 860px;
   margin-top: clamp(64px, 10vh, 120px);
+  margin-inline: auto;
   padding-top: 32px;
   border-top: 1px solid var(--line);
   color: var(--ink-2);
+}
+
+.page:has(.reel) .site-footer {
+  display: none;
 }
 
 .site-footer-inner {

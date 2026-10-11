@@ -5,7 +5,6 @@ import Media from '../components/Media.jsx';
 import Highlight from '../components/Highlight.jsx';
 import Underline from '../components/Underline.jsx';
 import Arrow from '../components/Arrow.jsx';
-import Footer from '../components/Footer.jsx';
 
 export default function About() {
   const latest = lifeUpdates[0]; // always the most recent
@@ -66,8 +65,6 @@ export default function About() {
             </Link>
           </section>
         )}
-
-        <Footer />
       </div>
     </>
   );

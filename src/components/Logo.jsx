@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuote } from '../hooks/useQuote.jsx';
+import { useToast } from '../hooks/useToast.jsx';
 import { vibrate } from '../utils/haptics.js';
 import { cycleTheme } from '../utils/theme.js';
 
@@ -25,8 +26,9 @@ function MiniStar({ size = 12, color = '#38bdf8' }) {
   );
 }
 
-export default function Logo() {
-  const { next } = useQuote();
+export default function Logo({ sidebarOpen = false }) {
+  const { quote, next } = useQuote();
+  const { showToast } = useToast();
   const [particles, setParticles] = useState([]);
   const [isCasting, setIsCasting] = useState(false);
   const particleIdRef = useRef(0);
@@ -35,7 +37,16 @@ export default function Logo() {
     e.preventDefault();
     vibrate([20, 25, 20]);
     // 1. Fetch new quote & dynamically transition theme color
-    if (next) next();
+    if (next) {
+      const freshQuote = next();
+      // If navbar is closed, pop up quote as toast!
+      if (!sidebarOpen && showToast) {
+        const q = freshQuote || quote;
+        if (q) showToast(q.text, q.author);
+      }
+    } else if (!sidebarOpen && showToast && quote) {
+      showToast(quote.text, quote.author);
+    }
     cycleTheme();
 
     // 2. Trigger logo microinteraction shake & glow

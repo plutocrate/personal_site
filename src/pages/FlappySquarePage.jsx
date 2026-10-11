@@ -1,6 +1,5 @@
 import { FlappySquare } from '../components/FlappySquare.jsx';
 import Crumbs from '../components/Crumbs.jsx';
-import Footer from '../components/Footer.jsx';
 
 export default function FlappySquarePage() {
   return (
@@ -20,8 +19,6 @@ export default function FlappySquarePage() {
         <div className="flappy-standalone-game-wrap">
           <FlappySquare />
         </div>
-
-        <Footer />
       </div>
     </div>
   );

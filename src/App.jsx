@@ -15,6 +15,7 @@ import { lifeUpdates } from './data/lifeUpdates.js';
 import Journal from './pages/Journal.jsx';
 import LifeUpdates from './pages/LifeUpdates.jsx';
 import FlappySquarePage from './pages/FlappySquarePage.jsx';
+import Footer from './components/Footer.jsx';
 import { warmExternalEmbeds, prefetchUrl } from './utils/prefetch.js';
 import './utils/theme.js';
 
@@ -86,6 +87,7 @@ export default function App() {
                   <Route path="/life" element={<Navigate to={`/life/${lifeUpdates[0].id}`} replace />} />
                   <Route path="/life/:id" element={<LifeUpdates />} />
                 </Routes>
+                <Footer />
               </motion.div>
             </AnimatePresence>
           </main>

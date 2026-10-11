@@ -32,17 +32,17 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/playground/utah-teapot-raylib" className="site-footer-link">
+                <Link to="/playground/utah-teapot-raylib/read" className="site-footer-link">
                   Utah Teapot <span>(3D WASM)</span>
                 </Link>
               </li>
               <li>
-                <Link to="/playground/game-of-life" className="site-footer-link">
+                <Link to="/playground/game-of-life/read" className="site-footer-link">
                   Game of Life <span>(Cellular)</span>
                 </Link>
               </li>
               <li>
-                <Link to="/playground/gravity-well" className="site-footer-link">
+                <Link to="/playground/gravity-well/read" className="site-footer-link">
                   Gravity Well <span>(Physics)</span>
                 </Link>
               </li>
