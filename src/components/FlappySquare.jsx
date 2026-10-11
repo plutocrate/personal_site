@@ -124,29 +124,29 @@ export const FlappySquare = () => {
           bird.y += bird.vy * dt;
           bird.rot = Math.min(Math.PI / 4, Math.max(-Math.PI / 5, bird.vy * 0.08));
 
-          // Dynamic obstacle horizontal spacing based on screen width:
-          // On mobile (~320-380px wide container), distance between pipes is tightly tuned (170-195px).
-          // On tablets & laptops (480-560px), distance scales proportionally (200-240px).
-          const pipeDistance = Math.min(235, Math.max(165, w * 0.46));
-          const pipeScrollSpeed = 2.1 * dt;
-          const spawnIntervalFrames = Math.max(70, Math.round(pipeDistance / 2.1));
+          // Dynamic obstacle horizontal spacing based on container width:
+          // Reduced significantly: on phones (~320px) ~125px-135px, on tablets/laptops (560px) ~145px-165px
+          // This keeps 2-3 obstacles constantly in view and tests timing and precision.
+          const pipeDistance = Math.min(165, Math.max(125, w * 0.28));
+          const pipeScrollSpeed = 2.4 * dt;
 
           // Spawn obstacle pipes
           const lastPipe = s.pipes[s.pipes.length - 1];
           const shouldSpawn = s.pipes.length === 0 || (w + 20 - lastPipe.x >= pipeDistance);
 
           if (shouldSpawn) {
-            // Gap between top and bottom pipe: tight and engaging on all devices (95px to 118px)
-            const gap = Math.min(118, Math.max(96, h * 0.33));
-            const minHeight = 35;
+            // Vertical passage gap: reduced from 118px down to 68px-82px (approx 3x-3.5x the 22px bird size)
+            // Just like classic Flappy Bird, requires deliberate, focused flapping
+            const gap = Math.min(82, Math.max(68, h * 0.23));
+            const minHeight = 30;
             const maxTop = Math.max(minHeight, h - gap - minHeight);
             const topHeight = Math.floor(minHeight + Math.random() * (maxTop - minHeight));
             const slotNum = ((s.pipes.length % 8) + 1);
             const slotColor = computed.getPropertyValue(`--hl-low-${slotNum}`).trim() || obstacleFill;
-            // Width of pipe scales slightly with canvas width (32px on phone, 38px on desktop)
-            const pipeW = Math.min(38, Math.max(30, Math.round(w * 0.075)));
+            // Width of pipe: 32px on phone up to 40px on laptop
+            const pipeW = Math.min(40, Math.max(32, Math.round(w * 0.07)));
             s.pipes.push({
-              x: w + 15,
+              x: w + 10,
               w: pipeW,
               top: topHeight,
               bottom: Math.max(minHeight, h - (topHeight + gap)),
@@ -157,8 +157,8 @@ export const FlappySquare = () => {
 
           // Move and check pipes
           const birdX = w * 0.28;
-          // Shortened hitbox: visual square size is 22px, with forgiving player bounds
-          const hitRadius = (bird.size / 2) * 0.72;
+          // Hitbox: visual square size is 22px (radius 11)
+          const hitRadius = (bird.size / 2) * 0.78;
 
           for (let i = s.pipes.length - 1; i >= 0; i--) {
             const p = s.pipes[i];
