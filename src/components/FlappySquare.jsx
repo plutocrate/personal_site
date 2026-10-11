@@ -124,18 +124,30 @@ export const FlappySquare = () => {
           bird.y += bird.vy * dt;
           bird.rot = Math.min(Math.PI / 4, Math.max(-Math.PI / 5, bird.vy * 0.08));
 
-          // Spawn obstacle pipes with clean, comfortable gap spacing
-          if (s.frame % 115 === 0 || s.pipes.length === 0) {
-            // Generous, comfortable gap (120px to 145px)
-            const gap = Math.min(145, Math.max(120, h * 0.40));
-            const minHeight = 45;
+          // Dynamic obstacle horizontal spacing based on screen width:
+          // On mobile (~320-380px wide container), distance between pipes is tightly tuned (170-195px).
+          // On tablets & laptops (480-560px), distance scales proportionally (200-240px).
+          const pipeDistance = Math.min(235, Math.max(165, w * 0.46));
+          const pipeScrollSpeed = 2.1 * dt;
+          const spawnIntervalFrames = Math.max(70, Math.round(pipeDistance / 2.1));
+
+          // Spawn obstacle pipes
+          const lastPipe = s.pipes[s.pipes.length - 1];
+          const shouldSpawn = s.pipes.length === 0 || (w + 20 - lastPipe.x >= pipeDistance);
+
+          if (shouldSpawn) {
+            // Gap between top and bottom pipe: tight and engaging on all devices (95px to 118px)
+            const gap = Math.min(118, Math.max(96, h * 0.33));
+            const minHeight = 35;
             const maxTop = Math.max(minHeight, h - gap - minHeight);
             const topHeight = Math.floor(minHeight + Math.random() * (maxTop - minHeight));
             const slotNum = ((s.pipes.length % 8) + 1);
             const slotColor = computed.getPropertyValue(`--hl-low-${slotNum}`).trim() || obstacleFill;
+            // Width of pipe scales slightly with canvas width (32px on phone, 38px on desktop)
+            const pipeW = Math.min(38, Math.max(30, Math.round(w * 0.075)));
             s.pipes.push({
-              x: w + 20,
-              w: 38,
+              x: w + 15,
+              w: pipeW,
               top: topHeight,
               bottom: Math.max(minHeight, h - (topHeight + gap)),
               passed: false,
@@ -145,12 +157,12 @@ export const FlappySquare = () => {
 
           // Move and check pipes
           const birdX = w * 0.28;
-          // Shortened hitbox: visual square size is 22px, but collision box is reduced for player fairness
-          const hitRadius = (bird.size / 2) * 0.70; // 30% forgiveness on hitboxes!
+          // Shortened hitbox: visual square size is 22px, with forgiving player bounds
+          const hitRadius = (bird.size / 2) * 0.72;
 
           for (let i = s.pipes.length - 1; i >= 0; i--) {
             const p = s.pipes[i];
-            p.x -= 2.0 * dt; // gentle pipe scroll speed (was 2.4)
+            p.x -= pipeScrollSpeed;
 
             // Score point
             if (!p.passed && p.x + p.w < birdX) {
