@@ -260,27 +260,14 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
                 }}
                 transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
               >
-                {/* Header row with Logo & Close Pill */}
+                {/* Header row with Logo and QuoteBox side-by-side (esc button removed, content pushed up) */}
                 <div className="mobile-sheet-head">
                   <div className="mobile-sheet-logo">
                     <Logo sidebarOpen={true} />
                   </div>
-                  <button
-                    type="button"
-                    className="mobile-sheet-close-btn"
-                    onClick={() => {
-                      vibrate(10);
-                      onOpenChange(false);
-                    }}
-                    aria-label="Close menu"
-                  >
-                    <span>esc</span>
-                  </button>
-                </div>
-
-                {/* Quote Box snippet with locked fixed height so text truncation triggers toast */}
-                <div className="mobile-sheet-quote-wrap">
-                  <QuoteBox />
+                  <div className="mobile-sheet-quote-wrap">
+                    <QuoteBox />
+                  </div>
                 </div>
 
                 {/* Primary Site Navigation Links */}
