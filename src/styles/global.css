@@ -1158,73 +1158,11 @@ mark, .hl {
     gap: 3px;
   }
 
-  /* Backdrop Blur Overlay covering the rest of the screen */
-  .sidebar-backdrop {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(20, 20, 22, 0.4);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    z-index: 190;
-  }
-
-  /* 80% Width Drawer on Mobile */
+  /* On mobile, desktop sidebar is hidden as mobile uses the bottom-docked Bezier menu */
   .sidebar.is-mobile-sidebar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    z-index: 200;
-    width: 80vw;
-    max-width: 80vw;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.22);
-    border-right: 1px solid var(--line);
-    padding: calc(14px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom));
+    display: none !important;
   }
-
-  .sidebar.is-mobile-sidebar .sidebar-head {
-    display: flex;
-    align-items: center;
-    height: 24px;
-    margin-bottom: 14px;
-  }
-
-  .sidebar.is-mobile-sidebar .sidebar-top {
-    margin-top: 0;
-  }
-
-  .sidebar.is-mobile-sidebar .quote-box {
-    cursor: default;
-  }
-
-  .sidebar.is-mobile-sidebar .is-clickable-quote {
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    border-radius: 6px;
-    padding: 2px 4px;
-    margin: -2px -4px;
-    transition: background 0.15s ease;
-  }
-
-  .sidebar.is-mobile-sidebar .is-clickable-quote:active {
-    background: rgba(255, 255, 255, 0.7);
-  }
-  
-  .sidebar.is-mobile-sidebar:not(.is-expanded) {
-    border-right: none;
-    box-shadow: none;
-    pointer-events: none;
-    display: none;
-  }
-
-  .sidebar-inner {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  /* Hide 'you are here' in mobile drawer navigation */
-  .sidebar.is-mobile-sidebar .nav-here {
+  .sidebar-backdrop {
     display: none !important;
   }
 
@@ -1765,4 +1703,353 @@ mark, .hl {
   width: 100%;
   display: flex;
   justify-content: center;
+}
+
+/* ==========================================================================
+   MOBILE FLOATING BOTTOM MENU & BEZIER EXPANDED SHEET (PHONE ONLY)
+   ========================================================================== */
+
+/* Hidden on desktop/tablets above 860px */
+.mobile-bottom-bar-wrap,
+.mobile-sheet-overlay-root {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  /* Docked at the bottom center with safe-area spacing and buffer */
+  .mobile-bottom-bar-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    left: 0;
+    right: 0;
+    z-index: 250;
+    pointer-events: none;
+  }
+
+  /* Interactive Pill Trigger Button */
+  .mobile-bottom-pill {
+    pointer-events: auto;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 40px;
+    min-width: 82px;
+    padding: 3px 4px;
+    border-radius: 20px;
+    background: var(--knob-bg, rgba(40, 38, 28, 0.08));
+    border: 1px solid var(--line, rgba(40, 38, 28, 0.16));
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12), inset 0 1px 2px rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+    transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+  }
+
+  .mobile-bottom-pill:active {
+    transform: scale(0.96);
+  }
+
+  .mobile-bottom-pill.is-open {
+    justify-content: flex-end;
+    background: rgba(20, 20, 24, 0.45);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  }
+
+  /* Animated Knob Slider inside the pill */
+  .mobile-bottom-knob {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    min-width: 44px;
+    padding: 0 10px;
+    border-radius: 16px;
+    background: var(--knob, #1d1d1f);
+    color: #f5f5f7;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), 0 0.5px 1.5px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Text label inside knob: 'menu' */
+  .mobile-pill-text {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    white-space: nowrap;
+    text-transform: lowercase;
+  }
+
+  /* Hamburger lines inside knob */
+  .mobile-pill-burger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+    width: 16px;
+    height: 14px;
+  }
+
+  .mobile-burger-line {
+    display: block;
+    width: 14px;
+    height: 1.8px;
+    background: #f5f5f7;
+    border-radius: 1px;
+    opacity: 0.95;
+  }
+
+  .mobile-pill-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    color: #f5f5f7;
+  }
+
+  /* Full Screen Overlay with Buffer Padding */
+  .mobile-sheet-overlay-root {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 220;
+    pointer-events: auto;
+    overflow: hidden;
+  }
+
+  /* Surrounding Buffer Space Tap-Out Backdrop */
+  .mobile-sheet-buffer-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 12, 16, 0.52);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 1;
+  }
+
+  /* Floating Bezier Expanded Sheet Container with Buffer Space on top, left, right */
+  .mobile-sheet-container {
+    position: absolute;
+    top: calc(24px + env(safe-area-inset-top));
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    left: 14px;
+    right: 14px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42), 0 4px 18px rgba(0, 0, 0, 0.22);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    background: rgba(12, 15, 24, 0.78);
+  }
+
+  /* Glassmorphism Frosted Tint over WebGL canvas */
+  .mobile-sheet-frost {
+    position: absolute;
+    inset: 0;
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* High legibility content container with internal scrolling */
+  .mobile-sheet-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px 22px calc(20px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    box-sizing: border-box;
+  }
+
+  /* Header row with logo and esc pill */
+  .mobile-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-shrink: 0;
+  }
+
+  .mobile-sheet-logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .mobile-sheet-logo .logo-box {
+    width: 42px;
+    height: 42px;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #f5f5f7;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .mobile-sheet-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e5e7eb;
+    font-size: 11.5px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: background 0.2s ease, transform 0.15s ease;
+  }
+
+  .mobile-sheet-close-btn:active {
+    background: rgba(255, 255, 255, 0.22);
+    transform: scale(0.96);
+  }
+
+  .mobile-sheet-quote-wrap {
+    margin-bottom: 22px;
+    flex-shrink: 0;
+  }
+
+  .mobile-sheet-quote-wrap .quote-box {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+    color: #f3f4f6;
+  }
+
+  .mobile-sheet-quote-wrap .quote-text {
+    color: #f3f4f6;
+    font-size: 13.5px;
+  }
+
+  .mobile-sheet-quote-wrap .quote-author {
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  /* Nav Links in mobile sheet */
+  .mobile-sheet-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    margin-bottom: 18px;
+  }
+
+  .mobile-sheet-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 12px;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: rgba(255, 255, 255, 0.78);
+    text-decoration: none;
+    background: transparent;
+    transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-sheet-link:active {
+    background: rgba(255, 255, 255, 0.12);
+    transform: scale(0.98);
+  }
+
+  .mobile-sheet-link.is-active {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .mobile-sheet-link-label {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .mobile-sheet-count {
+    margin-left: 6px;
+    font-size: 11px;
+    opacity: 0.7;
+    vertical-align: super;
+  }
+
+  .mobile-sheet-here {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .mobile-sheet-here-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #38bdf8;
+    box-shadow: 0 0 8px #38bdf8;
+  }
+
+  .mobile-sheet-here em {
+    font-style: normal;
+    font-size: 12px;
+    font-weight: 450;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .mobile-sheet-link.is-highlighted .mobile-sheet-link-label {
+    padding: 0.15em 0.6em;
+    border-radius: 0.5em;
+    background: rgba(56, 189, 248, 0.22);
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #e0f2fe;
+  }
+
+  /* Contact accordion inside sheet */
+  .mobile-sheet-contact-wrap {
+    margin-top: 4px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-top: 8px;
+  }
+
+  .mobile-sheet-contact-wrap .contact-btn {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 18px;
+    font-weight: 500;
+    padding: 8px 12px;
+  }
+
+  .mobile-sheet-contact-wrap .contact-links a {
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .mobile-sheet-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+  }
+
+  .mobile-sheet-copyright {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.48);
+  }
 }

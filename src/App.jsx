@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Sidebar from './components/Sidebar.jsx';
 import MobileTopBar from './components/MobileTopBar.jsx';
+import MobileBottomMenu from './components/MobileBottomMenu.jsx';
 import { QuoteProvider } from './hooks/useQuote.jsx';
 import { ToastProvider } from './hooks/useToast.jsx';
 import About from './pages/About.jsx';
@@ -22,6 +23,7 @@ import './utils/theme.js';
 export default function App() {
   const location = useLocation();
   const [open, setOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Warm up external embed hosts and prefetch all iframe media speculatively
   useEffect(() => {
@@ -41,6 +43,9 @@ export default function App() {
       if (isMobile && !wasMobile) {
         setOpen(false);
       }
+      if (!isMobile && wasMobile) {
+        setMobileMenuOpen(false);
+      }
       wasMobile = isMobile;
     };
     window.addEventListener('resize', handleResize);
@@ -58,10 +63,16 @@ export default function App() {
     document.body.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [location.pathname]);
 
-  // "[" toggles the sidebar
+  // "[" toggles the sidebar (on desktop)
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === '[' && !e.metaKey && !e.ctrlKey) setOpen((o) => !o);
+      if (e.key === '[' && !e.metaKey && !e.ctrlKey) {
+        if (window.innerWidth <= 860) {
+          setMobileMenuOpen((o) => !o);
+        } else {
+          setOpen((o) => !o);
+        }
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -72,7 +83,8 @@ export default function App() {
       <ToastProvider>
         <div className="shell">
           <Sidebar open={open} onOpenChange={setOpen} />
-          <MobileTopBar open={open} onOpenChange={setOpen} />
+          <MobileTopBar />
+          <MobileBottomMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} />
           <main className="main" id="main">
             <AnimatePresence mode="wait" initial={false}>
               <motion.div

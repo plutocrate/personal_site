@@ -146,27 +146,6 @@ export default function MobileTopBar({ open, onOpenChange }) {
   return (
     <header className="mobile-topbar" ref={widgetRef}>
       <div className="mobile-topbar-inner">
-        {/* Navigation Drawer Slider Pill on the left */}
-        <button
-          type="button"
-          className={`pill topbar-nav-pill${open ? ' open' : ''}`}
-          onClick={() => {
-            vibrate(10);
-            onOpenChange(!open);
-          }}
-          aria-pressed={open}
-          aria-label={open ? 'Close navigation drawer' : 'Open navigation drawer'}
-          title={open ? 'Close menu' : 'Open menu'}
-        >
-          <motion.span layout className="knob" transition={spring}>
-            <span className="knob-nav-icon" aria-hidden="true">
-              <span className="knob-line" />
-              <span className="knob-line" />
-              <span className="knob-line" />
-            </span>
-          </motion.span>
-        </button>
-
         {/* Navigation Breadcrumbs / Title */}
         <div className="mobile-topbar-nav">
           <Crumbs trail={trail} />
