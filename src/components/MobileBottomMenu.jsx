@@ -111,10 +111,10 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
           setShakeIntensity(1);
 
           if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current);
-          // When shake stops, within 2 seconds it smoothly returns to normal and fuses back
+          // Debounce: if no vigorous motion for 600ms, consider shake stopped
           shakeTimeoutRef.current = setTimeout(() => {
             setShakeIntensity(0);
-          }, 2000);
+          }, 600);
         }
       }
 
@@ -311,12 +311,13 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
                   <span
                     className="mobile-sheet-shake-hint"
                     onClick={() => {
-                      vibrate(20);
+                      vibrate([30, 40, 30]);
                       setShakeIntensity(1);
                       if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current);
+                      // Simulate sustained shaking for 5.5s to see the full timeline (wall slosh -> vigorous -> cracks & leak -> heal)
                       shakeTimeoutRef.current = setTimeout(() => {
                         setShakeIntensity(0);
-                      }, 2000);
+                      }, 5500);
                     }}
                     style={{ cursor: 'pointer', userSelect: 'none' }}
                   >
