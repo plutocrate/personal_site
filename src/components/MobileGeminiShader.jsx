@@ -1,8 +1,5 @@
 import { useEffect, useRef } from 'react';
 
-/**
- * Procedural color converter for HSL -> normalized [r, g, b] float tuple
- */
 function hslToRgb(h, s, l) {
   h = (h % 360 + 360) % 360 / 360;
   if (s === 0) return [l, l, l];
@@ -24,28 +21,23 @@ function hslToRgb(h, s, l) {
   ];
 }
 
-/**
- * Generates shades of 1 unified base color at a time (monochromatic / tonal gradient):
- * Varies lightness and saturation smoothly around a single selected hue
- * to create a cohesive, clean ambient cloud without multi-color clash.
- */
 function generateMonochromeShades(baseHue) {
   const h = baseHue != null ? baseHue : Math.floor(Math.random() * 360);
-
-  // 5 harmonized tonal shades of the exact same single hue:
-  // Deep core shade -> rich mid shade -> vibrant accent shade -> diffused veil shades
   return [
-    hslToRgb(h, 0.90, 0.32), // shade 1: deep rich base
-    hslToRgb(h, 0.88, 0.38), // shade 2: medium deep body
-    hslToRgb(h, 0.92, 0.44), // shade 3: vibrant mid-tone
-    hslToRgb(h, 0.84, 0.50), // shade 4: softer diffused tint
-    hslToRgb(h, 0.80, 0.56), // shade 5: light ethereal mist
+    hslToRgb(h, 0.90, 0.30),
+    hslToRgb(h, 0.88, 0.36),
+    hslToRgb(h, 0.92, 0.42),
+    hslToRgb(h, 0.85, 0.48),
+    hslToRgb(h, 0.82, 0.54),
   ];
 }
 
-export default function MobileGeminiShader({ active }) {
+export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
   const canvasRef = useRef(null);
-  const colorsRef = useRef(generateMonochromeShades());
+  const hueRef = useRef(Math.floor(Math.random() * 360));
+  const currentColorsRef = useRef(generateMonochromeShades(hueRef.current));
+  const targetColorsRef = useRef(generateMonochromeShades(hueRef.current));
+  const lastLoopCycleRef = useRef(0);
 
   useEffect(() => {
     if (!active) return;
@@ -63,8 +55,11 @@ export default function MobileGeminiShader({ active }) {
 
     if (!gl) return;
 
-    // Pick fresh shades of 1 color on mount/open
-    colorsRef.current = generateMonochromeShades();
+    hueRef.current = Math.floor(Math.random() * 360);
+    const initialColors = generateMonochromeShades(hueRef.current);
+    currentColorsRef.current = initialColors;
+    targetColorsRef.current = initialColors;
+    lastLoopCycleRef.current = 0;
 
     const vsSource = `
       attribute vec2 a_pos;
@@ -87,6 +82,7 @@ export default function MobileGeminiShader({ active }) {
       uniform vec3 u_color5;
       uniform vec2 u_touch;
       uniform float u_touch_active;
+      uniform float u_shake;
 
       vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
       vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
@@ -131,52 +127,77 @@ export default function MobileGeminiShader({ active }) {
         return v;
       }
 
+      // Procedural 20-color prism generator used during vigorous shake!
+      vec3 prismRainbow(float t) {
+        return 0.54 + 0.44 * cos(6.28318 * (t + vec3(0.0, 0.33, 0.67)));
+      }
+
       void main() {
         vec2 st = gl_FragCoord.xy / u_resolution.xy;
         float aspect = u_resolution.x / u_resolution.y;
         vec2 p = vec2(st.x * aspect, st.y);
 
-        // Active and lively cloud motion
-        float t = u_time * 0.90;
+        // Shake speed accelerator: shaking causes fast turbulence
+        float speedMultiplier = 1.0 + u_shake * 3.8;
+        float t = u_time * 0.85 * speedMultiplier;
 
-        // Dynamic wandering trajectory across container
+        // Wandering trajectory across the container
         vec2 cloudCenter = vec2(
-          (0.5 + 0.28 * sin(t * 0.52) + 0.14 * cos(t * 0.28)) * aspect,
-          0.50 + 0.30 * cos(t * 0.44) + 0.12 * sin(t * 0.24)
+          (0.5 + (0.24 + u_shake * 0.15) * sin(t * 0.50) + 0.12 * cos(t * 0.25)) * aspect,
+          0.50 + (0.26 + u_shake * 0.15) * cos(t * 0.42) + 0.10 * sin(t * 0.22)
         );
 
         vec2 offset = p - cloudCenter;
         float d = length(offset);
 
-        // Domain-warped fractal cloud noise
-        vec2 q = vec2(fbm(p * 2.0 + vec2(0.0, t * 0.22)),
-                      fbm(p * 2.0 + vec2(5.2, 1.2 - t * 0.18)));
+        // Fractal domain warping with chaotic shake agitation
+        vec2 shakeJitter = vec2(
+          sin(t * 8.0 + p.y * 12.0),
+          cos(t * 8.0 + p.x * 12.0)
+        ) * (u_shake * 0.18);
 
-        vec2 r = vec2(fbm(p * 2.4 + 3.2 * q + vec2(t * 0.20)),
-                      fbm(p * 2.4 + 3.2 * q + vec2(8.4, 2.1 - t * 0.16)));
+        vec2 q = vec2(fbm(p * (2.2 + u_shake * 1.5) + shakeJitter + vec2(0.0, t * 0.20)),
+                      fbm(p * (2.2 + u_shake * 1.5) + shakeJitter + vec2(5.2, 1.2 - t * 0.16)));
 
-        float noiseVal = fbm(p * 2.6 + 3.2 * r);
+        vec2 r = vec2(fbm(p * 2.6 + 3.2 * q + vec2(t * 0.18)),
+                      fbm(p * 2.6 + 3.2 * q + vec2(8.4, 2.1 - t * 0.15)));
 
-        // Big, diffused cloud volume
-        float cloudRadius = 0.68 + noiseVal * 0.26;
-        float cloudDensity = smoothstep(cloudRadius, 0.02, d);
+        float noiseVal = fbm(p * 2.8 + 3.2 * r);
 
-        // Interactive touch knife / slice displacement
+        // Slightly smaller standard cloud radius (~0.38), but when shaken vigorously,
+        // it explodes and diffuses completely to take over the container
+        float baseRadius = 0.38 + noiseVal * 0.16;
+        float shakenRadius = 1.45 + noiseVal * 0.40;
+        float cloudRadius = mix(baseRadius, shakenRadius, u_shake);
+
+        // Soft, highly diffused atmospheric edge falloff
+        float cloudDensity = smoothstep(cloudRadius, 0.01, d);
+
+        // Interactive touch slice
         if (u_touch_active > 0.01) {
           vec2 touchP = vec2(u_touch.x * aspect, u_touch.y);
           float touchDist = length(p - touchP);
-          float cutHole = smoothstep(0.04, 0.26, touchDist);
+          float cutHole = smoothstep(0.04, 0.24, touchDist);
           cloudDensity *= mix(1.0, cutHole, u_touch_active);
         }
 
-        // Tonal depth blend through 5 shades of the single hue
-        vec3 col = mix(u_color1, u_color2, clamp(noiseVal * 2.0, 0.0, 1.0));
-        col = mix(col, u_color3, clamp(length(q) * 1.5, 0.0, 1.0));
-        col = mix(col, u_color4, clamp(pow(r.x, 2.0) * 1.6, 0.0, 1.0));
-        col = mix(col, u_color5, clamp(pow(r.y, 2.0) * 1.6, 0.0, 1.0));
+        // Tonal monochromatic blend for standard idle wandering
+        vec3 normalCol = mix(u_color1, u_color2, clamp(noiseVal * 2.0, 0.0, 1.0));
+        normalCol = mix(normalCol, u_color3, clamp(length(q) * 1.5, 0.0, 1.0));
+        normalCol = mix(normalCol, u_color4, clamp(pow(r.x, 2.0) * 1.5, 0.0, 1.0));
+        normalCol = mix(normalCol, u_color5, clamp(pow(r.y, 2.0) * 1.5, 0.0, 1.0));
 
-        // Highly visible, rich diffused opacity
-        float alpha = clamp(cloudDensity * 0.88, 0.0, 0.94);
+        // 20-color prism chaos when shaken vigorously
+        float prismAngle = fract(length(p - vec2(0.5 * aspect, 0.5)) * 4.0 + atan(offset.y, offset.x) * 3.183 + noiseVal * 2.5 + t * 0.5);
+        vec3 prismCol = prismRainbow(prismAngle);
+
+        // Interpolate between single-shade cloud and the vibrant 20-color explosion
+        vec3 col = mix(normalCol, prismCol, clamp(u_shake * 1.25, 0.0, 1.0));
+
+        // Cloud opacity: highly diffused and dense, expands to full coverage when shaken
+        float normalAlpha = clamp(cloudDensity * 0.82, 0.0, 0.92);
+        float shakenAlpha = clamp(cloudDensity * 0.98, 0.0, 1.0);
+        float alpha = mix(normalAlpha, shakenAlpha, u_shake);
 
         gl_FragColor = vec4(col, alpha);
       }
@@ -224,22 +245,12 @@ export default function MobileGeminiShader({ active }) {
     const uColor5 = gl.getUniformLocation(program, 'u_color5');
     const uTouch = gl.getUniformLocation(program, 'u_touch');
     const uTouchActive = gl.getUniformLocation(program, 'u_touch_active');
+    const uShake = gl.getUniformLocation(program, 'u_shake');
 
-    const applyShaderColors = (cList) => {
-      gl.uniform3f(uColor1, cList[0][0], cList[0][1], cList[0][2]);
-      gl.uniform3f(uColor2, cList[1][0], cList[1][1], cList[1][2]);
-      gl.uniform3f(uColor3, cList[2][0], cList[2][1], cList[2][2]);
-      gl.uniform3f(uColor4, cList[3][0], cList[3][1], cList[3][2]);
-      gl.uniform3f(uColor5, cList[4][0], cList[4][1], cList[4][2]);
-    };
-
-    applyShaderColors(colorsRef.current);
-
-    // When logo is tapped, update to shades of the new theme hue immediately
     const handleThemeChange = (e) => {
       const newHue = e.detail?.hue;
-      colorsRef.current = generateMonochromeShades(newHue);
-      applyShaderColors(colorsRef.current);
+      if (newHue != null) hueRef.current = newHue;
+      targetColorsRef.current = generateMonochromeShades(hueRef.current);
     };
 
     window.addEventListener('theme:change', handleThemeChange);
@@ -284,11 +295,37 @@ export default function MobileGeminiShader({ active }) {
     let currentTouchX = 0.5;
     let currentTouchY = 0.5;
     let currentTouchStrength = 0.0;
+    let currentShake = 0.0;
 
     const render = (now) => {
       const elapsed = (now - startTime) * 0.001;
       gl.uniform1f(uTime, elapsed);
 
+      // Check trajectory rotation cycle:
+      // In the shader, trajectory is driven by t * 0.50 (where t = elapsed * 0.85).
+      // One full circle period = (2 * PI) / (0.85 * 0.50) ≈ 14.78 seconds.
+      const currentCycle = Math.floor(elapsed / 14.78);
+      if (currentCycle > lastLoopCycleRef.current) {
+        lastLoopCycleRef.current = currentCycle;
+        // Shift hue organically by 60° to 180° for the new rotation
+        hueRef.current = Math.round((hueRef.current + 75 + Math.random() * 120) % 360);
+        targetColorsRef.current = generateMonochromeShades(hueRef.current);
+      }
+
+      // Smooth color morphing toward target color shades
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 3; j++) {
+          currentColorsRef.current[i][j] += (targetColorsRef.current[i][j] - currentColorsRef.current[i][j]) * 0.04;
+        }
+      }
+
+      gl.uniform3f(uColor1, currentColorsRef.current[0][0], currentColorsRef.current[0][1], currentColorsRef.current[0][2]);
+      gl.uniform3f(uColor2, currentColorsRef.current[1][0], currentColorsRef.current[1][1], currentColorsRef.current[1][2]);
+      gl.uniform3f(uColor3, currentColorsRef.current[2][0], currentColorsRef.current[2][1], currentColorsRef.current[2][2]);
+      gl.uniform3f(uColor4, currentColorsRef.current[3][0], currentColorsRef.current[3][1], currentColorsRef.current[3][2]);
+      gl.uniform3f(uColor5, currentColorsRef.current[4][0], currentColorsRef.current[4][1], currentColorsRef.current[4][2]);
+
+      // Touch interpolation
       currentTouchX += (targetTouchX - currentTouchX) * 0.20;
       currentTouchY += (targetTouchY - currentTouchY) * 0.20;
       touchStrength *= 0.96;
@@ -296,6 +333,10 @@ export default function MobileGeminiShader({ active }) {
 
       gl.uniform2f(uTouch, currentTouchX, currentTouchY);
       gl.uniform1f(uTouchActive, currentTouchStrength);
+
+      // Shake smoothing
+      currentShake += (shakeIntensity - currentShake) * 0.16;
+      gl.uniform1f(uShake, currentShake);
 
       gl.clearColor(0, 0, 0, 0);
       gl.clear(gl.COLOR_BUFFER_BIT);
@@ -317,7 +358,7 @@ export default function MobileGeminiShader({ active }) {
       gl.deleteShader(fs);
       gl.deleteBuffer(posBuffer);
     };
-  }, [active]);
+  }, [active, shakeIntensity]);
 
   return (
     <canvas

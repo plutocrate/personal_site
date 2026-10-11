@@ -18,9 +18,6 @@ const barbaEase = [0.16, 1, 0.3, 1];
 export default function MobileBottomMenu({ open, onOpenChange }) {
   const location = useLocation();
 
-  // Determine initial button visual mode:
-  // If user previously visited/interacted, start directly with 'hamburger'.
-  // Otherwise, start with 'menu' text.
   const [hasVisited, setHasVisited] = useState(() => {
     try {
       return localStorage.getItem(STORAGE_KEY) === 'true';
@@ -31,7 +28,13 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
 
   const [buttonMode, setButtonMode] = useState(() => (hasVisited ? 'hamburger' : 'menu'));
 
-  // Mark as visited and store in localStorage
+  // Mobile Shake Detection State:
+  // When shaking, isShaking becomes true, opacity of content fades to 0,
+  // 20-color prism cloud takes over vigorously.
+  const [shakeIntensity, setShakeIntensity] = useState(0); // 0 (idle) to 1 (full shake)
+  const lastShakeTimeRef = useRef(0);
+  const shakeTimeoutRef = useRef(null);
+
   const markVisited = () => {
     if (!hasVisited) {
       setHasVisited(true);
@@ -41,13 +44,6 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
     }
   };
 
-  // Loop/Timer effect:
-  // For first-time visitors:
-  // - Starts with 'menu'
-  // - After 10 seconds switches to 'hamburger'
-  // - Gently cycles every few seconds between 'menu' and 'hamburger' in a loop
-  // For returning visitors:
-  // - Remains fixed on 'hamburger'
   useEffect(() => {
     if (hasVisited) {
       setButtonMode('hamburger');
@@ -55,11 +51,8 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
     }
 
     let intervalId;
-    // Switch from initial 'menu' to 'hamburger' after 10 seconds
     const initialTimer = setTimeout(() => {
       setButtonMode('hamburger');
-
-      // Then continue looping subtly every 6 seconds
       intervalId = setInterval(() => {
         setButtonMode((prev) => (prev === 'menu' ? 'hamburger' : 'menu'));
       }, 6000);
@@ -71,7 +64,6 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
     };
   }, [hasVisited]);
 
-  // Handle tapping the toggle button
   const handleToggle = () => {
     vibrate(12);
     markVisited();
@@ -79,12 +71,65 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
     onOpenChange(!open);
   };
 
-  // Auto-close menu when navigating
   useEffect(() => {
     if (open) {
       onOpenChange(false);
     }
   }, [location.pathname]);
+
+  // Accelerometer DeviceMotion listener to detect mobile shake
+  useEffect(() => {
+    if (!open) {
+      setShakeIntensity(0);
+      return;
+    }
+
+    let lastX = null, lastY = null, lastZ = null;
+    let lastUpdate = 0;
+
+    const handleMotion = (e) => {
+      const current = performance.now();
+      if (current - lastUpdate < 60) return; // sample rate ~16Hz
+      lastUpdate = current;
+
+      const acc = e.accelerationIncludingGravity || e.acceleration;
+      if (!acc) return;
+
+      const x = acc.x || 0;
+      const y = acc.y || 0;
+      const z = acc.z || 0;
+
+      if (lastX !== null && lastY !== null && lastZ !== null) {
+        const deltaX = Math.abs(x - lastX);
+        const deltaY = Math.abs(y - lastY);
+        const deltaZ = Math.abs(z - lastZ);
+        const totalDelta = deltaX + deltaY + deltaZ;
+
+        // Threshold for vigorous shake
+        if (totalDelta > 16.5) {
+          lastShakeTimeRef.current = current;
+          setShakeIntensity(1);
+
+          if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current);
+          // When shake stops, within 2 seconds it smoothly returns to normal and fuses back
+          shakeTimeoutRef.current = setTimeout(() => {
+            setShakeIntensity(0);
+          }, 2000);
+        }
+      }
+
+      lastX = x;
+      lastY = y;
+      lastZ = z;
+    };
+
+    window.addEventListener('devicemotion', handleMotion, { passive: true });
+
+    return () => {
+      window.removeEventListener('devicemotion', handleMotion);
+      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current);
+    };
+  }, [open]);
 
   const getCount = (to) => {
     if (to === '/life') return lifeUpdates.length || undefined;
@@ -106,7 +151,6 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
           aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
           title={open ? 'Close' : 'Menu'}
         >
-          {/* Animated Knob Slider inside Pill */}
           <motion.div
             className="mobile-bottom-knob"
             layout
@@ -114,7 +158,6 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
           >
             <AnimatePresence mode="wait" initial={false}>
               {open ? (
-                // Close 'X' icon when sheet is open
                 <motion.span
                   key="close-icon"
                   className="mobile-pill-icon"
@@ -129,7 +172,6 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
                   </svg>
                 </motion.span>
               ) : buttonMode === 'menu' ? (
-                // 'menu' text state with subtle font tracking
                 <motion.span
                   key="menu-text"
                   className="mobile-pill-text"
@@ -141,7 +183,6 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
                   menu
                 </motion.span>
               ) : (
-                // Hamburger icon state
                 <motion.span
                   key="burger-icon"
                   className="mobile-pill-burger"
@@ -164,7 +205,6 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
       <AnimatePresence>
         {open && (
           <div className="mobile-sheet-overlay-root">
-            {/* Tapping anywhere on the surrounding buffer space closes the menu */}
             <motion.div
               className="mobile-sheet-buffer-backdrop"
               initial={{ opacity: 0 }}
@@ -178,7 +218,6 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
               aria-hidden="true"
             />
 
-            {/* Bezier bottom-up growth container with surrounding buffer margin */}
             <motion.div
               className="mobile-sheet-container"
               initial={{
@@ -205,14 +244,22 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* WebGL Gemini AI Procedural Fluid Shader Canvas */}
-              <MobileGeminiShader active={open} />
+              {/* WebGL Gemini AI Procedural Fluid Shader Canvas with Shake Reaction */}
+              <MobileGeminiShader active={open} shakeIntensity={shakeIntensity} />
 
               {/* Glassmorphic frosted tint layer over the shader */}
               <div className="mobile-sheet-frost" />
 
-              {/* High-legibility interactive navigation content */}
-              <div className="mobile-sheet-content">
+              {/* High-legibility interactive navigation content: fades out when shaken */}
+              <motion.div
+                className="mobile-sheet-content"
+                animate={{
+                  opacity: shakeIntensity > 0.05 ? 0 : 1,
+                  filter: shakeIntensity > 0.05 ? 'blur(6px)' : 'blur(0px)',
+                  scale: shakeIntensity > 0.05 ? 0.98 : 1,
+                }}
+                transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+              >
                 {/* Header row with Logo & Close Pill */}
                 <div className="mobile-sheet-head">
                   <div className="mobile-sheet-logo">
@@ -272,13 +319,20 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
                   </div>
                 </nav>
 
-                {/* Bottom Footer Details */}
+                {/* Bottom Footer Details with 'shake your phone' hint */}
                 <div className="mobile-sheet-footer">
+                  <span className="mobile-sheet-shake-hint">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <rect x="5" y="2" width="14" height="20" rx="3" ry="3" />
+                      <line x1="12" y1="18" x2="12.01" y2="18" />
+                    </svg>
+                    shake your phone
+                  </span>
                   <small className="mobile-sheet-copyright">
                     ©{profile.name} <span>{profile.year}</span>
                   </small>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
           </div>
         )}

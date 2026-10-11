@@ -2153,6 +2153,33 @@ mark, .hl {
     flex-shrink: 0;
   }
 
+  .mobile-sheet-shake-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-3, #7a7974);
+    letter-spacing: 0.01em;
+    user-select: none;
+    -webkit-user-select: none;
+    opacity: 0.8;
+  }
+
+  .mobile-sheet-shake-hint svg {
+    opacity: 0.75;
+    animation: phoneShakeHint 2.4s ease-in-out infinite;
+  }
+
+  @keyframes phoneShakeHint {
+    0%, 70%, 100% { transform: rotate(0deg); }
+    74% { transform: rotate(-14deg); }
+    78% { transform: rotate(14deg); }
+    82% { transform: rotate(-10deg); }
+    86% { transform: rotate(10deg); }
+    90% { transform: rotate(0deg); }
+  }
+
   .mobile-sheet-copyright {
     font-size: 12px;
     color: var(--ink-3, #7a7974);
