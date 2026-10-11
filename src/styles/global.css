@@ -1853,13 +1853,13 @@ mark, .hl {
     background: transparent;
   }
 
-  /* Glassmorphism Frosted Tint over WebGL canvas - dense from the start, no fade glitch */
+  /* Glassmorphism Frosted Tint over WebGL canvas - vibrant & translucent, not washing out colors */
   .mobile-sheet-frost {
     position: absolute;
     inset: 0;
-    backdrop-filter: blur(28px);
-    -webkit-backdrop-filter: blur(28px);
-    background: rgba(255, 255, 255, 0.42);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(255, 255, 255, 0.18);
     pointer-events: none;
     z-index: 1;
   }
