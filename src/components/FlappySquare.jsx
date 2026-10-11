@@ -31,13 +31,29 @@ export const FlappySquare = () => {
     lastTime: performance.now(),
   });
 
+  // Calculate dynamic jump velocity and physics based on canvas dimensions and obstacle gap
+  const getJumpVelocity = (h) => {
+    const currentH = h || stateRef.current.h || 320;
+    // Passage gap: Math.min(108, Math.max(96, currentH * 0.31))
+    const gap = Math.min(108, Math.max(96, currentH * 0.31));
+    // Each jump flap should cover ~32% of the gap opening so the player has tight, fair control
+    // without overshooting into the top pipe or feeling unfair on phone screens
+    const targetHopHeight = gap * 0.32; // ~30.7px to 34.5px
+    const effectiveGravity = Math.max(0.16, Math.min(0.22, (currentH / 320) * 0.19));
+    // v0 = -sqrt(2 * g * H)
+    const jumpStrength = Math.sqrt(2 * effectiveGravity * targetHopHeight);
+    return -jumpStrength;
+  };
+
   const jump = () => {
     const s = stateRef.current;
+    const jumpVy = getJumpVelocity(s.h);
+
     if (s.state === 'idle') {
       s.state = 'playing';
       s.score = 0;
       s.bird.y = s.h * 0.45;
-      s.bird.vy = -4.6; // gentle, controlled hop
+      s.bird.vy = jumpVy; // dynamically scaled hop
       s.pipes = [];
       setGameState('playing');
       setScore(0);
@@ -48,7 +64,7 @@ export const FlappySquare = () => {
       s.state = 'playing';
       s.score = 0;
       s.bird.y = s.h * 0.45;
-      s.bird.vy = -4.6;
+      s.bird.vy = jumpVy;
       s.pipes = [];
       setGameState('playing');
       setScore(0);
@@ -56,7 +72,7 @@ export const FlappySquare = () => {
       return;
     }
     if (s.state === 'playing') {
-      s.bird.vy = -4.6; // lower jump velocity paired with reduced gravity
+      s.bird.vy = jumpVy; // dynamically scaled hop
       vibrate(10); // Light, crisp hop vibration
     }
   };
@@ -120,7 +136,16 @@ export const FlappySquare = () => {
         // Physics step
         if (s.state === 'playing') {
           s.frame++;
-          bird.vy += 0.20 * dt; // reduced gravity (was 0.28) for much smoother float
+
+          // Dynamic physics scaling:
+          // Gap is computed as Math.min(108, Math.max(96, h * 0.31))
+          // For fair, responsive navigation across screens, one single flap should cover ~33% of the gap.
+          // In discrete physics: jump apex height H = v0^2 / (2 * g).
+          // We anchor gravity proportionally to h so the jump feel is snappy and consistent across phone & desktop.
+          const currentGap = Math.min(108, Math.max(96, h * 0.31));
+          const effectiveGravity = Math.max(0.16, Math.min(0.22, (h / 320) * 0.19));
+
+          bird.vy += effectiveGravity * dt;
           bird.y += bird.vy * dt;
           bird.rot = Math.min(Math.PI / 4, Math.max(-Math.PI / 5, bird.vy * 0.08));
 
