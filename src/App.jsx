@@ -14,6 +14,7 @@ import { caseStudies, journal } from './data/content.js';
 import { lifeUpdates } from './data/lifeUpdates.js';
 import Journal from './pages/Journal.jsx';
 import LifeUpdates from './pages/LifeUpdates.jsx';
+import FlappySquarePage from './pages/FlappySquarePage.jsx';
 import { warmExternalEmbeds, prefetchUrl } from './utils/prefetch.js';
 import './utils/theme.js';
 
@@ -72,6 +73,7 @@ export default function App() {
               >
                 <Routes location={location}>
                   <Route path="/" element={<About />} />
+                  <Route path="/flappy-square" element={<FlappySquarePage />} />
                   <Route path="/playground" element={<Navigate to={`/playground/${sims[0]?.id || ''}`} replace />} />
                   <Route path="/playground/:id" element={<Playground />} />
                   <Route path="/playground/:id/read" element={<Read kind="playground" />} />

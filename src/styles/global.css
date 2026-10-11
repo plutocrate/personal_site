@@ -97,8 +97,9 @@ a, button, [role='button'], [role='slider'], .life-card, .yt-hit { cursor: point
 .page { position: relative; min-height: 100%; padding: calc(var(--pad) + 8px) var(--pad) calc(80px + env(safe-area-inset-bottom)); max-width: 980px; }
 .page:has(.reel) { padding: 0; max-width: none; }
 .page:has(.article) { max-width: none; }
-.page:has(.about) { max-width: none; display: flex; align-items: center; justify-content: center; }
+.page:has(.about) { max-width: none; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
 .page:has(.empty-state-wrap) { max-width: none; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+.page:has(.flappy-standalone-page) { max-width: none; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
 
 /* ---------- Sidebar & Mobile Drawer ---------- */
 .sidebar {
@@ -1552,4 +1553,210 @@ mark, .hl {
     visibility: hidden !important;
     pointer-events: none !important;
   }
+}
+
+/* ==========================================================================
+   BARE MINIMAL SITE FOOTER & DIRECTORY
+   ========================================================================== */
+.site-footer {
+  width: 100%;
+  margin-top: clamp(64px, 10vh, 120px);
+  padding-top: 32px;
+  border-top: 1px solid var(--line);
+  color: var(--ink-2);
+}
+
+.site-footer-inner {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.site-footer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px 24px;
+}
+
+.site-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.site-footer-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
+
+.site-footer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.site-footer-link {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: color 0.15s ease, opacity 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.site-footer-link span {
+  color: var(--ink-3);
+  font-size: 12px;
+}
+
+.site-footer-link:hover {
+  color: var(--ink);
+}
+
+.site-footer-link.external-link {
+  color: var(--ink-2);
+}
+
+.site-footer-link.external-link:hover {
+  color: var(--ink);
+}
+
+.site-footer-host-text {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.site-footer-canonical-link {
+  color: var(--ink);
+  font-weight: 550;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(40, 38, 28, 0.25);
+  transition: text-decoration-color 0.15s ease;
+}
+
+.site-footer-canonical-link:hover {
+  text-decoration-color: var(--ink);
+}
+
+.site-footer-bio-blurb {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.site-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 18px;
+  border-top: 1px dashed rgba(40, 38, 28, 0.08);
+  font-size: 12.5px;
+  color: var(--ink-3);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.site-footer-domain {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+.pulse-indicator {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34c759;
+  box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.4);
+  animation: pulse-ring 2.4s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 5px rgba(52, 199, 89, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(52, 199, 89, 0); }
+}
+
+@media (max-width: 760px) {
+  .site-footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-footer-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* ==========================================================================
+   FLAPPY SQUARE STANDALONE PAGE
+   ========================================================================== */
+.flappy-standalone-page {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.flappy-standalone-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.flappy-standalone-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.flappy-standalone-title {
+  margin: 0 0 8px;
+  font-size: clamp(26px, 4vw, 36px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.flappy-standalone-sub {
+  margin: 0 auto;
+  max-width: 520px;
+  font-size: 15px;
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+.flappy-standalone-sub kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 11px;
+  font-family: inherit;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+  color: var(--ink);
+}
+
+.flappy-standalone-game-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }

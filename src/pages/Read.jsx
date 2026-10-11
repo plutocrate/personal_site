@@ -3,6 +3,7 @@ import Crumbs from '../components/Crumbs.jsx';
 import CaseBlocks from '../components/CaseBlocks.jsx';
 import SimStage from '../components/SimStage.jsx';
 import AmbientRays from '../components/AmbientRays.jsx';
+import Footer from '../components/Footer.jsx';
 import { caseStudies, journal } from '../data/content.js';
 import { sims } from '../playground/index.js';
 
@@ -57,6 +58,7 @@ export default function Read({ kind }) {
       <div className="article-body">
         <CaseBlocks blocks={item.blocks} hue={item.hue || 200} />
       </div>
+      <Footer />
     </article>
   );
 }
