@@ -122,6 +122,9 @@ export function applyTheme(theme) {
 export function cycleTheme() {
   const theme = getRandomSubtleTheme();
   applyTheme(theme);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('theme:change', { detail: theme }));
+  }
   return theme;
 }
 

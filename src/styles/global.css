@@ -2056,46 +2056,71 @@ mark, .hl {
     color: var(--mark-ink, #0c4a6e);
   }
 
-  /* Contact accordion inside sheet - highly visible links */
+  /* Contact accordion inside sheet - highly visible links with highlight marker effect */
   .mobile-sheet-contact-wrap {
     margin-top: 6px;
-    border-top: 1px solid var(--line, rgba(40, 38, 28, 0.12));
-    padding-top: 8px;
+    border-top: 1px solid var(--line, rgba(40, 38, 28, 0.14));
+    padding-top: 10px;
   }
 
-  .mobile-sheet-contact-wrap .contact-btn {
-    color: var(--ink, #1d1d1f);
+  /* Make Contact label prominent, high contrast and opaque */
+  .mobile-sheet-contact-wrap .contact-btn,
+  .mobile-sheet-contact-wrap .contact .nav-item {
+    color: var(--ink, #1d1d1f) !important;
     font-size: 18px;
-    font-weight: 500;
+    font-weight: 550;
     padding: 8px 12px;
+    width: 100%;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    opacity: 1 !important;
+  }
+
+  .mobile-sheet-contact-wrap .contact .nav-item .nav-count {
+    color: var(--ink-3, #7a7974);
+    opacity: 0.85;
+    margin-left: 6px;
+    font-size: 11px;
   }
 
   .mobile-sheet-contact-wrap .nav-sub {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    padding: 4px 12px 10px;
+    gap: 6px;
+    padding: 6px 12px 12px;
   }
 
+  /* Social links using the site's highlight marker style with rich opacity */
   .mobile-sheet-contact-wrap .nav-sub a {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 7px 12px;
-    border-radius: 10px;
-    color: var(--ink, #1d1d1f);
+    justify-content: space-between;
+    padding: 0.38em 0.82em;
+    border-radius: 0.6em;
+    background: var(--mark, #d6f31a);
+    color: var(--mark-ink, #16160c);
+    border: 1px solid var(--mark-border, rgba(40, 38, 28, 0.16));
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 550;
     text-decoration: none;
-    background: var(--surface, rgba(255, 255, 255, 0.75));
-    border: 1px solid var(--line, rgba(40, 38, 28, 0.12));
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: background 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 1.5px 4px rgba(0, 0, 0, 0.06);
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+    opacity: 0.98;
+  }
+
+  .mobile-sheet-contact-wrap .nav-sub a svg {
+    color: var(--mark-ink, #16160c);
+    opacity: 0.8;
+  }
+
+  .mobile-sheet-contact-wrap .nav-sub a:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   }
 
   .mobile-sheet-contact-wrap .nav-sub a:active {
-    background: var(--surface-2, rgba(255, 255, 255, 0.95));
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
 
   .mobile-sheet-footer {
