@@ -38,6 +38,7 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
   const currentColorsRef = useRef(generateMonochromeShades(hueRef.current));
   const targetColorsRef = useRef(generateMonochromeShades(hueRef.current));
   const lastLoopCycleRef = useRef(0);
+  const lastFrameTimeRef = useRef(0);
 
   useEffect(() => {
     if (!active) return;
@@ -301,21 +302,27 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
       const elapsed = (now - startTime) * 0.001;
       gl.uniform1f(uTime, elapsed);
 
+      // Calculate frame delta for smooth, consistent lerping (dt normalized to ~60fps)
+      const lastNow = lastFrameTimeRef.current || now;
+      const dt = Math.min((now - lastNow) / 16.67, 3.0);
+      lastFrameTimeRef.current = now;
+
       // Check trajectory rotation cycle:
       // In the shader, trajectory is driven by t * 0.50 (where t = elapsed * 0.85).
       // One full circle period = (2 * PI) / (0.85 * 0.50) ≈ 14.78 seconds.
       const currentCycle = Math.floor(elapsed / 14.78);
       if (currentCycle > lastLoopCycleRef.current) {
         lastLoopCycleRef.current = currentCycle;
-        // Shift hue organically by 60° to 180° for the new rotation
-        hueRef.current = Math.round((hueRef.current + 75 + Math.random() * 120) % 360);
+        // Shift hue organically by 60° to 140° for the new rotation
+        hueRef.current = Math.round((hueRef.current + 65 + Math.random() * 80) % 360);
         targetColorsRef.current = generateMonochromeShades(hueRef.current);
       }
 
-      // Smooth color morphing toward target color shades
+      // Silky smooth color lerp: gently blends into the new color shades over ~3-4 seconds (lerp rate ~0.015 per frame)
+      const lerpSpeed = 0.018 * dt;
       for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 3; j++) {
-          currentColorsRef.current[i][j] += (targetColorsRef.current[i][j] - currentColorsRef.current[i][j]) * 0.04;
+          currentColorsRef.current[i][j] += (targetColorsRef.current[i][j] - currentColorsRef.current[i][j]) * lerpSpeed;
         }
       }
 

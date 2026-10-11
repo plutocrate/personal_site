@@ -76,8 +76,15 @@ export default function ContactItem({ count }) {
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.22, ease: [0.32, 0.72, 0, 1] }}
           >
-            {contacts.map((c) => (
-              <a key={c.label} href={c.href} target="_blank" rel="noreferrer" className="contact-sublink">
+            {contacts.map((c, idx) => (
+              <a
+                key={c.label}
+                href={c.href}
+                target="_blank"
+                rel="noreferrer"
+                className="contact-sublink"
+                data-slot={idx + 1}
+              >
                 <span className="contact-link-text">
                   <span>{c.label}</span>
                   <Arrow />

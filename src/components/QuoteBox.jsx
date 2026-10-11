@@ -12,9 +12,16 @@ export default function QuoteBox() {
   const { quote } = useQuote();
   const { showToast } = useToast();
 
+  const textRef = useRef(null);
+
   const handleQuoteClick = () => {
-    if (showToast) {
-      showToast(quote.text, quote.author);
+    // Only truncated text gets toast
+    const el = textRef.current;
+    if (el && showToast) {
+      const isTruncated = el.scrollHeight > el.clientHeight + 1;
+      if (isTruncated) {
+        showToast(quote.text, quote.author);
+      }
     }
   };
 
@@ -36,7 +43,7 @@ export default function QuoteBox() {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
         >
-          <p className="quote-text">
+          <p className="quote-text" ref={textRef}>
             “{quote.text}”
           </p>
           <p className="quote-author">{quote.author}</p>

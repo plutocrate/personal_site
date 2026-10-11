@@ -2108,32 +2108,48 @@ mark, .hl {
     width: fit-content;
   }
 
-  /* Highlight only the text itself, with the arrow right beside it */
+  /* Highlight only the text itself, using lower-saturation non-about bio highlight algorithm */
   .mobile-sheet-contact-wrap .contact-link-text {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 0.22em 0.65em;
     border-radius: 0.55em;
-    background: var(--mark, #d6f31a);
-    color: var(--mark-ink, #16160c);
-    border: 1px solid var(--mark-border, rgba(40, 38, 28, 0.16));
+    background: var(--hl-low-1, rgba(214, 243, 26, 0.45));
+    color: var(--hl-ink-low-1, #1d1d1f);
+    border: 1px solid var(--line, rgba(40, 38, 28, 0.12));
     font-size: 15px;
     font-weight: 550;
-    box-shadow: 0 1.5px 3.5px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  /* Distinct low-saturation pastel highlight marker slots for each link */
+  .mobile-sheet-contact-wrap .nav-sub a[data-slot="1"] .contact-link-text {
+    background: var(--hl-low-1, rgba(0, 113, 227, 0.28));
+    color: var(--hl-ink-low-1, #0a3366);
+  }
+
+  .mobile-sheet-contact-wrap .nav-sub a[data-slot="2"] .contact-link-text {
+    background: var(--hl-low-2, rgba(168, 85, 247, 0.28));
+    color: var(--hl-ink-low-2, #4c1d95);
+  }
+
+  .mobile-sheet-contact-wrap .nav-sub a[data-slot="3"] .contact-link-text {
+    background: var(--hl-low-3, rgba(234, 179, 8, 0.28));
+    color: var(--hl-ink-low-3, #713f12);
   }
 
   .mobile-sheet-contact-wrap .contact-link-text svg {
     flex-shrink: 0;
-    color: var(--mark-ink, #16160c);
-    opacity: 0.85;
+    color: currentColor;
+    opacity: 0.82;
     transition: transform 0.16s ease;
   }
 
   .mobile-sheet-contact-wrap .nav-sub a.contact-sublink:hover .contact-link-text {
     transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
   }
 
   .mobile-sheet-contact-wrap .nav-sub a.contact-sublink:hover .contact-link-text svg {
