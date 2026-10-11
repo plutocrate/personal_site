@@ -219,10 +219,16 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
     const t0 = performance.now();
 
     // ── JS-side cloud drift using dual independent angles (double precision) ──
-    // No sin/cos ever reaches large-float territory → zero glitch possible
+    // Angles start at random positions, drift computed in JS so float precision
+    // never degrades in GLSL regardless of how long the menu stays open.
     let ang1 = Math.random() * Math.PI * 2;
     let ang2 = Math.random() * Math.PI * 2;
-    let cx = 0.5, cy = 0.5, tcx = 0.5, tcy = 0.5;
+    // Initialize cx/cy to the ACTUAL starting position from the angles — not 0.5!
+    // This prevents the "frozen cloud slowly crawling" bug on first open.
+    let cx = 0.5 + 0.22 * Math.sin(ang1) + 0.10 * Math.cos(ang2 * 1.4);
+    let cy = 0.5 + 0.23 * Math.cos(ang2) + 0.09 * Math.sin(ang1 * 0.75);
+    cx = Math.max(0.18, Math.min(0.82, cx));
+    cy = Math.max(0.14, Math.min(0.86, cy));
 
     // Touch state
     let ttx = 0.5, tty = 0.5, tstr = 0.0;
@@ -248,31 +254,33 @@ export default function MobileGeminiShader({ active, shakeIntensity = 0 }) {
     ro.observe(canvas);
 
     let cShake = 0.0;
-    let colorTimer = 0;   // seconds (increments by dt/60 each frame)
+    let colorTimer = 0;   // accumulates real elapsed seconds
     const COLOR_SEC = 20; // palette shift every 20 real-seconds
 
     const render = (now) => {
       const elapsed = (now - t0) * 0.001;
       const last    = lastFrameTimeRef.current || now;
-      const dt      = Math.min((now - last) / 16.67, 3.0);
+      const rawDt   = (now - last) / 1000.0; // real seconds since last frame
+      const dt      = Math.min(rawDt * 60, 3.0); // normalized to ~1 at 60fps for lerps
       lastFrameTimeRef.current = now;
 
       // Wrap time to keep GLSL float well-behaved forever
       gl.uniform1f(uTime, elapsed % 1000.0);
 
       // ── Drift: slow dual-angle lissajous in JS doubles ─────────────────────
-      ang1 += 0.0026 * dt;   // ~38s full orbit
-      ang2 += 0.0018 * dt;   // ~55s full orbit
-      tcx = 0.5 + 0.22 * Math.sin(ang1) + 0.10 * Math.cos(ang2 * 1.4);
-      tcy = 0.5 + 0.23 * Math.cos(ang2) + 0.09 * Math.sin(ang1 * 0.75);
-      tcx = Math.max(0.18, Math.min(0.82, tcx));
-      tcy = Math.max(0.14, Math.min(0.86, tcy));
-      cx += (tcx - cx) * 0.012 * dt;   // very slow exponential follow
-      cy += (tcy - cy) * 0.012 * dt;
+      // ang1: ~38s per full orbit, ang2: ~55s per full orbit
+      // The cloud moves continuously — no lerp needed since the angles
+      // themselves change slowly and smoothly each frame.
+      ang1 += 0.0026 * dt;
+      ang2 += 0.0018 * dt;
+      cx = 0.5 + 0.22 * Math.sin(ang1) + 0.10 * Math.cos(ang2 * 1.4);
+      cy = 0.5 + 0.23 * Math.cos(ang2) + 0.09 * Math.sin(ang1 * 0.75);
+      cx = Math.max(0.18, Math.min(0.82, cx));
+      cy = Math.max(0.14, Math.min(0.86, cy));
       gl.uniform2f(uCC, cx, cy);
 
       // ── Colour cycle ────────────────────────────────────────────────────────
-      colorTimer += dt / 60.0;
+      colorTimer += rawDt; // accumulate real seconds
       if (colorTimer >= COLOR_SEC) {
         colorTimer = 0;
         hueRef.current = Math.round((hueRef.current + 60 + Math.random() * 120) % 360);
