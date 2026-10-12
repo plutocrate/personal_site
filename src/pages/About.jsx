@@ -16,18 +16,22 @@ export default function About() {
       <div className="about">
         <div className="bio-container">
           <p className="bio">
-            Pratham is a <Highlight color="blue">developer</Highlight> and{' '}
-            <Highlight color="purple">designer</Highlight> specializing in{' '}
-            <Highlight color="yellow">web development</Highlight>,{' '}
-            <Highlight color="green">mobile app development</Highlight>, and{' '}
-            <Highlight color="rose">UI/UX design</Highlight>. He enjoys turning ideas into polished, functional products, combining{' '}
-            <Underline color="orange" variant="default">usability</Underline>,{' '}
-            <Underline color="rose" variant="long">visual design</Underline>, and{' '}
-            <Underline color="teal" variant="default">engineering</Underline> to create meaningful digital experiences.
+            I’m a <Highlight color="blue">developer</Highlight> and{' '}
+            <Highlight color="purple">designer</Highlight> by day, working across{' '}
+            <Underline color="yellow" variant="default">web design</Underline>,{' '}
+            <Underline color="green" variant="default">mobile app design</Underline>, and{' '}
+            <Underline color="teal" variant="default">development</Underline>. My work focuses on{' '}
+            <Highlight color="rose">interfaces</Highlight>,{' '}
+            <Highlight color="amber">microinteractions</Highlight>,{' '}
+            <Highlight color="cyan">shaders</Highlight>, and the little details that make digital products stand out.
           </p>
 
           <p className="bio bio-secondary" style={{ marginTop: '32px' }}>
-            Beyond work, he enjoys ricing Arch Linux with Hyprland, playing the guitar, and exploring game development.
+            A <Underline color="purple" variant="default">philosopher</Underline> by night, running{' '}
+            <Highlight color="cyan">Arch Linux</Highlight> and using{' '}
+            <Highlight color="green">Neovim</Highlight> for pretty much everything, including{' '}
+            <Underline color="blue" variant="long">mobile app development</Underline>. Of course, this makes me{' '}
+            <Highlight color="yellow">cooler than you</Highlight> 🫵
           </p>
         </div>
 
