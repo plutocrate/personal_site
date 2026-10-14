@@ -519,7 +519,7 @@ mark, .hl {
 }
 
 /* ---------- About ---------- */
-.about { width: 100%; max-width: 800px; }
+.about { width: 100%; max-width: 800px; padding-top: 32px; }
 .bio {
   margin: 0;
   color: var(--ink);
