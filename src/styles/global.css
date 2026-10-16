@@ -554,7 +554,8 @@ mark, .hl {
   aspect-ratio: var(--media-ratio, 16 / 9);
   max-height: 480px;
   width: min(100%, calc(480px * var(--media-w, 16) / var(--media-h, 9)));
-  justify-self: end;
+  justify-self: center;
+  margin-inline: auto;
   border-radius: 12px;
   overflow: hidden;
   background: var(--surface-2);
@@ -891,9 +892,9 @@ mark, .hl {
   margin-bottom: -2px;
 }
 .reel-media {
-  width: min(100%, calc(clamp(260px, 52vh, 520px) * var(--media-w, 16) / var(--media-h, 9)), 760px);
+  width: min(100%, calc(clamp(260px, 52svh, 520px) * var(--media-w, 16) / var(--media-h, 9)), 760px);
   aspect-ratio: var(--media-ratio, 16 / 9);
-  max-height: clamp(260px, 52vh, 520px);
+  max-height: clamp(260px, 52svh, 520px);
   border-radius: 20px;
   overflow: hidden;
   background: var(--surface-2);
@@ -1011,7 +1012,7 @@ mark, .hl {
 }
 
 /* ---------- Media: images + YouTube with our own UI ---------- */
-.media-img { width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; background: var(--surface-2); }
+.media-img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; }
 .yt { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--surface-2); }
 .yt-frame { position: absolute; left: 0; right: 0; top: -60px; height: calc(100% + 120px); pointer-events: none; }
 .yt-frame iframe { width: 100%; height: 100%; border: 0; display: block; }
@@ -1251,6 +1252,8 @@ mark, .hl {
 
   .life-media {
     order: -1;
+    justify-self: center;
+    margin-inline: auto;
   }
 
   .bio {

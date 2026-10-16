@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { lifeUpdates, formatDate } from "../data/lifeUpdates.js";
+import { getMediaDims, saveMediaDims } from "../utils/mediaDims.js";
 import Crumbs from "../components/Crumbs.jsx";
 import Media from "../components/Media.jsx";
 import Highlight from "../components/Highlight.jsx";
@@ -10,7 +11,7 @@ import Arrow from "../components/Arrow.jsx";
 export default function About() {
   const latest = lifeUpdates[0]; // always the most recent
   const navigate = useNavigate();
-  const [mediaDims, setMediaDims] = useState(null); // { w, h } — auto-detected on media load
+  const [mediaDims, setMediaDims] = useState(() => getMediaDims(latest?.media));
 
   return (
     <>
@@ -75,14 +76,17 @@ export default function About() {
               <div
                 className="life-media"
                 style={{
-                  "--media-ratio": mediaDims ? `${mediaDims.w} / ${mediaDims.h}` : "16 / 9",
+                  "--media-ratio": mediaDims?.ratio || (mediaDims ? `${mediaDims.w} / ${mediaDims.h}` : "16 / 9"),
                   "--media-w": mediaDims?.w ?? 16,
                   "--media-h": mediaDims?.h ?? 9,
                 }}
               >
                 <Media
                   media={latest.media}
-                  onSizeKnown={(w, h) => setMediaDims({ w, h })}
+                  onSizeKnown={(w, h) => {
+                    saveMediaDims(latest.media, w, h);
+                    setMediaDims({ w, h, ratio: `${w} / ${h}` });
+                  }}
                 />
               </div>
             </article>

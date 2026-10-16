@@ -3,16 +3,52 @@ import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { lifeUpdates, formatDate } from '../data/lifeUpdates.js';
 import { useReel, slideVariants, slideTransition } from '../hooks/useReel.js';
+import { getMediaDims, saveMediaDims } from '../utils/mediaDims.js';
 import Media from '../components/Media.jsx';
 import Crumbs from '../components/Crumbs.jsx';
+
+function ReelSlide({ item, dir, dragProps }) {
+  const [dims, setDims] = useState(() => getMediaDims(item.media));
+
+  const handleSizeKnown = (w, h) => {
+    saveMediaDims(item.media, w, h);
+    setDims({ w, h, ratio: `${w} / ${h}` });
+  };
+
+  const currentDims = dims || getMediaDims(item.media);
+
+  return (
+    <motion.div
+      key={item.id}
+      className="reel-slide"
+      custom={dir}
+      variants={slideVariants}
+      initial="enter"
+      animate="center"
+      exit="exit"
+      transition={slideTransition}
+      {...dragProps}
+    >
+      {/* Date placed on top of media */}
+      <div className="reel-date">{formatDate(item.date)}</div>
+      <div
+        className="reel-media"
+        style={{
+          '--media-ratio': currentDims.ratio,
+          '--media-w': currentDims.w,
+          '--media-h': currentDims.h,
+        }}
+      >
+        <Media media={item.media} onSizeKnown={handleSizeKnown} />
+      </div>
+      <div className="reel-text">{item.text}</div>
+    </motion.div>
+  );
+}
 
 export default function LifeUpdates() {
   const { index, dir, dragProps } = useReel(lifeUpdates, '/life');
   const item = lifeUpdates[index];
-  const [mediaDims, setMediaDims] = useState(null); // { w, h } — auto-detected on media load
-
-  // Reset dims when slide changes so we don't flash wrong ratio on next item
-  const handleSizeKnown = (w, h) => setMediaDims({ w, h });
 
   return (
     <div className="reel">
@@ -23,32 +59,7 @@ export default function LifeUpdates() {
       </div>
 
       <AnimatePresence initial={false} custom={dir} mode="popLayout">
-        <motion.div
-          key={item.id}
-          className="reel-slide"
-          custom={dir}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={slideTransition}
-          onAnimationStart={() => setMediaDims(null)}
-          {...dragProps}
-        >
-          {/* Date placed on top of media */}
-          <div className="reel-date">{formatDate(item.date)}</div>
-          <div
-            className="reel-media"
-            style={{
-              '--media-ratio': mediaDims ? `${mediaDims.w} / ${mediaDims.h}` : '16 / 9',
-              '--media-w': mediaDims?.w ?? 16,
-              '--media-h': mediaDims?.h ?? 9,
-            }}
-          >
-            <Media media={item.media} onSizeKnown={handleSizeKnown} />
-          </div>
-          <div className="reel-text">{item.text}</div>
-        </motion.div>
+        <ReelSlide key={item.id} item={item} dir={dir} dragProps={dragProps} />
       </AnimatePresence>
 
       <div className="reel-dots" aria-label="Updates">

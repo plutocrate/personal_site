@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import YouTube from './YouTube.jsx';
 import LocalVideo from './LocalVideo.jsx';
 import { prefetchUrl, preconnectOrigin } from '../utils/prefetch.js';
+import { saveMediaDims } from '../utils/mediaDims.js';
 
 // Global Frame Node Cache:
 // Preserves alive iframe DOM instances across slide switches and page transitions,
@@ -160,16 +161,25 @@ export default function Media({ media, onSizeKnown }) {
     );
   }
 
-  // image — fire onSizeKnown from naturalWidth/Height after load
+  // image — fire onSizeKnown from naturalWidth/Height after load or immediately if cached
   return (
     <img
+      ref={(el) => {
+        if (el && el.complete && el.naturalWidth && el.naturalHeight) {
+          saveMediaDims(media, el.naturalWidth, el.naturalHeight);
+          if (onSizeKnown) onSizeKnown(el.naturalWidth, el.naturalHeight);
+        }
+      }}
       className="media-img"
       src={media.src}
       alt=""
       draggable={false}
       onLoad={(e) => {
-        if (onSizeKnown && e.target.naturalWidth && e.target.naturalHeight) {
-          onSizeKnown(e.target.naturalWidth, e.target.naturalHeight);
+        if (e.target.naturalWidth && e.target.naturalHeight) {
+          saveMediaDims(media, e.target.naturalWidth, e.target.naturalHeight);
+          if (onSizeKnown) {
+            onSizeKnown(e.target.naturalWidth, e.target.naturalHeight);
+          }
         }
       }}
     />
