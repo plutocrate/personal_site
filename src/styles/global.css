@@ -1011,7 +1011,7 @@ mark, .hl {
 }
 
 /* ---------- Media: images + YouTube with our own UI ---------- */
-.media-img { width: 100%; height: 100%; object-fit: cover; display: block; user-select: none; }
+.media-img { width: 100%; height: 100%; object-fit: contain; display: block; user-select: none; background: var(--surface-2); }
 .yt { position: relative; width: 100%; height: 100%; overflow: hidden; background: var(--surface-2); }
 .yt-frame { position: absolute; left: 0; right: 0; top: -60px; height: calc(100% + 120px); pointer-events: none; }
 .yt-frame iframe { width: 100%; height: 100%; border: 0; display: block; }

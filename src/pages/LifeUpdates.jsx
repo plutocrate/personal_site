@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { lifeUpdates, formatDate } from '../data/lifeUpdates.js';
@@ -8,6 +9,10 @@ import Crumbs from '../components/Crumbs.jsx';
 export default function LifeUpdates() {
   const { index, dir, dragProps } = useReel(lifeUpdates, '/life');
   const item = lifeUpdates[index];
+  const [mediaDims, setMediaDims] = useState(null); // { w, h } — auto-detected on media load
+
+  // Reset dims when slide changes so we don't flash wrong ratio on next item
+  const handleSizeKnown = (w, h) => setMediaDims({ w, h });
 
   return (
     <div className="reel">
@@ -27,6 +32,7 @@ export default function LifeUpdates() {
           animate="center"
           exit="exit"
           transition={slideTransition}
+          onAnimationStart={() => setMediaDims(null)}
           {...dragProps}
         >
           {/* Date placed on top of media */}
@@ -34,12 +40,12 @@ export default function LifeUpdates() {
           <div
             className="reel-media"
             style={{
-              '--media-ratio': item.media?.aspectRatio || (item.media?.width && item.media?.height ? `${item.media.width} / ${item.media.height}` : '16 / 9'),
-              '--media-w': item.media?.width || (item.media?.type === 'youtube' ? 16 : 16),
-              '--media-h': item.media?.height || (item.media?.type === 'youtube' ? 9 : 9),
+              '--media-ratio': mediaDims ? `${mediaDims.w} / ${mediaDims.h}` : '16 / 9',
+              '--media-w': mediaDims?.w ?? 16,
+              '--media-h': mediaDims?.h ?? 9,
             }}
           >
-            <Media media={item.media} />
+            <Media media={item.media} onSizeKnown={handleSizeKnown} />
           </div>
           <div className="reel-text">{item.text}</div>
         </motion.div>
@@ -55,7 +61,7 @@ export default function LifeUpdates() {
           />
         ))}
       </div>
-      {index === lifeUpdates.length - 1 && <div className="reel-end">You’re all caught up</div>}
+      {index === lifeUpdates.length - 1 && <div className="reel-end">You're all caught up</div>}
     </div>
   );
 }
