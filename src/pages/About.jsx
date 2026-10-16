@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { lifeUpdates, formatDate } from "../data/lifeUpdates.js";
 import Crumbs from "../components/Crumbs.jsx";
@@ -9,6 +10,7 @@ import Arrow from "../components/Arrow.jsx";
 export default function About() {
   const latest = lifeUpdates[0]; // always the most recent
   const navigate = useNavigate();
+  const [mediaDims, setMediaDims] = useState(null); // { w, h } — auto-detected on media load
 
   return (
     <>
@@ -73,16 +75,15 @@ export default function About() {
               <div
                 className="life-media"
                 style={{
-                  "--media-ratio":
-                    latest.media?.aspectRatio ||
-                    (latest.media?.width && latest.media?.height
-                      ? `${latest.media.width} / ${latest.media.height}`
-                      : "16 / 9"),
-                  "--media-w": latest.media?.width || (latest.media?.type === "youtube" ? 16 : 16),
-                  "--media-h": latest.media?.height || (latest.media?.type === "youtube" ? 9 : 9),
+                  "--media-ratio": mediaDims ? `${mediaDims.w} / ${mediaDims.h}` : "16 / 9",
+                  "--media-w": mediaDims?.w ?? 16,
+                  "--media-h": mediaDims?.h ?? 9,
                 }}
               >
-                <Media media={latest.media} />
+                <Media
+                  media={latest.media}
+                  onSizeKnown={(w, h) => setMediaDims({ w, h })}
+                />
               </div>
             </article>
             <Link to="/life" className="marker life-more">

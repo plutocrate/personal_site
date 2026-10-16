@@ -9,7 +9,7 @@ const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(
  * - Clean bottom overlay bar with play/pause, seek track, time counter, and mute
  * - Snappy pointer click protection to prevent drags from accidentally pausing
  */
-export default function LocalVideo({ src, poster }) {
+export default function LocalVideo({ src, poster, onSizeKnown }) {
   const videoRef = useRef(null);
   const down = useRef({ x: 0, y: 0 });
   const [playing, setPlaying] = useState(false);
@@ -28,6 +28,9 @@ export default function LocalVideo({ src, poster }) {
     const onVolumeChange = () => setMuted(v.muted);
     const onLoadedMetadata = () => {
       setTime({ cur: v.currentTime, dur: v.duration || 0 });
+      if (onSizeKnown && v.videoWidth && v.videoHeight) {
+        onSizeKnown(v.videoWidth, v.videoHeight);
+      }
     };
 
     v.addEventListener('timeupdate', onTimeUpdate);
@@ -43,7 +46,7 @@ export default function LocalVideo({ src, poster }) {
       v.removeEventListener('volumechange', onVolumeChange);
       v.removeEventListener('loadedmetadata', onLoadedMetadata);
     };
-  }, [src]);
+  }, [src, onSizeKnown]);
 
   const toggle = () => {
     const v = videoRef.current;
