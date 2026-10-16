@@ -84,8 +84,12 @@ export default function About() {
                 <Media
                   media={latest.media}
                   onSizeKnown={(w, h) => {
+                    if (!w || !h) return;
                     saveMediaDims(latest.media, w, h);
-                    setMediaDims({ w, h, ratio: `${w} / ${h}` });
+                    setMediaDims((prev) => {
+                      if (prev && prev.w === w && prev.h === h) return prev;
+                      return { w, h, ratio: `${w} / ${h}` };
+                    });
                   }}
                 />
               </div>

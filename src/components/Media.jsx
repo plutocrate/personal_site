@@ -73,20 +73,32 @@ function PersistentIframe({ src, title, unlocked }) {
 export default function Media({ media, onSizeKnown }) {
   const [unlocked, setUnlocked] = useState(false);
   const lastTapRef = useRef(0);
+  const imgRef = useRef(null);
+
+  useEffect(() => {
+    if (!media) return;
+    if (media.type === 'youtube' || media.type === 'iframe') {
+      if (onSizeKnown) onSizeKnown(16, 9);
+      return;
+    }
+    if (media.type === 'image') {
+      const el = imgRef.current;
+      if (el && el.complete && el.naturalWidth && el.naturalHeight) {
+        saveMediaDims(media, el.naturalWidth, el.naturalHeight);
+        if (onSizeKnown) onSizeKnown(el.naturalWidth, el.naturalHeight);
+      }
+    }
+  }, [media?.src, media?.id, media?.type]);
 
   if (!media) return null;
 
   if (media.type === 'youtube') {
-    // YouTube is always 16:9
-    if (onSizeKnown) onSizeKnown(16, 9);
     return <YouTube id={media.id} />;
   }
 
   if (media.type === 'video') return <LocalVideo src={media.src} poster={media.poster} onSizeKnown={onSizeKnown} />;
 
   if (media.type === 'iframe') {
-    // iframes default to 16:9 unless told otherwise
-    if (onSizeKnown) onSizeKnown(16, 9);
     const handleTapOrClick = (e) => {
       const now = Date.now();
       const diff = now - lastTapRef.current;
@@ -161,15 +173,10 @@ export default function Media({ media, onSizeKnown }) {
     );
   }
 
-  // image — fire onSizeKnown from naturalWidth/Height after load or immediately if cached
+  // image — fire onSizeKnown from naturalWidth/Height after load
   return (
     <img
-      ref={(el) => {
-        if (el && el.complete && el.naturalWidth && el.naturalHeight) {
-          saveMediaDims(media, el.naturalWidth, el.naturalHeight);
-          if (onSizeKnown) onSizeKnown(el.naturalWidth, el.naturalHeight);
-        }
-      }}
+      ref={imgRef}
       className="media-img"
       src={media.src}
       alt=""

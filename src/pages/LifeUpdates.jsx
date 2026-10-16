@@ -11,8 +11,12 @@ function ReelSlide({ item, dir, dragProps }) {
   const [dims, setDims] = useState(() => getMediaDims(item.media));
 
   const handleSizeKnown = (w, h) => {
+    if (!w || !h) return;
     saveMediaDims(item.media, w, h);
-    setDims({ w, h, ratio: `${w} / ${h}` });
+    setDims((prev) => {
+      if (prev && prev.w === w && prev.h === h) return prev;
+      return { w, h, ratio: `${w} / ${h}` };
+    });
   };
 
   const currentDims = dims || getMediaDims(item.media);
