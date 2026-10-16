@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, forwardRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { lifeUpdates, formatDate } from '../data/lifeUpdates.js';
@@ -7,7 +7,7 @@ import { getMediaDims, saveMediaDims } from '../utils/mediaDims.js';
 import Media from '../components/Media.jsx';
 import Crumbs from '../components/Crumbs.jsx';
 
-function ReelSlide({ item, dir, dragProps }) {
+const ReelSlide = forwardRef(function ReelSlide({ item, dir, dragProps }, ref) {
   const [dims, setDims] = useState(() => getMediaDims(item.media));
 
   const handleSizeKnown = (w, h) => {
@@ -23,6 +23,7 @@ function ReelSlide({ item, dir, dragProps }) {
 
   return (
     <motion.div
+      ref={ref}
       key={item.id}
       className="reel-slide"
       custom={dir}
@@ -48,7 +49,7 @@ function ReelSlide({ item, dir, dragProps }) {
       <div className="reel-text">{item.text}</div>
     </motion.div>
   );
-}
+});
 
 export default function LifeUpdates() {
   const { index, dir, dragProps } = useReel(lifeUpdates, '/life');
