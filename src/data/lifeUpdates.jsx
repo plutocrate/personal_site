@@ -30,9 +30,33 @@ import Arrow from "../components/Arrow.jsx";
 
 export const lifeUpdates = [
   {
+    id: "balatro-web-port",
+    date: "2026-10-27",
+    time: "20:30:00",
+    media: {
+      type: "image",
+      src: "/life/balatro.jpeg",
+      title: "Balatro running natively on the web",
+    },
+    text: (
+      <>
+        I got <Highlight color="orange">Balatro running directly on the web</Highlight>! You can now{" "}
+        <Underline color="blue" variant="default">
+          play it right here on my site
+        </Underline>{" "}
+        via WebAssembly with persistent saves and offline support. Hit the glowing card in the navbar or head over to{" "}
+        <a href="/balatro" className="text-link">
+          Balatro
+          <Arrow />
+        </a>{" "}
+        to try your luck with some Jokers.
+      </>
+    ),
+  },
+  {
     id: "200-pushups",
     date: "2026-10-16",
-    time: "10:15:00", // Latest update
+    time: "10:15:00",
     media: {
       type: "image",
       src: "/life/pushups_progression.jpeg",
