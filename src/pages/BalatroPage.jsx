@@ -7,24 +7,48 @@ import { vibrate } from '../utils/haptics.js';
 export default function BalatroPage() {
   const containerRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPhone, setIsPhone] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 860);
 
-  const toggleFullscreen = () => {
-    vibrate(10);
+  useEffect(() => {
+    const handleResize = () => setIsPhone(window.innerWidth <= 860);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toggleFullscreen = async () => {
+    vibrate(12);
     const elem = containerRef.current || document.documentElement;
+
     if (!document.fullscreenElement) {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen().catch(() => {});
-      }
+      try {
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if (document.documentElement.requestFullscreen) {
+          await document.documentElement.requestFullscreen();
+        }
+        if (screen.orientation && screen.orientation.lock) {
+          await screen.orientation.lock('landscape');
+        }
+      } catch (_) {}
     } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
+      try {
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        }
+      } catch (_) {}
     }
   };
 
   useEffect(() => {
     const handleFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const fs = !!document.fullscreenElement;
+      setIsFullscreen(fs);
+      if (!fs && screen.orientation && screen.orientation.unlock) {
+        screen.orientation.unlock();
+      }
     };
     document.addEventListener('fullscreenchange', handleFsChange);
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
@@ -52,10 +76,10 @@ export default function BalatroPage() {
               type="button"
               className="marker balatro-action-pill"
               onClick={toggleFullscreen}
-              title="Toggle Fullscreen"
+              title="Toggle Fullscreen Landscape"
             >
-              <span>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
-              <kbd className="balatro-kbd">F</kbd>
+              <span>{isFullscreen ? 'Exit Fullscreen' : isPhone ? 'Play Fullscreen Landscape' : 'Fullscreen'}</span>
+              <kbd className="balatro-kbd">{isPhone ? '⛶' : 'F'}</kbd>
             </button>
 
             <a
@@ -74,7 +98,7 @@ export default function BalatroPage() {
               target="_blank"
               rel="noreferrer"
               className="marker balatro-action-pill"
-              title="Open in new window"
+              title="Open direct play in new tab"
             >
               <span>New Tab</span>
               <Arrow dir="up-right" size={13} />
@@ -86,6 +110,7 @@ export default function BalatroPage() {
         <div
           ref={containerRef}
           className={`balatro-game-wrap${isFullscreen ? ' is-fullscreen' : ''}`}
+          onClick={isPhone && !isFullscreen ? toggleFullscreen : undefined}
         >
           <iframe
             src="/balatro/play.html"

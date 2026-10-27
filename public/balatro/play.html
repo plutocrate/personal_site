@@ -176,8 +176,15 @@
 
     function toggleFS() {
       if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(() => {});
+        document.documentElement.requestFullscreen().then(() => {
+          if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock("landscape").catch(() => {});
+          }
+        }).catch(() => {});
       } else {
+        if (screen.orientation && screen.orientation.unlock) {
+          screen.orientation.unlock();
+        }
         document.exitFullscreen().catch(() => {});
       }
     }
@@ -187,6 +194,15 @@
         if (e.target.tagName !== "INPUT") toggleFS();
       }
     });
+
+    // On phone touch, automatically enter fullscreen + landscape mode
+    function autoMobileFullscreen() {
+      if (window.innerWidth <= 860 && !document.fullscreenElement) {
+        toggleFS();
+      }
+      window.removeEventListener("touchstart", autoMobileFullscreen);
+    }
+    window.addEventListener("touchstart", autoMobileFullscreen, { passive: true });
 
     // Audio unlock on user gesture
     function unlockAudio() {

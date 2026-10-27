@@ -2513,15 +2513,26 @@ mark, .hl {
   display: block;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 860px) {
   .balatro-page {
-    padding-top: 20px;
+    padding-top: 16px;
+    padding-inline: 4px;
   }
   .balatro-header {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
+  }
+  .balatro-sub {
+    font-size: 14px;
   }
   .balatro-game-wrap {
     border-radius: 14px;
-    min-height: 260px;
+    min-height: 220px;
+  }
+  .balatro-game-wrap.is-fullscreen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
   }
 }

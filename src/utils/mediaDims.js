@@ -5,6 +5,7 @@ export const mediaCache = new Map([
   ['/life/pushups_progression.jpeg', { w: 899, h: 1600, ratio: '899 / 1600' }],
   ['/life/aug-07-2024.jpg', { w: 768, h: 432, ratio: '768 / 432' }],
   ['/life/terebinag.mp4', { w: 634, h: 356, ratio: '634 / 356' }],
+  ['/life/balatro.jpeg', { w: 400, h: 400, ratio: '1 / 1' }],
 ]);
 
 export function getMediaKey(media) {

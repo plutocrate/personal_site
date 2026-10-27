@@ -1,28 +1,30 @@
-import { useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import BalatroLogo from './BalatroLogo.jsx';
-import { useToast } from '../hooks/useToast.jsx';
 import { vibrate } from '../utils/haptics.js';
 
 export default function BalatroNavButton({ compact = false, onNavigate = null, className = '' }) {
   const { pathname } = useLocation();
-  const { showToast } = useToast();
   const isActive = pathname === '/balatro';
-  const lastHoverToastRef = useRef(0);
 
-  const handleClick = (e) => {
+  const handleClick = () => {
     vibrate(14);
-    showToast('play balatro');
+
+    // On phone: trigger fullscreen & lock landscape on user tap
+    if (typeof window !== 'undefined' && window.innerWidth <= 860) {
+      try {
+        const docEl = document.documentElement;
+        if (docEl.requestFullscreen && !document.fullscreenElement) {
+          docEl.requestFullscreen().then(() => {
+            if (screen.orientation && screen.orientation.lock) {
+              screen.orientation.lock('landscape').catch(() => {});
+            }
+          }).catch(() => {});
+        }
+      } catch (_) {}
+    }
+
     if (onNavigate) {
       onNavigate();
-    }
-  };
-
-  const handleMouseEnter = () => {
-    const now = Date.now();
-    if (now - lastHoverToastRef.current > 6000) {
-      lastHoverToastRef.current = now;
-      showToast('play balatro');
     }
   };
 
@@ -32,7 +34,6 @@ export default function BalatroNavButton({ compact = false, onNavigate = null, c
         to="/balatro"
         className={`balatro-nav-btn balatro-nav-btn-compact${isActive ? ' is-active' : ''} ${className}`}
         onClick={handleClick}
-        onMouseEnter={handleMouseEnter}
         title="Play Balatro"
         aria-label="Play Balatro game"
         data-annotation="Play Balatro"
@@ -49,7 +50,6 @@ export default function BalatroNavButton({ compact = false, onNavigate = null, c
       to="/balatro"
       className={`balatro-nav-btn balatro-nav-btn-full${isActive ? ' is-active' : ''} ${className}`}
       onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
       title="Play Balatro in your browser"
       aria-label="Play Balatro web port"
     >
