@@ -16,6 +16,8 @@ import { lifeUpdates } from './data/lifeUpdates.js';
 import Journal from './pages/Journal.jsx';
 import LifeUpdates from './pages/LifeUpdates.jsx';
 import FlappySquarePage from './pages/FlappySquarePage.jsx';
+import BalatroPage from './pages/BalatroPage.jsx';
+import BalatroToastOnLoad from './components/BalatroToastOnLoad.jsx';
 import Footer from './components/Footer.jsx';
 import { warmExternalEmbeds, prefetchUrl } from './utils/prefetch.js';
 import './utils/theme.js';
@@ -81,6 +83,7 @@ export default function App() {
   return (
     <QuoteProvider>
       <ToastProvider>
+        <BalatroToastOnLoad />
         <div className="shell">
           <Sidebar open={open} onOpenChange={setOpen} />
           <MobileTopBar />
@@ -97,6 +100,7 @@ export default function App() {
               >
                 <Routes location={location}>
                   <Route path="/" element={<About />} />
+                  <Route path="/balatro" element={<BalatroPage />} />
                   <Route path="/flappy-square" element={<FlappySquarePage />} />
                   <Route path="/playground" element={<Navigate to={`/playground/${sims[0]?.id || ''}`} replace />} />
                   <Route path="/playground/:id" element={<Playground />} />

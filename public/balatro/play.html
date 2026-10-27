@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Balatro</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='2' width='20' height='28' rx='3' fill='%23fff' stroke='%23fe5f55' stroke-width='2'/%3E%3Cpath d='M16 9l5 7-5 7-5-7z' fill='%23fe5f55'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/PixelifySans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <style>
+    @font-face {
+      font-family: 'Pixelify Sans';
+      src: url('fonts/PixelifySans-latin.woff2') format('woff2');
+      font-weight: 400 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #111415;
+      color: #fff;
+      font-family: 'Pixelify Sans', system-ui, sans-serif;
+    }
+
+    #canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #loading-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #111415;
+      z-index: 10;
+      transition: opacity 0.4s ease;
+    }
+
+    #loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .title {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #fe5f55;
+      text-shadow: 0 4px 0 #b32e26, 0 10px 25px rgba(254, 95, 85, 0.4);
+      margin-bottom: 1.5rem;
+      letter-spacing: 2px;
+    }
+
+    .progress-box {
+      width: min(400px, 80vw);
+      background: #1a2327;
+      border: 3px solid #2f3e45;
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: 0 8px 0 #0d1214;
+    }
+
+    .progress-bar {
+      height: 22px;
+      background: #fe5f55;
+      border-radius: 6px;
+      width: 0%;
+      transition: width 0.15s ease;
+      box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.25);
+    }
+
+    .status-text {
+      margin-top: 1rem;
+      font-size: 1.15rem;
+      color: #a4b4bb;
+      text-align: center;
+    }
+
+    .top-controls {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 20;
+      display: flex;
+      gap: 8px;
+    }
+
+    .ctrl-btn {
+      background: #1a2327;
+      border: 2px solid #2f3e45;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 3px 0 #0d1214;
+      transition: all 0.1s ease;
+    }
+
+    .ctrl-btn:hover {
+      background: #243137;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 #0d1214;
+    }
+
+    .ctrl-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #0d1214;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-controls">
+    <a href="/" class="ctrl-btn" title="Back to Portfolio">← Portfolio</a>
+    <a href="index.html" class="ctrl-btn" title="Open Launcher & Mod Manager">⚙ Launcher</a>
+    <button class="ctrl-btn" id="fs-btn" title="Toggle Fullscreen (F)">⛶ Fullscreen</button>
+  </div>
+
+  <div id="loading-overlay">
+    <div class="title">BALATRO</div>
+    <div class="progress-box">
+      <div class="progress-bar" id="p-bar"></div>
+    </div>
+    <div class="status-text" id="status">Loading game engine...</div>
+  </div>
+
+  <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+
+  <script>
+    // Prefix IndexedDB for vanilla saves
+    const PREFIX = "Balatro_vanilla_";
+    const originalOpen = indexedDB.open;
+    const originalDeleteDatabase = indexedDB.deleteDatabase;
+    indexedDB.open = function(name, version) {
+      return version !== undefined
+        ? originalOpen.call(this, PREFIX + name, version)
+        : originalOpen.call(this, PREFIX + name);
+    };
+    indexedDB.deleteDatabase = function(name) {
+      return originalDeleteDatabase.call(this, PREFIX + name);
+    };
+
+    const canvas = document.getElementById("canvas");
+    const overlay = document.getElementById("loading-overlay");
+    const pBar = document.getElementById("p-bar");
+    const statusText = document.getElementById("status");
+    const fsBtn = document.getElementById("fs-btn");
+
+    function toggleFS() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+    fsBtn.addEventListener("click", toggleFS);
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "f" || e.key === "F") {
+        if (e.target.tagName !== "INPUT") toggleFS();
+      }
+    });
+
+    // Audio unlock on user gesture
+    function unlockAudio() {
+      if (typeof AudioContext !== "undefined" || typeof webkitAudioContext !== "undefined") {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const dummyCtx = new AudioCtx();
+        if (dummyCtx.state === "suspended") {
+          dummyCtx.resume();
+        }
+      }
+      window.removeEventListener("click", unlockAudio);
+      window.removeEventListener("keydown", unlockAudio);
+      window.removeEventListener("touchstart", unlockAudio);
+    }
+    window.addEventListener("click", unlockAudio);
+    window.addEventListener("keydown", unlockAudio);
+    window.addEventListener("touchstart", unlockAudio);
+
+    async function launch() {
+      try {
+        statusText.textContent = "Downloading Balatro...";
+        const res = await fetch("game.love");
+        if (!res.ok) throw new Error("Could not load game.love (HTTP " + res.status + ")");
+        
+        const contentLength = +res.headers.get("Content-Length");
+        let data;
+        if (contentLength && res.body && window.ReadableStream) {
+          const reader = res.body.getReader();
+          let received = 0;
+          const chunks = [];
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            received += value.length;
+            const pct = Math.round((received / contentLength) * 100);
+            pBar.style.width = pct + "%";
+            statusText.textContent = "Downloading Balatro (" + (received / 1048576).toFixed(1) + " / " + (contentLength / 1048576).toFixed(1) + " MB)...";
+          }
+          const fullArr = new Uint8Array(received);
+          let offset = 0;
+          for (const chunk of chunks) {
+            fullArr.set(chunk, offset);
+            offset += chunk.length;
+          }
+          data = fullArr;
+        } else {
+          const buf = await res.arrayBuffer();
+          data = new Uint8Array(buf);
+          pBar.style.width = "100%";
+        }
+
+        statusText.textContent = "Initializing Love.js engine...";
+        pBar.style.width = "100%";
+
+        window.Module = {
+          INITIAL_MEMORY: 268435456,
+          canvas: canvas,
+          printErr: console.error,
+          arguments: ["game.love"],
+          onAbort: function(what) {
+            console.error("Game aborted:", what);
+            overlay.classList.remove("hidden");
+            statusText.textContent = "The game stopped. Please refresh to try again.";
+          },
+          preRun: [
+            function() {
+              Module.addRunDependency("fp game.love");
+              var ptr = Module.getMemory(data.length);
+              Module['HEAPU8'].set(data, ptr);
+              Module.FS_createDataFile('/', "game.love", data, true, true, true);
+              Module.removeRunDependency("fp game.love");
+            }
+          ]
+        };
+
+        const script = document.createElement("script");
+        script.src = "run/11.5/love.min.js";
+        script.onload = function() {
+          statusText.textContent = "Launching Balatro...";
+          Love(Module);
+          setTimeout(() => {
+            overlay.classList.add("hidden");
+          }, 600);
+        };
+        script.onerror = function() {
+          statusText.textContent = "Failed to load love.min.js engine.";
+        };
+        document.body.appendChild(script);
+
+      } catch (err) {
+        console.error(err);
+        statusText.textContent = "Error: " + err.message;
+      }
+    }
+
+    launch();
+  </script>
+</body>
+</html>

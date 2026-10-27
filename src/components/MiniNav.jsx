@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { nav, contacts } from '../data/content.js';
+import BalatroNavButton from './BalatroNavButton.jsx';
 import { vibrate } from '../utils/haptics.js';
 
 // Compact initials requested by user:
@@ -53,6 +54,10 @@ export default function MiniNav({ getCount }) {
             </NavLink>
           );
         })}
+      </div>
+
+      <div className="mini-nav-balatro-wrap">
+        <BalatroNavButton compact />
       </div>
 
       <div className="mini-nav-divider" />

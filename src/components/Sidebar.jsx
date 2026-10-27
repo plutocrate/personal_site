@@ -6,6 +6,7 @@ import QuoteBox from './QuoteBox.jsx';
 import NavItem from './NavItem.jsx';
 import ContactItem from './ContactItem.jsx';
 import MiniNav from './MiniNav.jsx';
+import BalatroNavButton from './BalatroNavButton.jsx';
 import { nav, caseStudies, journal, contacts, profile } from '../data/content.js';
 import { lifeUpdates } from '../data/lifeUpdates.js';
 import { sims } from '../playground/index.js';
@@ -170,6 +171,9 @@ export default function Sidebar({ open, onOpenChange }) {
                 {nav.map((n) => (
                   <NavItem key={n.to} {...n} count={getCount(n.to)} />
                 ))}
+                <div className="nav-balatro-item">
+                  <BalatroNavButton onNavigate={() => isMobile && onOpenChange(false)} />
+                </div>
                 <ContactItem count={contacts.length} />
               </motion.nav>
             ) : (

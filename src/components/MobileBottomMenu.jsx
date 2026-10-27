@@ -8,6 +8,7 @@ import ContactItem from './ContactItem.jsx';
 import Logo from './Logo.jsx';
 import QuoteBox from './QuoteBox.jsx';
 import MobileGeminiShader from './MobileGeminiShader.jsx';
+import BalatroNavButton from './BalatroNavButton.jsx';
 import { vibrate } from '../utils/haptics.js';
 
 const STORAGE_KEY = 'pratham_mobile_menu_visited';
@@ -299,6 +300,10 @@ export default function MobileBottomMenu({ open, onOpenChange }) {
                       </NavLink>
                     );
                   })}
+
+                  <div className="mobile-sheet-balatro-wrap">
+                    <BalatroNavButton onNavigate={() => onOpenChange(false)} />
+                  </div>
 
                   {/* Contact section accordion */}
                   <div className="mobile-sheet-contact-wrap">

@@ -2215,3 +2215,360 @@ mark, .hl {
     color: var(--ink-3, #7a7974);
   }
 }
+
+/* ==========================================================================
+   BALATRO SHINY BUTTON & GAME STYLES
+   ========================================================================== */
+
+@keyframes balatroSheenSweep {
+  0% { transform: translateX(-160%) skewX(-20deg); }
+  35%, 100% { transform: translateX(260%) skewX(-20deg); }
+}
+
+@keyframes balatroPulseAura {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(254, 95, 85, 0.45), 0 0 24px rgba(11, 132, 216, 0.25), inset 0 0 8px rgba(254, 95, 85, 0.2);
+    border-color: rgba(254, 95, 85, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 22px rgba(254, 95, 85, 0.8), 0 0 38px rgba(0, 210, 211, 0.5), inset 0 0 14px rgba(254, 95, 85, 0.4);
+    border-color: rgba(0, 210, 211, 0.85);
+  }
+}
+
+@keyframes balatroDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.7); }
+}
+
+.balatro-nav-btn {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #182226 0%, #111719 100%);
+  border: 1.5px solid rgba(254, 95, 85, 0.6);
+  animation: balatroPulseAura 3.6s ease-in-out infinite;
+  transition: transform 0.16s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.balatro-nav-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: #fe5f55;
+  box-shadow: 0 0 26px rgba(254, 95, 85, 0.9), 0 0 45px rgba(0, 210, 211, 0.6) !important;
+}
+
+.balatro-nav-btn:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.balatro-nav-btn.is-active {
+  border-color: #ffd32a;
+  background: linear-gradient(135deg, #243137 0%, #1a2327 100%);
+  box-shadow: 0 0 20px rgba(255, 211, 42, 0.6), 0 0 35px rgba(254, 95, 85, 0.5);
+}
+
+.balatro-sheen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 35%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(0, 240, 255, 0.3) 65%,
+    transparent 100%
+  );
+  pointer-events: none;
+  animation: balatroSheenSweep 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  z-index: 2;
+}
+
+.balatro-nav-btn-full {
+  width: 100%;
+  padding: 10px 14px;
+  justify-content: space-between;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.balatro-btn-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 3;
+}
+
+.balatro-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s ease;
+}
+
+.balatro-nav-btn:hover .balatro-logo-wrap {
+  transform: rotate(-6deg) scale(1.1);
+}
+
+.balatro-label-wrap {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.balatro-label-title {
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 10px rgba(254, 95, 85, 0.5);
+}
+
+.balatro-label-sub {
+  font-size: 11px;
+  font-weight: 500;
+  color: #a4b4bb;
+  letter-spacing: 0.03em;
+}
+
+.balatro-btn-right {
+  display: flex;
+  align-items: center;
+  z-index: 3;
+}
+
+.balatro-badge-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #fe5f55;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  box-shadow: 0 2px 6px rgba(254, 95, 85, 0.5);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+.balatro-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 6px #ffffff;
+  animation: balatroDotPulse 1.6s ease-in-out infinite;
+}
+
+.balatro-nav-btn-compact {
+  width: 44px;
+  height: 32px;
+  justify-content: center;
+  padding: 0;
+  border-radius: 9px;
+  box-shadow: 0 0 12px rgba(254, 95, 85, 0.4);
+}
+
+.mini-nav-balatro-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 4px 0;
+}
+
+.mobile-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-topbar-balatro {
+  height: 28px;
+  width: 36px;
+  border-radius: 8px;
+}
+
+.mobile-sheet-balatro-wrap {
+  margin: 10px 0 6px;
+}
+
+.balatro-page-wrap {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.balatro-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.balatro-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.balatro-top-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.balatro-top-icon {
+  filter: drop-shadow(0 2px 6px rgba(254, 95, 85, 0.4));
+}
+
+.balatro-top-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.balatro-top-sub {
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+.balatro-top-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.balatro-view-toggle {
+  display: flex;
+  background: var(--surface-2);
+  padding: 3px;
+  border-radius: 10px;
+  gap: 2px;
+}
+
+.balatro-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.balatro-action-btn:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+  border-color: var(--line-strong, var(--ink-3));
+  transform: translateY(-1px);
+}
+
+.balatro-action-btn:active {
+  transform: translateY(1px);
+}
+
+.balatro-action-btn.is-active {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.balatro-action-btn-highlight {
+  background: #fe5f55;
+  color: #ffffff;
+  border-color: #e8453b;
+  box-shadow: 0 2px 8px rgba(254, 95, 85, 0.35);
+}
+
+.balatro-action-btn-highlight:hover {
+  background: #f45a50;
+  color: #ffffff;
+  border-color: #fe5f55;
+  box-shadow: 0 4px 14px rgba(254, 95, 85, 0.5);
+}
+
+.balatro-canvas-frame {
+  position: relative;
+  width: 100%;
+  height: clamp(480px, 75vh, 820px);
+  border-radius: 20px;
+  overflow: hidden;
+  background: #111415;
+  border: 2px solid #2f3e45;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25), 0 0 20px rgba(254, 95, 85, 0.15);
+}
+
+.balatro-canvas-frame.is-fullscreen {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  border-radius: 0;
+  border: none;
+}
+
+.balatro-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.balatro-footer-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+}
+
+.balatro-info-tip {
+  font-size: 12.5px;
+  color: var(--ink-3);
+  margin: 0;
+}
+
+.balatro-info-tip kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-family: inherit;
+  font-weight: 600;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  color: var(--ink-2);
+  box-shadow: 0 1px 0 var(--line);
+}

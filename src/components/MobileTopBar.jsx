@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Crumbs from './Crumbs.jsx';
+import BalatroNavButton from './BalatroNavButton.jsx';
 import { vibrate } from '../utils/haptics.js';
 import { sims } from '../playground/index.js';
 import { caseStudies, journal } from '../data/content.js';
@@ -151,37 +152,41 @@ export default function MobileTopBar({ open, onOpenChange }) {
           <Crumbs trail={trail} />
         </div>
 
-        {/* Optional Reel Counter Pill on the right */}
-        {reelInfo && (
-          <button
-            type="button"
-            className={`reel-counter-pill${widgetOpen ? ' is-active' : ''}`}
-            onClick={toggleWidget}
-            aria-expanded={widgetOpen}
-            aria-label="Open topic navigator"
-            title="Jump to topic"
-          >
-            <span className="counter-num-text">
-              {reelInfo.index + 1} / {reelInfo.items.length}
-            </span>
-            <svg
-              className={`counter-chevron${widgetOpen ? ' rotate' : ''}`}
-              width="10"
-              height="6"
-              viewBox="0 0 10 6"
-              fill="none"
-              aria-hidden="true"
+        <div className="mobile-topbar-actions">
+          <BalatroNavButton compact className="mobile-topbar-balatro" />
+
+          {/* Optional Reel Counter Pill on the right */}
+          {reelInfo && (
+            <button
+              type="button"
+              className={`reel-counter-pill${widgetOpen ? ' is-active' : ''}`}
+              onClick={toggleWidget}
+              aria-expanded={widgetOpen}
+              aria-label="Open topic navigator"
+              title="Jump to topic"
             >
-              <path
-                d="M1 1L5 5L9 1"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        )}
+              <span className="counter-num-text">
+                {reelInfo.index + 1} / {reelInfo.items.length}
+              </span>
+              <svg
+                className={`counter-chevron${widgetOpen ? ' rotate' : ''}`}
+                width="10"
+                height="6"
+                viewBox="0 0 10 6"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M1 1L5 5L9 1"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Transparent Click-Outside Overlay to prevent background panning while menu is open */}
