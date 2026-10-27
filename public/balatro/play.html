@@ -300,13 +300,13 @@
 
     const CACHE_NAME = "balatro-assets-v1";
 
-    async function loadAsset(url, label) {
+    async function loadAsset(url, label, onProgress) {
       if ("caches" in window) {
         try {
           const cache = await caches.open(CACHE_NAME);
           const cachedRes = await cache.match(url);
           if (cachedRes) {
-            statusText.textContent = `Loading ${label} from cache...`;
+            if (label) statusText.textContent = `Loading ${label} from cache...`;
             const buf = await cachedRes.arrayBuffer();
             return new Uint8Array(buf);
           }
@@ -315,11 +315,11 @@
         }
       }
 
-      statusText.textContent = `Downloading ${label}...`;
+      if (label) statusText.textContent = `Downloading ${label}...`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(`Could not load ${url} (HTTP ${res.status})`);
 
-      const contentLength = +res.headers.get("Content-Length");
+      const contentLength = +res.headers.get("Content-Length") || 0;
       let data;
       if (contentLength && res.body && window.ReadableStream) {
         const reader = res.body.getReader();
@@ -330,11 +330,7 @@
           if (done) break;
           chunks.push(value);
           received += value.length;
-          const pct = Math.round((received / contentLength) * 100);
-          pBar.style.width = pct + "%";
-          const mbRec = (received / 1048576).toFixed(1);
-          const mbTot = (contentLength / 1048576).toFixed(1);
-          statusText.textContent = `Downloading ${label} (${mbRec} / ${mbTot} MB)...`;
+          if (onProgress) onProgress(received, contentLength);
         }
         const fullArr = new Uint8Array(received);
         let offset = 0;
@@ -346,30 +342,97 @@
       } else {
         const buf = await res.arrayBuffer();
         data = new Uint8Array(buf);
-        pBar.style.width = "100%";
-      }
-
-      // Save to persistent Cache API so subsequent loads are instant
-      if ("caches" in window) {
-        try {
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put(url, new Response(data.buffer, {
-            headers: {
-              "Content-Type": url.endsWith(".love") ? "application/zip" : "application/javascript",
-              "Content-Length": String(data.byteLength)
-            }
-          }));
-        } catch (e) {
-          console.warn("Cache write error:", e);
-        }
+        if (onProgress) onProgress(data.length, data.length);
       }
 
       return data;
     }
 
+    async function loadGamePackage() {
+      // 1. Check browser cache first
+      if ("caches" in window) {
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          const cached = await cache.match("game.love");
+          if (cached) {
+            statusText.textContent = "Loading Balatro from browser cache...";
+            pBar.style.width = "100%";
+            const buf = await cached.arrayBuffer();
+            return new Uint8Array(buf);
+          }
+        } catch (e) {
+          console.warn("Cache match failed:", e);
+        }
+      }
+
+      // 2. Fetch chunked parts in parallel (each < 30 MB)
+      statusText.textContent = "Downloading Balatro...";
+      const progress = {
+        part1: { received: 0, total: 28345186 },
+        part2: { received: 0, total: 28345187 }
+      };
+
+      function updateProgress() {
+        const received = progress.part1.received + progress.part2.received;
+        const total = progress.part1.total + progress.part2.total;
+        const pct = Math.min(100, Math.round((received / total) * 100));
+        pBar.style.width = pct + "%";
+        const mbRec = (received / 1048576).toFixed(1);
+        const mbTot = (total / 1048576).toFixed(1);
+        statusText.textContent = `Downloading Balatro (${mbRec} / ${mbTot} MB)...`;
+      }
+
+      let p1, p2;
+      try {
+        [p1, p2] = await Promise.all([
+          loadAsset("game.love.part1", null, (rec, tot) => {
+            progress.part1.received = rec;
+            if (tot) progress.part1.total = tot;
+            updateProgress();
+          }),
+          loadAsset("game.love.part2", null, (rec, tot) => {
+            progress.part2.received = rec;
+            if (tot) progress.part2.total = tot;
+            updateProgress();
+          })
+        ]);
+      } catch (err) {
+        console.warn("Chunked fetch failed, trying game.love directly:", err);
+        return await loadAsset("game.love", "Balatro", (rec, tot) => {
+          const pct = Math.round((rec / tot) * 100);
+          pBar.style.width = pct + "%";
+          const mbRec = (rec / 1048576).toFixed(1);
+          const mbTot = (tot / 1048576).toFixed(1);
+          statusText.textContent = `Downloading Balatro (${mbRec} / ${mbTot} MB)...`;
+        });
+      }
+
+      statusText.textContent = "Assembling game files...";
+      const assembled = new Uint8Array(p1.length + p2.length);
+      assembled.set(p1, 0);
+      assembled.set(p2, p1.length);
+
+      // Save assembled binary into Cache Storage for instant offline/future loads
+      if ("caches" in window) {
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put("game.love", new Response(assembled.buffer, {
+            headers: {
+              "Content-Type": "application/zip",
+              "Content-Length": String(assembled.byteLength)
+            }
+          }));
+        } catch (e) {
+          console.warn("Failed to cache assembled game.love:", e);
+        }
+      }
+
+      return assembled;
+    }
+
     async function launch() {
       try {
-        const gameData = await loadAsset("game.love", "Balatro");
+        const gameData = await loadGamePackage();
 
         statusText.textContent = "Initializing Love.js engine...";
         pBar.style.width = "100%";

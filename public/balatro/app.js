@@ -183,29 +183,46 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Auto-import pre-built game.love if vanilla is not cached yet
         if (!versions.includes("vanilla")) {
             try {
-                const headRes = await fetch("game.love", { method: "HEAD" })
-                if (headRes.ok) {
-                    setStatus("Loading pre-built Balatro into browser cache...", 10)
-                    const res = await fetch("game.love")
-                    const contentLength = +res.headers.get("Content-Length")
-                    let blob
-                    if (contentLength && res.body && window.ReadableStream) {
-                        const reader = res.body.getReader()
-                        let received = 0
-                        const chunks = []
-                        while (true) {
-                            const { done, value } = await reader.read()
-                            if (done) break
-                            chunks.push(value)
-                            received += value.length
-                            const mb = (received / 1048576).toFixed(1)
-                            const percent = Math.min(90, Math.round((received / contentLength) * 90))
-                            setStatus("Loading pre-built Balatro (" + mb + " MB)...", percent)
-                        }
-                        blob = new Blob(chunks, { type: "application/zip" })
-                    } else {
-                        blob = await res.blob()
+                let blob = null
+                const headPart1 = await fetch("game.love.part1", { method: "HEAD" })
+                if (headPart1.ok) {
+                    setStatus("Downloading Balatro chunks into browser cache...", 10)
+                    const [res1, res2] = await Promise.all([
+                        fetch("game.love.part1"),
+                        fetch("game.love.part2")
+                    ])
+                    if (res1.ok && res2.ok) {
+                        const b1 = await res1.blob()
+                        const b2 = await res2.blob()
+                        blob = new Blob([b1, b2], { type: "application/zip" })
                     }
+                } else {
+                    const headRes = await fetch("game.love", { method: "HEAD" })
+                    if (headRes.ok) {
+                        setStatus("Loading pre-built Balatro into browser cache...", 10)
+                        const res = await fetch("game.love")
+                        const contentLength = +res.headers.get("Content-Length")
+                        if (contentLength && res.body && window.ReadableStream) {
+                            const reader = res.body.getReader()
+                            let received = 0
+                            const chunks = []
+                            while (true) {
+                                const { done, value } = await reader.read()
+                                if (done) break
+                                chunks.push(value)
+                                received += value.length
+                                const mb = (received / 1048576).toFixed(1)
+                                const percent = Math.min(90, Math.round((received / contentLength) * 90))
+                                setStatus("Loading pre-built Balatro (" + mb + " MB)...", percent)
+                            }
+                            blob = new Blob(chunks, { type: "application/zip" })
+                        } else {
+                            blob = await res.blob()
+                        }
+                    }
+                }
+
+                if (blob) {
                     setStatus("Saving Balatro to browser cache...", 95)
                     await saveGameToCache(blob, "vanilla")
                     await requestPersistentStorage()
