@@ -97,6 +97,13 @@
       z-index: 20;
       display: flex;
       gap: 8px;
+      opacity: 0.3;
+      transition: opacity 0.2s ease;
+    }
+
+    .top-controls:hover,
+    .top-controls:focus-within {
+      opacity: 1;
     }
 
     .ctrl-btn {
@@ -127,7 +134,7 @@
 </head>
 <body>
   <div class="top-controls">
-    <a href="/" class="ctrl-btn" title="Back to Portfolio">← Portfolio</a>
+    <a href="/" class="ctrl-btn" id="portfolio-btn" title="Back to Portfolio">← Portfolio</a>
     <a href="index.html" class="ctrl-btn" title="Open Launcher & Mod Manager">⚙ Launcher</a>
     <button class="ctrl-btn" id="fs-btn" title="Toggle Fullscreen (F)">⛶ Fullscreen</button>
   </div>
@@ -143,6 +150,11 @@
   <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
 
   <script>
+    if (window.self !== window.top) {
+      const pBtn = document.getElementById("portfolio-btn");
+      if (pBtn) pBtn.style.display = "none";
+    }
+
     // Prefix IndexedDB for vanilla saves
     const PREFIX = "Balatro_vanilla_";
     const originalOpen = indexedDB.open;

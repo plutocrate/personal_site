@@ -1,20 +1,12 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import Crumbs from '../components/Crumbs.jsx';
+import Arrow from '../components/Arrow.jsx';
 import BalatroLogo from '../components/BalatroLogo.jsx';
-import { useToast } from '../hooks/useToast.jsx';
 import { vibrate } from '../utils/haptics.js';
 
 export default function BalatroPage() {
-  const { showToast } = useToast();
-  const [view, setView] = useState('game'); // 'game' | 'launcher'
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef(null);
-  const iframeRef = useRef(null);
-
-  useEffect(() => {
-    // Show polite welcoming toast
-    showToast('play balatro');
-  }, [showToast]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const toggleFullscreen = () => {
     vibrate(10);
@@ -38,115 +30,69 @@ export default function BalatroPage() {
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
-  const handleReload = () => {
-    vibrate(8);
-    if (iframeRef.current) {
-      iframeRef.current.src = iframeRef.current.src;
-    }
-  };
-
   return (
-    <div className="balatro-page-wrap">
-      {/* Breadcrumbs for desktop */}
+    <div className="balatro-page">
       <div className="page-crumbs desktop-only-bar">
         <Crumbs trail={[{ label: 'About', to: '/' }, { label: 'Balatro' }]} />
       </div>
 
-      <div className="balatro-page-container">
-        {/* Top Control Bar */}
-        <div className="balatro-top-bar">
-          <div className="balatro-top-title-group">
-            <div className="balatro-top-icon">
-              <BalatroLogo size={28} />
-            </div>
-            <div>
-              <h1 className="balatro-top-title">Balatro</h1>
-              <span className="balatro-top-sub">WebAssembly Port · Runs 100% Offline</span>
-            </div>
+      <div className="balatro-container">
+        {/* Clean Typographic Header matching the site's visual language */}
+        <header className="balatro-header">
+          <div className="balatro-title-wrap">
+            <BalatroLogo size={28} />
+            <h1 className="balatro-title">Balatro</h1>
           </div>
+          <p className="balatro-sub">
+            The poker roguelike deckbuilder. Running Love.js WebAssembly locally in your browser with persistent saves.
+          </p>
 
-          <div className="balatro-top-actions">
-            {/* View Switcher: Game vs Launcher */}
-            <div className="balatro-view-toggle">
-              <button
-                type="button"
-                className={`balatro-action-btn${view === 'game' ? ' is-active' : ''}`}
-                onClick={() => {
-                  vibrate(8);
-                  setView('game');
-                }}
-                title="Play Game"
-              >
-                ♠ Play
-              </button>
-              <button
-                type="button"
-                className={`balatro-action-btn${view === 'launcher' ? ' is-active' : ''}`}
-                onClick={() => {
-                  vibrate(8);
-                  setView('launcher');
-                }}
-                title="Launcher, Saves & Mods"
-              >
-                ⚙ Launcher
-              </button>
-            </div>
-
-            {/* Restart button */}
+          <div className="balatro-actions">
             <button
               type="button"
-              className="balatro-action-btn"
-              onClick={handleReload}
-              title="Reload Game"
-              aria-label="Reload Game"
-            >
-              ↻ Reload
-            </button>
-
-            {/* Fullscreen button */}
-            <button
-              type="button"
-              className="balatro-action-btn balatro-action-btn-highlight"
+              className="marker balatro-action-pill"
               onClick={toggleFullscreen}
-              title="Toggle Fullscreen (F)"
-              aria-label="Toggle Fullscreen"
+              title="Toggle Fullscreen"
             >
-              {isFullscreen ? '⛶ Exit Fullscreen' : '⛶ Fullscreen'}
+              <span>{isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}</span>
+              <kbd className="balatro-kbd">F</kbd>
             </button>
 
-            {/* Standalone Window link */}
             <a
-              href={view === 'game' ? '/balatro/play.html' : '/balatro/index.html'}
+              href="/balatro/index.html"
               target="_blank"
               rel="noreferrer"
-              className="balatro-action-btn"
-              title="Open standalone page in new tab"
+              className="marker balatro-action-pill"
+              title="Open Launcher, Saves & Mods"
             >
-              ↗ Open New Tab
+              <span>Launcher & Saves</span>
+              <Arrow dir="up-right" size={13} />
+            </a>
+
+            <a
+              href="/balatro/play.html"
+              target="_blank"
+              rel="noreferrer"
+              className="marker balatro-action-pill"
+              title="Open in new window"
+            >
+              <span>New Tab</span>
+              <Arrow dir="up-right" size={13} />
             </a>
           </div>
-        </div>
+        </header>
 
-        {/* Game Frame Container */}
+        {/* Centered 16:9 Game Frame */}
         <div
           ref={containerRef}
-          className={`balatro-canvas-frame${isFullscreen ? ' is-fullscreen' : ''}`}
+          className={`balatro-game-wrap${isFullscreen ? ' is-fullscreen' : ''}`}
         >
           <iframe
-            ref={iframeRef}
-            src={view === 'game' ? '/balatro/play.html' : '/balatro/index.html'}
-            className="balatro-iframe"
+            src="/balatro/play.html"
+            className="balatro-game-iframe"
             title="Balatro Web Port"
             allow="autoplay; fullscreen; gamepad"
-            tabIndex={0}
           />
-        </div>
-
-        {/* Bottom Helper Info */}
-        <div className="balatro-footer-info">
-          <p className="balatro-info-tip">
-            <kbd>F</kbd> toggles fullscreen inside game · Saves persist automatically in browser IndexedDB · Single-player roguelike poker deckbuilder.
-          </p>
         </div>
       </div>
     </div>
