@@ -40,7 +40,11 @@ export default function BalatroNavButton({ compact = false, onNavigate = null, c
       >
         <div className="balatro-sheen" aria-hidden="true" />
         <div className="balatro-btn-glow" aria-hidden="true" />
-        <BalatroLogo size={20} />
+        <img
+          src="/balatro-title-logo.png"
+          alt="Balatro"
+          className="balatro-nav-logo-img-compact"
+        />
       </NavLink>
     );
   }
@@ -57,13 +61,11 @@ export default function BalatroNavButton({ compact = false, onNavigate = null, c
       <div className="balatro-btn-glow" aria-hidden="true" />
 
       <div className="balatro-btn-left">
-        <div className="balatro-logo-wrap">
-          <BalatroLogo size={24} />
-        </div>
-        <div className="balatro-label-wrap">
-          <span className="balatro-label-title">Balatro</span>
-          <span className="balatro-label-sub">Deckbuilder</span>
-        </div>
+        <img
+          src="/balatro-title-logo.png"
+          alt="Balatro"
+          className="balatro-nav-logo-img"
+        />
       </div>
 
       <div className="balatro-btn-right">

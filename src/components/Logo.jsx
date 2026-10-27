@@ -31,10 +31,12 @@ export default function Logo({ sidebarOpen = false }) {
   const { showToast } = useToast();
   const [particles, setParticles] = useState([]);
   const [isCasting, setIsCasting] = useState(false);
+  const [showAnnotation, setShowAnnotation] = useState(true);
   const particleIdRef = useRef(0);
 
   const triggerMagicSpell = (e) => {
     e.preventDefault();
+    setShowAnnotation(false);
     vibrate([20, 25, 20]);
     // 1. Fetch new quote & dynamically transition theme color
     if (next) {
@@ -91,8 +93,10 @@ export default function Logo({ sidebarOpen = false }) {
         type="button"
         className={`logo-box ${isCasting ? 'casting-spell' : ''}`}
         onClick={triggerMagicSpell}
+        onMouseEnter={() => setShowAnnotation(true)}
+        onMouseLeave={() => setShowAnnotation(true)}
         aria-label="New quote & magic spell"
-        data-annotation="Tap for a fresh quote & magic ✨"
+        data-annotation={showAnnotation && !isCasting ? "Tap for a fresh quote & magic ✨" : undefined}
         whileTap={{ scale: 0.92 }}
         animate={
           isCasting

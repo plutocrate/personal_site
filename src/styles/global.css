@@ -1443,6 +1443,16 @@ mark, .hl {
   transform: translateY(-50%) translateX(0);
 }
 
+.logo-box.casting-spell::after,
+.logo-box.casting-spell::before,
+.logo-box:active::after,
+.logo-box:active::before {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 /* Arrow indicator on the annotation */
 [data-annotation]::before {
   content: '';
@@ -2294,7 +2304,7 @@ mark, .hl {
 
 .balatro-nav-btn-full {
   width: 100%;
-  padding: 10px 14px;
+  padding: 8px 14px;
   justify-content: space-between;
   margin-top: 6px;
   margin-bottom: 6px;
@@ -2305,6 +2315,28 @@ mark, .hl {
   align-items: center;
   gap: 12px;
   z-index: 3;
+}
+
+.balatro-nav-logo-img {
+  height: 26px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  transition: transform 0.2s ease;
+  display: block;
+}
+
+.balatro-nav-btn:hover .balatro-nav-logo-img {
+  transform: scale(1.06);
+}
+
+.balatro-nav-logo-img-compact {
+  height: 18px;
+  width: auto;
+  max-width: 36px;
+  object-fit: contain;
+  display: block;
 }
 
 .balatro-logo-wrap {

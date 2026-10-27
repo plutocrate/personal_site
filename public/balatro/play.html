@@ -34,8 +34,8 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
+      width: 100% !important;
+      height: 100% !important;
       display: block;
     }
 
@@ -57,7 +57,7 @@
     }
 
     .title {
-      font-size: 3rem;
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
       font-weight: 700;
       color: #fe5f55;
       text-shadow: 0 4px 0 #b32e26, 0 10px 25px rgba(254, 95, 85, 0.4);
@@ -97,7 +97,7 @@
       z-index: 20;
       display: flex;
       gap: 8px;
-      opacity: 0.3;
+      opacity: 0.35;
       transition: opacity 0.2s ease;
     }
 
@@ -135,7 +135,7 @@
 <body>
   <div class="top-controls">
     <a href="/" class="ctrl-btn" id="portfolio-btn" title="Back to Portfolio">← Portfolio</a>
-    <a href="index.html" class="ctrl-btn" title="Open Launcher & Mod Manager">⚙ Launcher</a>
+    <a href="launcher.html" class="ctrl-btn" target="_blank" rel="noopener" title="Open Launcher & Mod Manager">⚙ Launcher</a>
     <button class="ctrl-btn" id="fs-btn" title="Toggle Fullscreen (F)">⛶ Fullscreen</button>
   </div>
 
@@ -150,6 +150,75 @@
   <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
 
   <script>
+    // -------------------------------------------------------------
+    // Audio Context Interceptor (Mutes completely on hidden/tab switch)
+    // -------------------------------------------------------------
+    const activeAudioContexts = new Set();
+    const RawAudioContext = window.AudioContext || window.webkitAudioContext;
+
+    if (RawAudioContext) {
+      function InterceptedAudioContext(...args) {
+        const ctx = new RawAudioContext(...args);
+        activeAudioContexts.add(ctx);
+        return ctx;
+      }
+      InterceptedAudioContext.prototype = RawAudioContext.prototype;
+      window.AudioContext = InterceptedAudioContext;
+      if (window.webkitAudioContext) {
+        window.webkitAudioContext = InterceptedAudioContext;
+      }
+    }
+
+    let isParentHidden = false;
+
+    function muteAudio() {
+      for (const ctx of activeAudioContexts) {
+        try {
+          if (ctx.state === "running") {
+            ctx.suspend().catch(() => {});
+          }
+        } catch (_) {}
+      }
+    }
+
+    function resumeAudio() {
+      if (isParentHidden || document.hidden) return;
+      for (const ctx of activeAudioContexts) {
+        try {
+          if (ctx.state === "suspended") {
+            ctx.resume().catch(() => {});
+          }
+        } catch (_) {}
+      }
+    }
+
+    // Message from parent SPA router when navigating between tabs/links
+    window.addEventListener("message", (e) => {
+      if (e.data && e.data.type === "visibility") {
+        isParentHidden = !!e.data.hidden;
+        if (isParentHidden) {
+          muteAudio();
+        } else {
+          resumeAudio();
+        }
+      }
+    });
+
+    // Browser tab switch
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        muteAudio();
+      } else {
+        resumeAudio();
+      }
+    });
+
+    window.addEventListener("blur", () => {
+      // If window lost focus to another tab/application
+      if (document.hidden) muteAudio();
+    });
+
+    // Hide back to portfolio button when inside iframe
     if (window.self !== window.top) {
       const pBtn = document.getElementById("portfolio-btn");
       if (pBtn) pBtn.style.display = "none";
@@ -174,6 +243,20 @@
     const statusText = document.getElementById("status");
     const fsBtn = document.getElementById("fs-btn");
 
+    // Force canvas to always fill 100% of the iframe container
+    function forceCanvasDimensions() {
+      if (canvas.style.width !== "100%" || canvas.style.height !== "100%") {
+        canvas.style.setProperty("width", "100%", "important");
+        canvas.style.setProperty("height", "100%", "important");
+        canvas.style.setProperty("top", "0px", "important");
+        canvas.style.setProperty("left", "0px", "important");
+        canvas.style.setProperty("position", "absolute", "important");
+      }
+    }
+    const styleObserver = new MutationObserver(forceCanvasDimensions);
+    styleObserver.observe(canvas, { attributes: true, attributeFilter: ["style"] });
+    window.addEventListener("resize", forceCanvasDimensions);
+
     function toggleFS() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().then(() => {
@@ -195,7 +278,7 @@
       }
     });
 
-    // On phone touch, automatically enter fullscreen + landscape mode
+    // Touch auto-fullscreen for mobile landscape
     function autoMobileFullscreen() {
       if (window.innerWidth <= 860 && !document.fullscreenElement) {
         toggleFS();
@@ -204,15 +287,9 @@
     }
     window.addEventListener("touchstart", autoMobileFullscreen, { passive: true });
 
-    // Audio unlock on user gesture
+    // Audio unlock on user interaction
     function unlockAudio() {
-      if (typeof AudioContext !== "undefined" || typeof webkitAudioContext !== "undefined") {
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        const dummyCtx = new AudioCtx();
-        if (dummyCtx.state === "suspended") {
-          dummyCtx.resume();
-        }
-      }
+      resumeAudio();
       window.removeEventListener("click", unlockAudio);
       window.removeEventListener("keydown", unlockAudio);
       window.removeEventListener("touchstart", unlockAudio);
@@ -221,39 +298,78 @@
     window.addEventListener("keydown", unlockAudio);
     window.addEventListener("touchstart", unlockAudio);
 
+    const CACHE_NAME = "balatro-assets-v1";
+
+    async function loadAsset(url, label) {
+      if ("caches" in window) {
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          const cachedRes = await cache.match(url);
+          if (cachedRes) {
+            statusText.textContent = `Loading ${label} from cache...`;
+            const buf = await cachedRes.arrayBuffer();
+            return new Uint8Array(buf);
+          }
+        } catch (e) {
+          console.warn("Cache read error:", e);
+        }
+      }
+
+      statusText.textContent = `Downloading ${label}...`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Could not load ${url} (HTTP ${res.status})`);
+
+      const contentLength = +res.headers.get("Content-Length");
+      let data;
+      if (contentLength && res.body && window.ReadableStream) {
+        const reader = res.body.getReader();
+        let received = 0;
+        const chunks = [];
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+          const pct = Math.round((received / contentLength) * 100);
+          pBar.style.width = pct + "%";
+          const mbRec = (received / 1048576).toFixed(1);
+          const mbTot = (contentLength / 1048576).toFixed(1);
+          statusText.textContent = `Downloading ${label} (${mbRec} / ${mbTot} MB)...`;
+        }
+        const fullArr = new Uint8Array(received);
+        let offset = 0;
+        for (const chunk of chunks) {
+          fullArr.set(chunk, offset);
+          offset += chunk.length;
+        }
+        data = fullArr;
+      } else {
+        const buf = await res.arrayBuffer();
+        data = new Uint8Array(buf);
+        pBar.style.width = "100%";
+      }
+
+      // Save to persistent Cache API so subsequent loads are instant
+      if ("caches" in window) {
+        try {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(url, new Response(data.buffer, {
+            headers: {
+              "Content-Type": url.endsWith(".love") ? "application/zip" : "application/javascript",
+              "Content-Length": String(data.byteLength)
+            }
+          }));
+        } catch (e) {
+          console.warn("Cache write error:", e);
+        }
+      }
+
+      return data;
+    }
+
     async function launch() {
       try {
-        statusText.textContent = "Downloading Balatro...";
-        const res = await fetch("game.love");
-        if (!res.ok) throw new Error("Could not load game.love (HTTP " + res.status + ")");
-        
-        const contentLength = +res.headers.get("Content-Length");
-        let data;
-        if (contentLength && res.body && window.ReadableStream) {
-          const reader = res.body.getReader();
-          let received = 0;
-          const chunks = [];
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            chunks.push(value);
-            received += value.length;
-            const pct = Math.round((received / contentLength) * 100);
-            pBar.style.width = pct + "%";
-            statusText.textContent = "Downloading Balatro (" + (received / 1048576).toFixed(1) + " / " + (contentLength / 1048576).toFixed(1) + " MB)...";
-          }
-          const fullArr = new Uint8Array(received);
-          let offset = 0;
-          for (const chunk of chunks) {
-            fullArr.set(chunk, offset);
-            offset += chunk.length;
-          }
-          data = fullArr;
-        } else {
-          const buf = await res.arrayBuffer();
-          data = new Uint8Array(buf);
-          pBar.style.width = "100%";
-        }
+        const gameData = await loadAsset("game.love", "Balatro");
 
         statusText.textContent = "Initializing Love.js engine...";
         pBar.style.width = "100%";
@@ -263,6 +379,11 @@
           canvas: canvas,
           printErr: console.error,
           arguments: ["game.love"],
+          setCanvasSize: function(width, height) {
+            canvas.width = width;
+            canvas.height = height;
+            forceCanvasDimensions();
+          },
           onAbort: function(what) {
             console.error("Game aborted:", what);
             overlay.classList.remove("hidden");
@@ -271,9 +392,9 @@
           preRun: [
             function() {
               Module.addRunDependency("fp game.love");
-              var ptr = Module.getMemory(data.length);
-              Module['HEAPU8'].set(data, ptr);
-              Module.FS_createDataFile('/', "game.love", data, true, true, true);
+              var ptr = Module.getMemory(gameData.length);
+              Module['HEAPU8'].set(gameData, ptr);
+              Module.FS_createDataFile('/', "game.love", gameData, true, true, true);
               Module.removeRunDependency("fp game.love");
             }
           ]
@@ -284,8 +405,10 @@
         script.onload = function() {
           statusText.textContent = "Launching Balatro...";
           Love(Module);
+          forceCanvasDimensions();
           setTimeout(() => {
             overlay.classList.add("hidden");
+            forceCanvasDimensions();
           }, 600);
         };
         script.onerror = function() {

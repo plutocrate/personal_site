@@ -4,10 +4,19 @@ import Arrow from '../components/Arrow.jsx';
 import BalatroLogo from '../components/BalatroLogo.jsx';
 import { vibrate } from '../utils/haptics.js';
 
-export default function BalatroPage() {
+export default function BalatroPage({ isVisible = true }) {
   const containerRef = useRef(null);
+  const iframeRef = useRef(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPhone, setIsPhone] = useState(() => typeof window !== 'undefined' && window.innerWidth <= 860);
+
+  useEffect(() => {
+    if (iframeRef.current && iframeRef.current.contentWindow) {
+      try {
+        iframeRef.current.contentWindow.postMessage({ type: 'visibility', hidden: !isVisible }, '*');
+      } catch (_) {}
+    }
+  }, [isVisible]);
 
   useEffect(() => {
     const handleResize = () => setIsPhone(window.innerWidth <= 860);
@@ -83,7 +92,7 @@ export default function BalatroPage() {
             </button>
 
             <a
-              href="/balatro/index.html"
+              href="/balatro/launcher.html"
               target="_blank"
               rel="noreferrer"
               className="marker balatro-action-pill"
@@ -113,10 +122,18 @@ export default function BalatroPage() {
           onClick={isPhone && !isFullscreen ? toggleFullscreen : undefined}
         >
           <iframe
+            ref={iframeRef}
             src="/balatro/play.html"
             className="balatro-game-iframe"
             title="Balatro Web Port"
             allow="autoplay; fullscreen; gamepad"
+            onLoad={() => {
+              if (iframeRef.current && iframeRef.current.contentWindow) {
+                try {
+                  iframeRef.current.contentWindow.postMessage({ type: 'visibility', hidden: !isVisible }, '*');
+                } catch (_) {}
+              }
+            }}
           />
         </div>
       </div>

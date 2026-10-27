@@ -24,7 +24,7 @@ import './utils/theme.js';
 
 export default function App() {
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(() => (typeof window !== 'undefined' ? window.innerWidth > 860 : true));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Warm up external embed hosts and prefetch all iframe media speculatively
@@ -80,6 +80,15 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  const isBalatro = location.pathname === '/balatro';
+  const [hasVisitedBalatro, setHasVisitedBalatro] = useState(isBalatro);
+
+  useEffect(() => {
+    if (isBalatro) {
+      setHasVisitedBalatro(true);
+    }
+  }, [isBalatro]);
+
   return (
     <QuoteProvider>
       <ToastProvider>
@@ -89,34 +98,49 @@ export default function App() {
           <MobileTopBar />
           <MobileBottomMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen} />
           <main className="main" id="main">
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={location.pathname.split('/')[1] || 'about'}
-                className="page"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
+            {hasVisitedBalatro && (
+              <div
+                className="page balatro-keepalive-page"
+                style={{
+                  display: isBalatro ? 'block' : 'none',
+                  minHeight: '100%'
+                }}
               >
-                <Routes location={location}>
-                  <Route path="/" element={<About />} />
-                  <Route path="/balatro" element={<BalatroPage />} />
-                  <Route path="/flappy-square" element={<FlappySquarePage />} />
-                  <Route path="/playground" element={<Navigate to={`/playground/${sims[0]?.id || ''}`} replace />} />
-                  <Route path="/playground/:id" element={<Playground />} />
-                  <Route path="/playground/:id/read" element={<Read kind="playground" />} />
-                  <Route path="/case-studies" element={caseStudies.length > 0 ? <Navigate to={`/case-studies/${caseStudies[0].id}`} replace /> : <CaseStudies />} />
-                  <Route path="/case-studies/:id" element={<CaseStudies />} />
-                  <Route path="/case-studies/:id/read" element={<Read kind="caseStudies" />} />
-                  <Route path="/journal" element={journal.length > 0 ? <Navigate to={`/journal/${journal[0].id}`} replace /> : <Journal />} />
-                  <Route path="/journal/:id" element={<Journal />} />
-                  <Route path="/journal/:id/read" element={<Read kind="journal" />} />
-                  <Route path="/life" element={<Navigate to={`/life/${lifeUpdates[0].id}`} replace />} />
-                  <Route path="/life/:id" element={<LifeUpdates />} />
-                </Routes>
+                <BalatroPage isVisible={isBalatro} />
                 <Footer />
-              </motion.div>
-            </AnimatePresence>
+              </div>
+            )}
+
+            <div style={{ display: isBalatro ? 'none' : 'contents' }}>
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={location.pathname.split('/')[1] || 'about'}
+                  className="page"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Routes location={location}>
+                    <Route path="/" element={<About />} />
+                    <Route path="/balatro" element={null} />
+                    <Route path="/flappy-square" element={<FlappySquarePage />} />
+                    <Route path="/playground" element={<Navigate to={`/playground/${sims[0]?.id || ''}`} replace />} />
+                    <Route path="/playground/:id" element={<Playground />} />
+                    <Route path="/playground/:id/read" element={<Read kind="playground" />} />
+                    <Route path="/case-studies" element={caseStudies.length > 0 ? <Navigate to={`/case-studies/${caseStudies[0].id}`} replace /> : <CaseStudies />} />
+                    <Route path="/case-studies/:id" element={<CaseStudies />} />
+                    <Route path="/case-studies/:id/read" element={<Read kind="caseStudies" />} />
+                    <Route path="/journal" element={journal.length > 0 ? <Navigate to={`/journal/${journal[0].id}`} replace /> : <Journal />} />
+                    <Route path="/journal/:id" element={<Journal />} />
+                    <Route path="/journal/:id/read" element={<Read kind="journal" />} />
+                    <Route path="/life" element={<Navigate to={`/life/${lifeUpdates[0].id}`} replace />} />
+                    <Route path="/life/:id" element={<LifeUpdates />} />
+                  </Routes>
+                  <Footer />
+                </motion.div>
+              </AnimatePresence>
+            </div>
           </main>
         </div>
       </ToastProvider>
